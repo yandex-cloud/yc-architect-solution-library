@@ -1,0 +1,95 @@
+---
+### Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - nginx
+              topologyKey: "kubernetes.io/hostname"
+
+      containers:
+        - name: nginx
+          image: k8s.gcr.io/hpa-example
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "500m"
+            limits:
+              memory: "500Mi"
+              cpu: "1"
+---
+### Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+#Ingress
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: nginx.example.com
+      http:
+        paths:
+          - backend:
+              serviceName: nginx
+              servicePort: 80
+            path: /
+---
+### HPA
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Object
+      object:
+        metric:
+          name: nginx_ingress_controller_requests_per_second
+        describedObject:
+          apiVersion: extensions/v1beta1
+          kind: Ingress
+          name: nginx
+        target:
+          type: AverageValue
+          averageValue: 2
