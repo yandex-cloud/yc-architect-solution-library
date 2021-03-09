@@ -12,14 +12,13 @@
 Сначала попробуем создать такие поды в дефолтном кластере. В директории ./bad-pods есть поды и деплойменты с привилегиями из статьи
 
 
-
 ```
-yc managed-kubernetes cluster get-credentials --id $(terraform output  -json | jq -r .cluster_id.value) --context-name devops --external --profile=demo-devops-user1 --force
+$ yc managed-kubernetes cluster get-credentials --id $(terraform output  -json | jq -r .cluster_id.value) --context-name devops --external --profile=demo-devops-user1 --force
 
-kubectl apply -f ./bad-pods/pods
+$ kubectl apply -f ./bad-pods/pods
 ```
 
-Они все успешно создались. 
+И убедимся что все успешно создалось. 
 
 ```
 nrkk-osx:staging nrkk$ kubectl get po
@@ -34,7 +33,7 @@ priv-and-hostpid-exec-pod     1/1     Running   0          8s
 priv-exec-pod                 1/1     Running   0          8s
 ```
 
-# Установим pod security policies от kyverni
+# Установим pod security policies от kyverno
 
 Установим kyverno с набором политик default , который будет блокировать нам плохие поды.
 
@@ -124,7 +123,7 @@ disallow-privileged-containers:
 Создадим еще деплойменты , чтобы увидеть как тут работают политики.
 
 ```
-kubectl apply -f ./bad-pods/deployments/
+$ kubectl apply -f ./bad-pods/deployments/
 ```
 
 Деплойменты создались, а вот поды в них не создались. Потому что при попытке создать под, деплоймент получает такую же ошибку, какую получили бы мы создав под напрямую. Детально ошибку можно увидеть сделать kubectl describe
@@ -144,42 +143,42 @@ priv-exec-deployment                 0/2     0            0           27s
 Удалим kyverno
 
 ```
-kubectl delete -f ../bad-pods/deployments/
-kubectl delete -f ../bad-pods/pods/
-helm delete kyverno kyverno/kyverno --namespace kyverno 
+$ kubectl delete -f ../bad-pods/deployments/
+$ kubectl delete -f ../bad-pods/pods/
+$ helm delete kyverno kyverno/kyverno --namespace kyverno 
 ```
 ## Open Policy Agent Gatekeeper
 
 Установим OPA Gatekeeper
 
 ```
-helm repo add gatekeeper https://open-policy-agent.github.io/gatekeeper/charts
-helm repo update
-helm install gatekeeper gatekeeper/gatekeeper --namespace gatekeeper --create-namespace
+$ helm repo add gatekeeper https://open-policy-agent.github.io/gatekeeper/charts
+$ helm repo update
+$ helm install gatekeeper gatekeeper/gatekeeper --namespace gatekeeper --create-namespace
 ```
 
 Так библиотеку шаблонов политик, доступных в gatekeper. При помощи kustomize установим все шаблоны в кластер
 
 
 ```
-curl -s "https://raw.githubusercontent.com/\
+$ curl -s "https://raw.githubusercontent.com/\
 kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 
-# проверьте тут что kustomize просто положит бинарный 
+# проверьте тут что kustomize просто положит бинарный файл в текущую директорию
 
-./kustomize build https://github.com/open-policy-agent/gatekeeper-library/library | kubectl apply -f -
+$ ./kustomize build https://github.com/open-policy-agent/gatekeeper-library/library | kubectl apply -f -
 ```
 
 Применим политики gatekeeper для защиты от bad pods.
 
 ```
-kubectl apply -f ./gatekeeper-policies/
+$ kubectl apply -f ./gatekeeper-policies/
 ```
 
 Проверим что у кластере есть 
 1) Шаблоны политик
 ```
-nrkk-osx:kubernetes nrkk$ kubectl get constrainttemplates
+$ kubectl get constrainttemplates
 NAME                                      AGE
 k8sallowedrepos                           20h
 k8sblocknodeport                          20h
@@ -233,7 +232,7 @@ k8spspprocmount.constraints.gatekeeper.sh/psp-proc-mount   20h
 
 Создадим плохие поды
 ```
-nrkk-osx:staging nrkk$ kubectl apply -f ./bad-pods/
+$ kubectl apply -f ./bad-pods/
 pod/nothing-allowed-exec-pod unchanged
 Error from server ([denied by psp-host-namespace] Sharing the host namespace is not allowed: everything-allowed-exec-pod
 [denied by psp-host-network-ports] The specified hostNetwork and hostPort are not allowed, pod: everything-allowed-exec-pod. Allowed values: {"hostNetwork": false}
