@@ -7,3 +7,5 @@ terraform.tfvars
 
 devops.json
 developer.json
+
+kustomize

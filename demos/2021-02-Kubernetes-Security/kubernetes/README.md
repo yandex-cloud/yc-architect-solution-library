@@ -243,7 +243,10 @@ k8spspprocmount.constraints.gatekeeper.sh/psp-proc-mount   20h
 
 Создадим плохие поды
 ```
-$ kubectl apply -f ./bad-pods/
+$ kubectl apply -f ./bad-pods/pods
+```
+
+```
 pod/nothing-allowed-exec-pod unchanged
 Error from server ([denied by psp-host-namespace] Sharing the host namespace is not allowed: everything-allowed-exec-pod
 [denied by psp-host-network-ports] The specified hostNetwork and hostPort are not allowed, pod: everything-allowed-exec-pod. Allowed values: {"hostNetwork": false}
@@ -266,7 +269,7 @@ Error from server ([denied by psp-privileged-container] Privileged container is 
 Попробуем создать еще деплойменты чтобы убедится что все работает идентично
 
 ```
-kubectl apply -f .bad-pods/deployments/
+kubectl apply -f ./bad-pods/deployments/
 
 nrkk-osx:staging nrkk$ kubectl get deploy
 NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
