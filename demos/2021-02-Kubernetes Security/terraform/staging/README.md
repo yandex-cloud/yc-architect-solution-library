@@ -35,11 +35,7 @@ yc vpc security-group update-rules --id $(terraform output -json | jq -r .defaul
 
 Попробуем зайти в кластер от имени develoer 
 ```
-yc managed-kubernetes cluster get-credentials \ 
-    --id $(terraform output   -json \ | jq -r .cluster_id.value) \ 
-    --context-name developer --external \ 
-    --profile=demo-developer-user1 \
-    --force
+yc managed-kubernetes cluster get-credentials  --id $(terraform output   -json  | jq -r .cluster_id.value)  --context-name developer --external  --profile=demo-developer-user1 --force
 ```
 И повыполняем разные команды
 ```
@@ -60,11 +56,7 @@ Error from server (Forbidden): namespaces is forbidden: User "ajelrgfrac12re9quh
 Переключимся на devops
 
 ```
-yc managed-kubernetes cluster get-credentials  \ 
-    --id $(terraform output  -json | jq -r .cluster_id.value) \
-    --context-name devops --external \
-    --profile=demo-devops-user1 \ 
-    --force
+yc managed-kubernetes cluster get-credentials  --id $(terraform output  -json | jq -r .cluster_id.value) --context-name devops --external --profile=demo-devops-user1 --force
 ```
 
 Проверим доступы
