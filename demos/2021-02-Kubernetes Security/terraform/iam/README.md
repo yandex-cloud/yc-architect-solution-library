@@ -6,8 +6,6 @@
 Чтобы это сделать запустим команды ниже. 
 ```
 
-cat > $terraform.tfvars <<EOF
-
 DEVOPS_USER_ID=$(yc iam service-account get --name=devops-user1  --folder-id=$STAGING_FOLDER_ID --profile=prod --format=json | jq -r .id |  (echo -n serviceAccount: && cat))
 DEVELOPER_USER_ID=$(yc iam service-account get --name=developer-user1  --folder-id=$STAGING_FOLDER_ID --profile=prod --format=json | jq -r .id |  (echo -n serviceAccount: && cat))
 
@@ -40,8 +38,9 @@ staging_folder_id="b1gcpl9un0ccqrjcup0r"
 
 
 ```
-$terraform init
-$terraform apply
+export YC_TOKEN=$(yc iam create-token --profile=default)
+$ terraform init
+$ terraform apply
 ```
 Вам предложат создать 6 сущностей - 4 SA и 2 policy
 
