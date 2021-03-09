@@ -33,6 +33,12 @@ priv-and-hostpid-exec-pod     1/1     Running   0          8s
 priv-exec-pod                 1/1     Running   0          8s
 ```
 
+Удалим поды
+
+```
+$ kubectl delete -f ./bad-pods/pods
+```
+
 # Установим pod security policies от kyverno
 
 Установим kyverno с набором политик default , который будет блокировать нам плохие поды.
@@ -62,6 +68,11 @@ restrict-sysctls                 true         enforce
 ```
 
 Увидим что создался только nothing-allowed-exec-pod , а остальное поличло ошибки
+
+```
+$ kubectl apply -f ./bad-pods/pods
+```
+
 ```
 Error from server: error when creating "../../kubernetes/bad-pods/pods everything-allowed-exec-pod.yaml": admission webhook "validate.kyverno.svc" denied the request: 
 
@@ -145,7 +156,7 @@ priv-exec-deployment                 0/2     0            0           27s
 ```
 $ kubectl delete -f ../bad-pods/deployments/
 $ kubectl delete -f ../bad-pods/pods/
-$ helm delete kyverno kyverno/kyverno --namespace kyverno 
+$ helm delete kyverno  --namespace kyverno 
 ```
 ## Open Policy Agent Gatekeeper
 
