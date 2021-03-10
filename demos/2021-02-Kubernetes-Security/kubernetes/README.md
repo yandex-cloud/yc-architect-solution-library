@@ -154,8 +154,8 @@ priv-exec-deployment                 0/2     0            0           27s
 Удалим kyverno
 
 ```
-$ kubectl delete -f ../bad-pods/deployments/
-$ kubectl delete -f ../bad-pods/pods/
+$ kubectl delete -f ./bad-pods/deployments/
+$ kubectl delete -f ./bad-pods/pods/
 $ helm delete kyverno  --namespace kyverno 
 ```
 ## Open Policy Agent Gatekeeper
