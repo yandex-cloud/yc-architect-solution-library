@@ -30,9 +30,9 @@
 - Установите [YC cli](https://cloud.yandex.com/docs/cli/quickstart)
 - Настройте авторизацию в YC для Terraform
 ```
-export YC_TOKEN=$(yc config get token)
-export YC_CLOUD_ID=$(yc config get cloud-id)
-export YC_FOLDER_ID=$(yc config get folder-id)
+export YC_TOKEN=$(yc iam create-token)
+export YC_CLOUD_ID=$(yc config get cloud-id) #либо явно пропишите id облака 
+export YC_FOLDER_ID=$(yc config get folder-id) #либо явно пропишите id фолдера 
 ``` 
 ## Quick start
 

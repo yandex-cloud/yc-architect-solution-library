@@ -5,5 +5,4 @@ terraform.tfvars
 
 .terraform.lock.hcl
 
-devops.json
-developer.json
+.DS_Store
