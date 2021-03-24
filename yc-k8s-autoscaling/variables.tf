@@ -41,7 +41,11 @@ variable "k8s_pod_ipv4_range" {
   default     = "10.140.0.0/16"
   description = "CIDR for pods in k8s cluster"
 }
-
+variable "k8s_whitelist" {
+  type        = list(any)
+  default     = ["0.0.0.0/0"]
+  description = "Range of ip-addresses which can access cluster API with kubectl etc"
+}
 
 variable "labels" {
   description = "A set of key/value label pairs to assign."
