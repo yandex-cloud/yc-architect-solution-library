@@ -1,0 +1,34 @@
+#cloud-config
+
+datasource:
+  Ec2:
+    strict_id: false
+ssh_pwauth: no
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - "${ssh_key}"
+write_files:
+  - content: |
+        network:
+          version: 2
+          ethernets:
+            eth0:
+              dhcp4: true
+              routes:
+              - to: ${network_a_aggregated_prefix}
+                via: ${network_a_vpc_gateway}
+            eth1:
+              dhcp4: true
+              dhcp4-overrides:
+                use-routes: false
+              routes:
+              - to: ${network_b_aggregated_prefix}
+                via: ${network_b_vpc_gateway}
+    path: /etc/cloud/cloud.cfg.d/04_net.cfg
+    permissions: '0755'
+runcmd:
+  - sleep 5
+  - reboot
