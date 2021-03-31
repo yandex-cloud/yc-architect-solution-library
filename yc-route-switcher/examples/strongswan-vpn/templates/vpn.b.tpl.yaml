@@ -1,0 +1,101 @@
+#cloud-config
+
+datasource:
+  Ec2:
+    strict_id: false
+ssh_pwauth: no
+users:
+  - name: admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - "${ssh_key}"
+write_files:
+  - content: |
+      config setup
+      conn Tunnel-a-main
+        auto=start
+        left=%defaultroute
+        leftid=${left_id}
+        right=${right_a}
+        type=tunnel
+        leftauth=psk
+        rightauth=psk
+        keyexchange=ikev1
+        ike=aes128-sha1-modp1024
+        ikelifetime=8h
+        esp=aes128-sha1-modp1024
+        lifetime=1h
+        keyingtries=%forever
+        leftsubnet=${leftsubnet}
+        rightsubnet=${rightsubnet_a}
+        dpddelay=10s
+        dpdtimeout=30s
+        dpdaction=restart
+      conn Tunnel-a-back
+        auto=start
+        left=%defaultroute
+        leftid=${left_id}
+        right=${right_a}
+        type=tunnel
+        leftauth=psk
+        rightauth=psk
+        keyexchange=ikev1
+        ike=aes128-sha1-modp1024
+        ikelifetime=8h
+        esp=aes128-sha1-modp1024
+        lifetime=1h
+        keyingtries=%forever
+        leftsubnet=${leftsubnet}
+        rightsubnet=192.168.0.0/16
+        dpddelay=10s
+        dpdtimeout=30s
+        dpdaction=restart
+      conn Tunnel-b-main
+        auto=start
+        left=%defaultroute
+        leftid=${left_id}
+        right=${right_b}
+        type=tunnel
+        leftauth=psk
+        rightauth=psk
+        keyexchange=ikev1
+        ike=aes128-sha1-modp1024
+        ikelifetime=8h
+        esp=aes128-sha1-modp1024
+        lifetime=1h
+        keyingtries=%forever
+        leftsubnet=${leftsubnet}
+        rightsubnet=${rightsubnet_b}
+        dpddelay=10s
+        dpdtimeout=30s
+        dpdaction=restart
+      conn Tunnel-a-back
+        auto=start
+        left=%defaultroute
+        leftid=${left_id}
+        right=${right_b}
+        type=tunnel
+        leftauth=psk
+        rightauth=psk
+        keyexchange=ikev1
+        ike=aes128-sha1-modp1024
+        ikelifetime=8h
+        esp=aes128-sha1-modp1024
+        lifetime=1h
+        keyingtries=%forever
+        leftsubnet=${leftsubnet}
+        rightsubnet=${right_aggr_subnet}
+        dpddelay=10s
+        dpdtimeout=30s
+        dpdaction=restart
+    path: /etc/ipsec.conf
+    permissions: '0644'
+  - content: |
+      ${left_id} ${right_a} : PSK "${psk}"
+      ${left_id} ${right_b} : PSK "${psk}"
+    path: /etc/ipsec.secrets
+    permissions: '0600'
+runcmd:
+  - sleep 30
+  - reboot

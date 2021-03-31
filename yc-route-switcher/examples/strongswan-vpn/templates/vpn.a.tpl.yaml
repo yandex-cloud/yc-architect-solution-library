@@ -1,0 +1,62 @@
+#cloud-config
+
+datasource:
+  Ec2:
+    strict_id: false
+ssh_pwauth: no
+users:
+  - name: admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - "${ssh_key}"
+write_files:
+  - content: |
+      config setup
+      conn Tunnel-pri
+        auto=start
+        left=%defaultroute
+        leftid=${left_id}
+        right=${right}
+        type=tunnel
+        leftauth=psk
+        rightauth=psk
+        keyexchange=ikev1
+        ike=aes128-sha1-modp1024
+        ikelifetime=8h
+        esp=aes128-sha1-modp1024
+        lifetime=1h
+        keyingtries=%forever
+        leftsubnet=${leftsubnet}
+        rightsubnet=${rightsubnet}
+        dpddelay=10s
+        dpdtimeout=30s
+        dpdaction=restart
+      conn Tunnel-back
+        auto=start
+        left=%defaultroute
+        leftid=${left_id}
+        right=${right}
+        type=tunnel
+        leftauth=psk
+        rightauth=psk
+        keyexchange=ikev1
+        ike=aes128-sha1-modp1024
+        ikelifetime=8h
+        esp=aes128-sha1-modp1024
+        lifetime=1h
+        keyingtries=%forever
+        leftsubnet=${left_aggr_subnet}
+        rightsubnet=${rightsubnet}
+        dpddelay=10s
+        dpdtimeout=30s
+        dpdaction=restart
+    path: /etc/ipsec.conf
+    permissions: '0644'
+  - content: |
+      ${left_id} ${right} : PSK "${psk}"
+    path: /etc/ipsec.secrets
+    permissions: '0600'
+runcmd:
+  - sleep 30
+  - reboot
