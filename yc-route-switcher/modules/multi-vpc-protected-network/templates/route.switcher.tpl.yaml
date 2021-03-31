@@ -7,15 +7,15 @@ routes_config:
       primary: ${first_az_rt}
       secondary: ${second_az_rt}
     subnets: 
-    %{ for subnet_id in first_az_subnet_list ~}
-- ${subnet_id}
-%{ endfor ~}
+  %{ for subnet_id in first_az_subnet_list ~}
+  - ${subnet_id}
+  %{ endfor ~}
   ${second_router_address}:
     active: primary 
     route_table: 
       primary: ${second_az_rt}
       secondary: ${first_az_rt}
     subnets: 
-    %{ for subnet_id in second_az_subnet_list ~}
-- ${subnet_id}
-%{ endfor ~}
+  %{ for subnet_id in second_az_subnet_list ~}
+  - ${subnet_id}
+  %{ endfor ~}

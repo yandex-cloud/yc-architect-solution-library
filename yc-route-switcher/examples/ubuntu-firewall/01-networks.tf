@@ -12,7 +12,7 @@ resource "yandex_vpc_network" "network_b" {
 }
 
 resource "yandex_vpc_subnet" "subnet_a" {
-   folder_id = var.folder_id
+  folder_id = var.folder_id
 
   count          = 2
   name           = "network-a-subnet-${count.index}"

@@ -26,7 +26,7 @@ module "network_a_protected" {
   vpc_id = yandex_vpc_network.network_a.id
   # first_az_rt is usually an active rt in first az , but back become backup if second_az appliace fails
   first_az_rt          = element(yandex_vpc_route_table.network_a_rt.*.id, 0)
-  first_az_subnet_list = [yandex_vpc_subnet.subnet_a.0.id]
+  first_az_subnet_list = yandex_vpc_subnet.subnet_a.*.id
   # second_az_rt is usually an active rt in second az , but back become backup if first_az appliace fails
   second_az_rt          = element(yandex_vpc_route_table.network_a_rt.*.id, 1)
   second_az_subnet_list = [yandex_vpc_subnet.subnet_a.1.id]

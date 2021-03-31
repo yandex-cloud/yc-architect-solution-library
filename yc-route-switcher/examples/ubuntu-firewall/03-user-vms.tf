@@ -1,5 +1,6 @@
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1804-lts"
+  folder_id = "standard-images"
 }
 
 

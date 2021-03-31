@@ -1,6 +1,8 @@
 
 resource "yandex_compute_image" "firewall_instance" {
   source_family = "ipsec-instance-ubuntu"
+  folder_id = "standard-images"
+
 }
 
 resource "random_string" "project_id" {
