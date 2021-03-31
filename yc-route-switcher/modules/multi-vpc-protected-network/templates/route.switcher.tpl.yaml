@@ -10,7 +10,7 @@ routes_config:
   %{ for subnet_id in first_az_subnet_list ~}
   - ${subnet_id}
   %{ endfor ~}
-  ${second_router_address}:
+${second_router_address}:
     active: primary 
     route_table: 
       primary: ${second_az_rt}
