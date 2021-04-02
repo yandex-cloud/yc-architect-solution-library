@@ -8,6 +8,20 @@ resource "yandex_resourcemanager_folder_iam_member" "route_switcher_sa_roles" {
 
 
 
+
+resource "yandex_message_queue" "route_switcher_queue" {
+  depends_on = [
+    yandex_resourcemanager_folder_iam_member.route_switcher_sa_roles
+  ]
+  access_key = var.access_key
+  secret_key = var.secret_key
+  name                        = "route-switcher-queue-${var.vpc_id}"
+  visibility_timeout_seconds  = 600
+  receive_wait_time_seconds   = 20
+  message_retention_seconds   = 1209600
+  
+}
+
 resource "yandex_storage_object" "route_switcher_config" {
   bucket     = var.bucket_id
   access_key = var.access_key
@@ -26,3 +40,4 @@ resource "yandex_storage_object" "route_switcher_config" {
     }
   )
 }
+

@@ -4,8 +4,13 @@ import boto3
 import time
 import requests
 import os
+import json
 
-
+sqs_client = boto3.client(
+        service_name='sqs',
+        endpoint_url='https://message-queue.api.cloud.yandex.net',
+        region_name='ru-central1'
+    )
 
 def get_config(bucket,path,endpoint_url='https://storage.yandexcloud.net'):
     '''
@@ -26,15 +31,14 @@ def get_config(bucket,path,endpoint_url='https://storage.yandexcloud.net'):
     config = yaml.load(response["Body"], Loader=yaml.FullLoader)
     return config
 
-def check_router_statuses(config,iamToken):
+def check_router_statuses(config,iam_token):
     '''
     checks router statuses and fails over if there is a problem. updates config in the end
     :param config: config dict
-    :param iamToken: token for auth
+    :param iam_token: token for auth
     :return: updated config
     '''
-    r = requests.get("https://load-balancer.api.cloud.yandex.net/load-balancer/v1/networkLoadBalancers/%s:getTargetStates?targetGroupId=%s" % (config['loadBalancerId'],config['targetGroupId']), headers={'Authorization': 'Bearer %s'  % iamToken})
-    print(r)
+    r = requests.get("https://load-balancer.api.cloud.yandex.net/load-balancer/v1/networkLoadBalancers/%s:getTargetStates?targetGroupId=%s" % (config['loadBalancerId'],config['targetGroupId']), headers={'Authorization': 'Bearer %s'  % iam_token})
     fullStatus = r.json()['targetStates']
     for real in fullStatus:
         config['routes_config'][real['address']]['status'] = real['status']
@@ -47,7 +51,7 @@ def check_router_statuses(config,iamToken):
             route_table_to_change = value['route_table']['secondary']
             config['routes_config'][destination]['active'] = 'secondary'
             print('MY PRIMARY ROUTE to %s IS NOT HEALTHY IM FAILING OVER TO SECONDARY' % destination)
-            failover(route_table_to_change, subnet_list_to_change,iamToken)
+            failover(route_table_to_change, subnet_list_to_change,iam_token)
         elif value['status'] == 'HEALTHY' and value['active'] == 'secondary':
             '''
             IF MY PRIMARY ROUTE IS HEALTHY AND IM CURRENTLY USING SECONDARY IM FAILING BACK TO PRIMARY
@@ -56,43 +60,33 @@ def check_router_statuses(config,iamToken):
             route_table_to_change = value['route_table']['primary']
             config['routes_config'][destination]['active'] = 'primary'
             print('MY PRIMARY ROUTE to %s IS HEALTHY AND IM CURRENTLY USING SECONDARY IM FAILING BACK TO PRIMARY' % destination)
-            failover(route_table_to_change, subnet_list_to_change, iamToken)
+            failover(route_table_to_change, subnet_list_to_change, iam_token)
         else:
             print('ROUTE TO %s is FINE' % destination)
 
     return config
 
-def failover(route_tableID,subnet_list,iamToken):
+def failover(route_table_id,subnet_list,iam_token):
     '''
     changes route table of subnet list
     :param route_tableID: id of the route table
-    :param iamToken: token for auth
+    :param iam_token: token for auth
     :param subnet_list:  subnet list where route table is changed
     :return:
     '''
-    print('failing over route table %s for subnets %s' % (route_tableID,' '.join(subnet_list)))
-    for subnetID in subnet_list:
-        r = requests.patch('https://vpc.api.cloud.yandex.net/vpc/v1/subnets/%s' % subnetID, json={"updateMask": "routeTableId", "routeTableId": "" } ,headers={'Authorization': 'Bearer %s'  % iamToken})
-        operationID = r.json()['id']
-        check_operation(operationID,iamToken)
-        r = requests.patch('https://vpc.api.cloud.yandex.net/vpc/v1/subnets/%s' % subnetID, json={"updateMask": "routeTableId", "routeTableId": route_tableID } ,headers={'Authorization': 'Bearer %s'  % iamToken})
-        operationID = r.json()['id']
-        check_operation(operationID,iamToken)
+    queue_url = os.environ.get('YMQ_URL')
 
-def check_operation(operationID,iamToken):
-    '''
-    waits for operation to complete
-    :param operationID: id of the operation
-    :param iamToken: token for auth
-    :return: nothing - just stops when operation completes
-    '''
-    for n in range(30):
-        r = requests.get('https://operation.api.cloud.yandex.net/operations/%s' % operationID, headers={'Authorization': 'Bearer %s' % iamToken})
-        operationStatus = r.json()['done']
-        if operationStatus == True:
-            print('Operation %s is done' % operationID)
-            break
-        time.sleep(1)
+    for subnet_id in subnet_list:
+        data = {
+            'subnet_id': subnet_id,
+            'route_table_id': route_table_id
+         }
+        sqs_client.send_message(
+            QueueUrl=queue_url,
+            MessageBody=json.dumps(data),
+        )
+        print('Send a request to change subnet %s route table to  %s' % (subnet_id,route_table_id))
+
 
 def put_config(bucket,path,config,endpoint_url='https://storage.yandexcloud.net'):
     '''
@@ -119,8 +113,8 @@ def handler(event, context):
    
     bucket = os.getenv('BUCKET_NAME')
     path = os.getenv('CONFIG_PATH')
-    iamToken = context.token['access_token']
+    iam_token = context.token['access_token']
     config = get_config(bucket, path)
-    config = check_router_statuses(config, iamToken)
+    config = check_router_statuses(config, iam_token)
     put_config(bucket, path , config)
 

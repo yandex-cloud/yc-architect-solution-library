@@ -30,7 +30,7 @@ variable "secret_key" {
 }
 
 variable "route_switcher_sa_roles" {
-  default = ["vpc.privateAdmin", "serverless.functions.invoker", "storage.uploader"]
+  default = ["vpc.privateAdmin", "serverless.functions.invoker", "storage.uploader","ymq.admin"]
 }
 variable "first_router_address" {
 
