@@ -22,12 +22,25 @@ def failover(route_table_id,subnet_id,iam_token):
     '''
     queue_url = os.environ.get('YMQ_URL')
     print('failing over route table %s for subnets %s' % (route_table_id,subnet_id))
-    r = requests.patch('https://vpc.api.cloud.yandex.net/vpc/v1/subnets/%s' % subnet_id, json={"updateMask": "routeTableId", "routeTableId": "" } ,headers={'Authorization': 'Bearer %s'  % iam_token})
-    operation_id = r.json()['id']
-    check_operation(operation_id,iam_token)
-    r = requests.patch('https://vpc.api.cloud.yandex.net/vpc/v1/subnets/%s' % subnet_id, json={"updateMask": "routeTableId", "routeTableId": route_table_id } ,headers={'Authorization': 'Bearer %s'  % iam_token})
-    operation_id = r.json()['id']
-    check_operation(operation_id,iam_token)
+    retry_rt_switch_operation("",subnet_id,iam_token)
+    retry_rt_switch_operation(route_table_id,subnet_id,iam_token)
+
+    
+def retry_rt_switch_operation(route_table_id,subnet_id, iam_token,num_tries = 10):
+    '''
+    retries yandex cloud operation num_tries times
+    '''
+
+    for num in range(num_tries):
+        r = requests.patch('https://vpc.api.cloud.yandex.net/vpc/v1/subnets/%s' % subnet_id, json={"updateMask": "routeTableId", "routeTableId": route_table_id } ,headers={'Authorization': 'Bearer %s'  % iam_token})
+        operation_id = r.json()['id']
+        operation_status = check_operation(operation_id,iam_token)
+        if operation_status == 'ok':
+            print('Operation %s was successfull' % (operation_id))
+            break
+        else:
+            print('Operation %s was unsuccessfull retrying in 10 seconds...' % (operation_id))
+            time.sleep(1)
 
 def check_operation(operation_id,iam_token):
     '''
@@ -39,10 +52,15 @@ def check_operation(operation_id,iam_token):
     while True:
         r = requests.get('https://operation.api.cloud.yandex.net/operations/%s' % operation_id, headers={'Authorization': 'Bearer %s' % iam_token})
         operationStatus = r.json()['done']
+        if 'error' in r.json():
+            status = 'error'
+            break 
         if operationStatus == True:
             print('Operation %s is done' % operation_id)
+            status = 'ok'
             break
         time.sleep(1)
+    return status
 
 def handler(event, context):
    
