@@ -1,0 +1,10 @@
+create_cron       = "0/15 * * * ? *"
+delete_cron       = "0/30 * * * ? *"
+execution_timeout = 30
+labels = {
+  "purpose" : "backups"
+}
+memory               = 128
+mode                 = "all"
+service_account_name = "sa-backup-functions"
+ttl                  = "3600"

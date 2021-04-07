@@ -59,7 +59,7 @@ resource "yandex_kubernetes_cluster" "regional_cluster" {
     }
     version            = "1.16"
     public_ip          = true
-    security_group_ids = [yandex_vpc_security_group.sg_k8s.id, yandex_vpc_security_group.k8s_master_whitelist.id, yandex_vpc_security_group.k8s_public_services.id]
+    security_group_ids = [yandex_vpc_security_group.sg_k8s.id, yandex_vpc_security_group.k8s_master_whitelist.id, ]
 
     maintenance_policy {
       auto_upgrade = true
@@ -104,7 +104,7 @@ resource "yandex_kubernetes_node_group" "nodes" {
     network_interface {
       nat                = false
       subnet_ids         = [each.value.id]
-      security_group_ids = [yandex_vpc_security_group.sg_k8s.id, ]
+      security_group_ids = [yandex_vpc_security_group.sg_k8s.id, yandex_vpc_security_group.k8s_public_services.id ]
     }
 
     resources {
