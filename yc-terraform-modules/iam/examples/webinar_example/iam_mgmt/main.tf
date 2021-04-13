@@ -1,9 +1,9 @@
 
-### IAM dev folder
+### IAM dev folder - change folder_id for your own
 module "iam_dev_folder" {
   source                       = "../modules/iam"
   folder_binding_authoritative = true##!!!
-  folder_id                    = "b1gl0rql9057olbd1rui"
+  folder_id                    = "XXXXXXXXXXXXXXXXXXXX"
   folder_user_role_mapping = [
     {
       name  = "network-admin-infra"
@@ -34,11 +34,11 @@ module "iam_dev_folder" {
   ]
 
 }
-### IAM Prod folder
+### IAM Prod folder  - change folder_id for your own
 module "iam_prod_folder" {
   source                       = "../modules/iam"
   folder_binding_authoritative = true
-  folder_id                    = "b1g3iv435ip5gb72i7co"
+  folder_id                    = "XXXXXXXXXXXXXXXXXXXX"
   folder_user_role_mapping = [
     {
       name  = "network-admin-infra"
@@ -70,11 +70,11 @@ module "iam_prod_folder" {
 
 }
 
-### IAM infra folder
+### IAM infra folder  - change folder_id for your own
 module "iam_infra_folder" {
   source                       = "../modules/iam"
   folder_binding_authoritative = true
-  folder_id                    = "b1gul7j7tkf53j6imep0"
+  folder_id                    = "XXXXXXXXXXXXXXXXXXXX"
   folder_user_role_mapping = [
     {
       name  = "network-admin-infra"
