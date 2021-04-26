@@ -101,10 +101,13 @@ resource "yandex_kubernetes_node_group" "nodes" {
 
   instance_template {
     platform_id = "standard-v2"
+    metadata = {
+      ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+    }
     network_interface {
-      nat                = false
+      nat                = true 
       subnet_ids         = [each.value.id]
-      security_group_ids = [yandex_vpc_security_group.sg_k8s.id, yandex_vpc_security_group.k8s_public_services.id ]
+      security_group_ids = [yandex_vpc_security_group.sg_k8s.id, yandex_vpc_security_group.k8s_public_services.id]
     }
 
     resources {

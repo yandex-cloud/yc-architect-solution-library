@@ -60,7 +60,7 @@ kubectl apply -f k8s_autoscale-CPU.yaml
 ```
 watch kubectl get pod,svc,hpa,nodes -o wide
 ```
-Посылаем *wget* по внешнему IP адресу балансировщика для иммитации рабочей нагрузки.
+Посылаем *wget* по внешнему IP адресу балансировщика для имитации рабочей нагрузки.
 
 ```bash
 URL=$(kubectl get service nginx -o json| jq -r '.status.loadBalancer.ingress[0].ip')
@@ -69,7 +69,7 @@ while true; do wget -q -O- http://$URL; done
 ```
 Наблюдаем увеличение сначала *Pods* в *Deployment* "nginx", а затем и добавление узлов в *Kubernetes Node Groups* в разных зонах доступности.
 
-Завершаем цикл иммитации рабочей нагрузки и наблюдаем удаление реплик *Deployment* без нагрузки.
+Завершаем цикл имитации рабочей нагрузки и наблюдаем удаление реплик *Deployment* без нагрузки.
 
 Через **7-10** минут кластер Kubernetes начнет удалять неутилизированные узлы.
 
@@ -139,7 +139,7 @@ curl -H "Host: nginx.example.com" http://$URL
 kubectl get --raw /apis/custom.metrics.k8s.io/v1beta1 |jq .| grep ingresses.extensions/nginx_ingress_controller_requests_per_second        
 
 ```
-Должны получить следующий результат: `"name": "ingresses.extensions/nginx_ingress_controller_requests_per_second"`
+Должны получить в течение пары минут следующий результат: `"name": "ingresses.extensions/nginx_ingress_controller_requests_per_second"`
 
 ### Проверка результата
 
@@ -150,7 +150,7 @@ watch kubectl get pod,svc,hpa,nodes -o wide
 ```
 Обратите внимание, что при выполнении `watch kubectl get pod,svc,hpa,nodes -o wide` вы всегда будете видеть в поле `TARGETS 0/0` для **HPA nginx** - это баг. Если посмотреть в `kubectl describe hpa nginx`, то там можно увидеть правильное значение.
 
-В посылаем *curl* по внешнему IP адресу service "rps-ingress-nginx-controller" для иммитации рабочей нагрузки.
+В посылаем *curl* по внешнему IP адресу service "rps-ingress-nginx-controller" для имитации рабочей нагрузки.
 
 ```bash
 URL=$(kubectl get service rps-ingress-nginx-controller -o json| jq -r '.status.loadBalancer.ingress[0].ip')
@@ -159,9 +159,9 @@ while true; do curl -H "Host: nginx.example.com" http://$URL; done
 ```
 
 
-Наблюдаем увеличение сначала *Pods* в *Deployment* "nginx", а затем и добавление узлов в *Kubernetes Node Groups* в разных зонах доступности.
+Через несколько минут наблюдаем увеличение сначала *Pods* в *Deployment* "nginx", а затем и добавление узлов в *Kubernetes Node Groups* в разных зонах доступности.
 
-Завершаем цикл иммитации рабочей нагрузки и наблюдаем удаление реплик *Deployment* без нагрузки.
+Завершаем цикл имитации рабочей нагрузки и наблюдаем удаление реплик *Deployment* без нагрузки.
 
 Через **7-10** минут кластер Kubernetes начнет удалять неутилизированные узлы.
 
