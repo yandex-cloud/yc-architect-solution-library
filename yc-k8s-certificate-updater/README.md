@@ -23,7 +23,7 @@ kubectl create secret generic crt   --from-file=num1.crt --from-file=num2.crt --
 
 Важно, что демонсет ссылается на сертификат с именем crt 
 
-1) Создаем демонсет
+3) Создаем демонсет
 
 ```
 kubectl apply -f certificate-updater-ds.yaml
