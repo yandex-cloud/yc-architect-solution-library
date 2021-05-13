@@ -1,0 +1,106 @@
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: certificate-updater-deny-all
+  namespace: certificate-updater
+spec:
+  podSelector:
+    matchLabels:
+      k8s-app: certificate-updater
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress:  []
+---
+apiVersion: "apps/v1"
+kind: DaemonSet
+metadata:
+  name: certificate-updater
+  namespace: certificate-updater
+  labels:
+    k8s-app: certificate-updater
+    version: 1v
+spec:
+  selector:
+    matchLabels:
+      k8s-app: certificate-updater
+  template:
+    metadata:
+      labels:
+        k8s-app: certificate-updater
+    spec:
+      hostPID: true
+      hostIPC: true
+      containers:
+      - name: certificate-updater
+        image: cr.yandex/crpjfmfou6gflobbfvfv/ubuntu-openssl:stable
+        command: 
+          - sh
+          - -c
+          - |
+            while true; do
+              sleep 30
+              diff -x '.*' -r /mnt/user-cert-path/ /usr/local/share/ca-certificates
+              if [ $? -ne 0 ];
+                then
+                    echo "Removing all old certificates"
+                    rm -r /usr/local/share/ca-certificates/*
+                    echo "Copying certificates from configmap"
+                    cp /mnt/sbin/update-ca-certificates /usr/sbin/
+                    cp /mnt/user-cert-path/* /usr/local/share/ca-certificates
+      
+                    echo "Updating cerfificates authorities"
+                    update-ca-certificates 
+                    echo "Restarting Kubelet and Docker"
+                    KUBELET_PID=$(ps aux | grep '/home/kubernetes/bin/kubelet --bootstrap-kubeconfig' | grep -v grep | head -1 | awk '{print $2}')
+                    DOCKER_PID=$(ps aux | grep '/usr/bin/dockerd -H' | grep -v grep | head -1 | awk '{print $2}')
+                    PID_LIST=$(echo "$KUBELET_PID $DOCKER_PID")
+                    for pid in $PID_LIST ; do kill $pid; done
+                    #systemd will get them back less than a minute
+                else
+                  echo "Doing Nothing as no certs has not been changned"
+                fi
+            done
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi          
+        volumeMounts:
+        - mountPath: /etc/
+          name: etc
+        - mountPath: /usr/local/share/ca-certificates
+          name: docker-cert
+        - name: secret
+          mountPath: /mnt/user-cert-path
+        - name: sbin
+          mountPath: /mnt/sbin
+          readOnly: true
+        - name: ca-cert
+          mountPath: /usr/share/ca-certificates
+      volumes:
+      - name: secret
+        secret:
+          secretName: crt
+      - name: sbin
+        hostPath:
+          path: /usr/sbin/
+          type: Directory
+      - name: ca-cert
+        hostPath:
+          path: /usr/share/ca-certificates
+          type: Directory
+      - name: docker-cert
+        hostPath:
+          path: /usr/local/share/ca-certificates
+          type: DirectoryOrCreate
+      - name: etc
+        hostPath:
+          path: /etc/
+          type: Directory
