@@ -8,11 +8,12 @@ output "subnet_ids" {
 }
 
 output "subnets" {
-  value = { for v in yandex_vpc_subnet.this : v.zone => map(
-    "id", v.id,
-    "name", v.name,
-    "zone", v.zone
-  ) }
+  value = { for v in yandex_vpc_subnet.this : v.zone => {
+    "id"   = v.id,
+    "name" = v.name,
+    "zone" = v.zone
+    }
+  }
 }
 output "cluster_id" {
   value       = yandex_kubernetes_cluster.regional_cluster.id
