@@ -1,0 +1,35 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alb-demo-tls
+spec:
+  tls:
+    - hosts:
+        - nginx.demo.nrk.me.uk #Заменить при необходимости
+      secretName: yc-certmgr-cert-id-fpqp6gg4gf33mv3s7h1b # Заменить хвост ID на сертификат ID из Certificate Manager
+  rules:
+    - host: nginx.demo.nrk.me.uk #Заменить при необходимости
+      http:
+        paths:
+          - path: /app1
+            pathType: Prefix
+            backend:
+              service:
+                name: alb-demo-1
+                port:
+                  number: 80
+          - path: /app2
+            pathType: Prefix
+            backend:
+              service:
+                name: alb-demo-2
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: alb-demo-2
+                port:
+                  number: 80
