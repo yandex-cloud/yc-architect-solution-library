@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yc-alb-ingress-controller
+  namespace: yc-alb-ingress
+  labels:
+    control-plane: yc-alb-ingress
+spec:
+  selector:
+    matchLabels:
+      control-plane: yc-alb-ingress
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        control-plane: yc-alb-ingress
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - command:
+            [
+              "/manager",
+              "--keyfile",
+              "/etc/yc-alb-ingress-secrets/sa-key.json",
+              "--cluster-label-name",
+              "yc-k8s-cluster",
+            ]
+          env:
+            - name: YC_ALB_FOLDER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: yc-alb-ingress-config
+                  key: YC_ALB_FOLDER_ID
+            - name: YC_ALB_SUBNETS
+              valueFrom:
+                configMapKeyRef:
+                  name: yc-alb-ingress-config
+                  key: YC_ALB_SUBNETS
+            - name: YC_ALB_CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: yc-alb-ingress-config
+                  key: YC_ALB_CLUSTER_ID
+          volumeMounts:
+            - name: sa-key
+              mountPath: "/etc/yc-alb-ingress-secrets"
+              readOnly: true
+          image: cr.yandex/crpsjg1coh47p81vh2lc/yc-alb-ingress-controlle:857c6a1
+          imagePullPolicy: Always
+          name: manager
+          securityContext:
+            allowPrivilegeEscalation: false
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 100m
+              memory: 300Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: sa-key
+          secret:
+            secretName: yc-alb-ingress-sa-key
+            items:
+              - key: sa-key.json
+                path: sa-key.json

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yc-alb-ingress-config
+  namespace: yc-alb-ingress
+data:
+  YC_ALB_FOLDER_ID: b1g1tli4sc25nieXXX # Better be the folder where k8s cluster is located
+  YC_ALB_SUBNETS: b0chrrmg4cr48j3tXXX,e9b4haplnh1bl6ds3XXX,e2laob0vbgrt63c9XXX # ids of subnets destined for alb (3 subnets in 3 different zones).
+  YC_ALB_CLUSTER_ID: asdfjkhhjklsdfs # ANY ID FOR ALB WILL BE FINE
