@@ -41,7 +41,6 @@ spec:
           - -c
           - |
             while true; do
-              sleep 30
               diff -x '.*' -r /mnt/user-cert-path/ /usr/local/share/ca-certificates
               if [ $? -ne 0 ];
                 then
@@ -62,6 +61,7 @@ spec:
                 else
                   echo "Doing Nothing as no certs has not been changned"
                 fi
+              sleep 30                
             done
         imagePullPolicy: Always
         securityContext:
