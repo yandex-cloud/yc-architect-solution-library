@@ -5,8 +5,7 @@ yc iam service-account create --name k8s-alb-ingress --folder-id <FOLDER_ID>
 
 id: <SERVICE_ACCOUNT_ID>
 
-yc resource-manager folder add-access-binding --role editor --subject:serviceAccount<SERVICE_ACCOUNT_ID> <FOLDER_ID>
-
+yc resource-manager folder add-access-binding <FOLDER_ID> --role admin --subject serviceAccount:<SERVICE_ACCOUNT_ID> 
 
 yc iam key create --service-account-id <SERVICE_ACCOUNT_ID> --output sa-key.json
 ```
@@ -14,7 +13,7 @@ yc iam key create --service-account-id <SERVICE_ACCOUNT_ID> --output sa-key.json
 ```
 kubectl create namespace yc-alb-ingress
 
-kubectl create secret generic -n yc-alb-ingress yc-alb-ingress-controller-sa-key --from-file=sa-key.json=sa-key.json
+kubectl create secret generic -n yc-alb-ingress yc-alb-ingress-controller-sa-key --from-file=sa-key.json
 ```
 * Edit values in `config.yaml` with your **FOLDER_ID** and **SUBNET_IDs**
 * Apply ingress controller manifests:

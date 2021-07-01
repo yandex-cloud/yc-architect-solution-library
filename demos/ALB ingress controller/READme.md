@@ -7,8 +7,8 @@
 
 ## Выполнение сценария
 
-* Если вы использовали собственный сертификат и hostname - замените в файле ingress.yaml значение `TLS: hosts, secretName ; rules: host` 
-* Создайте объекты приложений и ingress 
+* Замените в файле ingress.yaml значение `TLS: hosts: xxxx.xx, secretName: yc-certmgr-cert-id-xxxxxxxxxxx ; rules: host: xxxx.xx` 
+* Создайте объекты приложений и Ingress 
   ```
   kubectl apply -f .
   ```

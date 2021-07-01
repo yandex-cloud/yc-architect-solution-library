@@ -7,7 +7,7 @@ spec:
   tls:
     - hosts:
         - nginx.demo.nrk.me.uk #Заменить при необходимости
-      secretName: yc-certmgr-cert-id-fpqp6gg4gf33mv3s7h1b # Заменить хвост ID на сертификат ID из Certificate Manager
+      secretName: yc-certmgr-cert-id-fpqp6gg4gf33mv3s7h1b # Заменить хвост yc-certmgr-cert-id-xxxxxxxxxxx на ID сертификата из Certificate Manager
   rules:
     - host: nginx.demo.nrk.me.uk #Заменить при необходимости
       http:

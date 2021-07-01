@@ -74,7 +74,7 @@ spec:
       volumes:
         - name: sa-key
           secret:
-            secretName: yc-alb-ingress-sa-key
+            secretName: yc-alb-ingress-controller-sa-key
             items:
               - key: sa-key.json
                 path: sa-key.json
