@@ -28,23 +28,52 @@ resource "yandex_kms_symmetric_key" "key" {
 ### Datasource
 data "yandex_client_config" "client" {}
 
+resource "random_string" "random" {
+  length    = 4
+  lower     = true
+  special   = false
+  min_lower = 4
+}
+
 ### K8S
-resource "yandex_iam_service_account" "k8s_sa" {
-  name        = "k8smanager"
-  description = "service account to manage k8s"
+# SA
+resource "yandex_iam_service_account" "k8s_master_sa" {
+  name        = "sa-k8s-master-${random_string.random.result}"
+  description = "service account to manage k8s masters"
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "service_account" {
+resource "yandex_resourcemanager_folder_iam_member" "service_account_master" {
   folder_id = data.yandex_client_config.client.folder_id
-  member    = "serviceAccount:${yandex_iam_service_account.k8s_sa.id}"
-  role      = "editor"
+  member    = "serviceAccount:${yandex_iam_service_account.k8s_master_sa.id}"
+  role      = "k8s.clusters.agent"
+}
+resource "yandex_resourcemanager_folder_iam_member" "service_account_master-2" {
+  folder_id = data.yandex_client_config.client.folder_id
+  member    = "serviceAccount:${yandex_iam_service_account.k8s_master_sa.id}"
+  role      = "load-balancer.admin"
 }
 
+resource "yandex_iam_service_account" "k8s_node_sa" {
+  name        = "sa-k8snodes-${random_string.random.result}"
+  description = "service account to manage k8s nodes"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "service_account_node" {
+  folder_id = data.yandex_client_config.client.folder_id
+  member    = "serviceAccount:${yandex_iam_service_account.k8s_node_sa.id}"
+  role      = "container-registry.images.puller"
+}
+# Master
 resource "yandex_kubernetes_cluster" "regional_cluster" {
   name        = "demo"
   description = "Demonstration of autoscaling"
 
   network_id = yandex_vpc_network.this.id
+  network_implementation {
+    cilium {}
+  }
+
+
   master {
     regional {
       region = "ru-central1"
@@ -57,7 +86,7 @@ resource "yandex_kubernetes_cluster" "regional_cluster" {
         }
       }
     }
-    version            = "1.16"
+    version            = "1.20"
     public_ip          = true
     security_group_ids = [yandex_vpc_security_group.sg_k8s.id, yandex_vpc_security_group.k8s_master_whitelist.id, ]
 
@@ -77,18 +106,18 @@ resource "yandex_kubernetes_cluster" "regional_cluster" {
       }
     }
   }
-  service_ipv4_range      = var.k8s_service_ipv4_range
-  cluster_ipv4_range      = var.k8s_pod_ipv4_range
-  release_channel         = "REGULAR"
-  network_policy_provider = "CALICO"
-  service_account_id      = yandex_iam_service_account.k8s_sa.id
-  node_service_account_id = yandex_iam_service_account.k8s_sa.id
+  service_ipv4_range = var.k8s_service_ipv4_range
+  cluster_ipv4_range = var.k8s_pod_ipv4_range
+  release_channel    = "RAPID"
+  #network_policy_provider = "CALICO"
+  service_account_id      = yandex_iam_service_account.k8s_master_sa.id
+  node_service_account_id = yandex_iam_service_account.k8s_node_sa.id
   kms_provider {
     key_id = yandex_kms_symmetric_key.key.id
   }
 
   labels     = var.labels
-  depends_on = [yandex_vpc_subnet.this, yandex_resourcemanager_folder_iam_member.service_account]
+  depends_on = [yandex_vpc_subnet.this, yandex_resourcemanager_folder_iam_member.service_account_master, yandex_resourcemanager_folder_iam_member.service_account_node]
 }
 
 ### K8s Node Groups
@@ -97,7 +126,7 @@ resource "yandex_kubernetes_node_group" "nodes" {
   for_each   = yandex_vpc_subnet.this
   cluster_id = yandex_kubernetes_cluster.regional_cluster.id
   name       = "ng-${each.value.zone}"
-  version    = "1.16"
+  version    = "1.20"
 
   instance_template {
     platform_id = "standard-v2"
@@ -105,7 +134,7 @@ resource "yandex_kubernetes_node_group" "nodes" {
       ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
     }
     network_interface {
-      nat                = true 
+      nat                = true
       subnet_ids         = [each.value.id]
       security_group_ids = [yandex_vpc_security_group.sg_k8s.id, yandex_vpc_security_group.k8s_public_services.id]
     }
@@ -143,6 +172,14 @@ resource "yandex_kubernetes_node_group" "nodes" {
     auto_upgrade = true
     auto_repair  = true
   }
+  deploy_policy {
+    max_expansion   = 2
+    max_unavailable = 1
+  }
+  node_labels = {
+    env = "dev"
+  }
+  node_taints = []
 }
 ### SG
 resource "yandex_vpc_security_group" "sg_k8s" {
