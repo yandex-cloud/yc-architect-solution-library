@@ -47,10 +47,16 @@ resource "yandex_resourcemanager_folder_iam_member" "service_account_master" {
   member    = "serviceAccount:${yandex_iam_service_account.k8s_master_sa.id}"
   role      = "k8s.clusters.agent"
 }
-resource "yandex_resourcemanager_folder_iam_member" "service_account_master-2" {
+resource "yandex_resourcemanager_folder_iam_member" "service_account_master_2" {
   folder_id = data.yandex_client_config.client.folder_id
   member    = "serviceAccount:${yandex_iam_service_account.k8s_master_sa.id}"
   role      = "load-balancer.admin"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "service_account_master_3" {
+  folder_id = data.yandex_client_config.client.folder_id
+  member    = "serviceAccount:${yandex_iam_service_account.k8s_master_sa.id}"
+  role      = "kms.keys.encrypterDecrypter"
 }
 
 resource "yandex_iam_service_account" "k8s_node_sa" {
@@ -116,8 +122,12 @@ resource "yandex_kubernetes_cluster" "regional_cluster" {
     key_id = yandex_kms_symmetric_key.key.id
   }
 
-  labels     = var.labels
-  depends_on = [yandex_vpc_subnet.this, yandex_resourcemanager_folder_iam_member.service_account_master, yandex_resourcemanager_folder_iam_member.service_account_node]
+  labels = var.labels
+  depends_on = [yandex_vpc_subnet.this,
+    yandex_resourcemanager_folder_iam_member.service_account_master,
+    yandex_resourcemanager_folder_iam_member.service_account_master_2,
+    yandex_resourcemanager_folder_iam_member.service_account_master_3,
+  yandex_resourcemanager_folder_iam_member.service_account_node]
 }
 
 ### K8s Node Groups
