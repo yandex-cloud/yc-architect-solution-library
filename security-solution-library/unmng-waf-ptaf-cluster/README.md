@@ -42,7 +42,7 @@
 
 #### Развертывание terraform:
 
-- скачать архив с файлами [pt_archive.zip](https://github.com/yandex-cloud/yc-solution-library-for-security/blob/master/vuln-mgmt/unmng-waf-ptaf-cluster/main/pt_archive.zip)
+- скачать архив с файлами [pt_archive.zip](https://github.com/yandex-cloud/yc-architect-solution-library/blob/main/security-solution-library/unmng-waf-ptaf-cluster/main/pt_archive.zip)
 - перейти в папку с файлами
 - вставить необходимые параметры в файле variables.tf (в комментариях указаны необходимые команды yc для получения значений)
 - выполнить команду инициализации terraform
