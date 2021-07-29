@@ -77,6 +77,55 @@ ssh -L 22001:192.168.2.10:22013 -L 22002:172.18.0.10:22013 -L 8443:192.168.2.10:
 ```
 после этого вы окажитесь в терминале ssh-a (брокер машина)
 
+
+
+#### Настройка обработки траффика
+
+- подключаемся на локальной машине по 127.0.0.1:8443 
+
+- логин пароль: admin/positive (меняем)
+
+- configuration - upstreams - create
+
+- ip (смотрим в yc) и порт
+
+- мапим интерфейсы
+configuration - network - gateways 
+
+в каждом редактировать: activate - галочка, network-aliases: mgmt, wan
+
+- заводим сервис
+configuration - network - services
+
+name - application
+net interface alias - wan
+listen port - 80
+upstream - internal
+
+- Configuration -> Security -> Web Applications:
+- указать имя сервиса
+- указать созданный ранее service
+- указать protection mode "detection"
+- locations "/"
+
+[![image](https://user-images.githubusercontent.com/85429798/127023351-f0731361-5ba5-429a-82e9-5cc3c14a6355.png)](https://www.youtube.com/watch?v=lCFnHanCSSE)
+
+
+## Проверка прохождения траффика и отказоустойчивости
+- посмотрите внешний ip адреса внешнего балансировщика нагрузки
+- отклюим ptaf-a и убедимся, что траффик проходит
+- отключим app-a и убедимся, что траффик проходит
+- отклюим ptaf-b и убедимся, что BYPASS сработает и траффик переключится напрямую на внутренний балансировщик
+- включите ptaf-a, ptaf-b обратно и убедитесь то, что траффик снова идет через ptaf
+
+[![image](https://user-images.githubusercontent.com/85429798/127031813-f9460c50-2765-40d4-aa16-f66fc7fd70b7.png)](https://www.youtube.com/watch?v=DQYzXVKVVjg)
+
+
+
+## Дополнительные материалы
+
+## Настройка кластеризации PTAF ------------------
+
 #### Общая настройка двух серверов
 
 - настройте на каждом из серверов пароль пользователя pt. пароль по умолчанию - positive.
@@ -171,44 +220,5 @@ mongo --authenticationDatabase admin -u root -p $(cat /opt/waf/conf/master_passw
 [<img width="1041" alt="image" src="https://user-images.githubusercontent.com/85429798/127007705-3a727cec-07c9-4071-80ca-1631070f83f2.png">](https://www.youtube.com/watch?v=zuTxyEeM7Vg)
 
 
-#### Настройка обработки траффика
-
-- подключаемся на локальной машине по 127.0.0.1:8443 
-
-- логин пароль: admin/positive (меняем)
-
-- configuration - upstreams - create
-
-- ip (смотрим в yc) и порт
-
-- мапим интерфейсы
-configuration - network - gateways 
-
-в каждом редактировать: activate - галочка, network-aliases: mgmt, wan
-
-- заводим сервис
-configuration - network - services
-
-name - application
-net interface alias - wan
-listen port - 80
-upstream - internal
-
-- Configuration -> Security -> Web Applications:
-- указать имя сервиса
-- указать созданный ранее service
-- указать protection mode "detection"
-- locations "/"
-
-[![image](https://user-images.githubusercontent.com/85429798/127023351-f0731361-5ba5-429a-82e9-5cc3c14a6355.png)](https://www.youtube.com/watch?v=lCFnHanCSSE)
-
-
-## Проверка прохождения траффика и отказоустойчивости
-- посмотрите внешний ip адреса внешнего балансировщика нагрузки
-- отклюим ptaf-a и убедимся, что траффик проходит
-- отключим app-a и убедимся, что траффик проходит
-- отклюим ptaf-b и убедимся, что BYPASS сработает и траффик переключится напрямую на внутренний балансировщик
-- включите ptaf-a, ptaf-b обратно и убедитесь то, что траффик снова идет через ptaf
-
-[![image](https://user-images.githubusercontent.com/85429798/127031813-f9460c50-2765-40d4-aa16-f66fc7fd70b7.png)](https://www.youtube.com/watch?v=DQYzXVKVVjg)
+## Настройка Yandex Application LoadBalancer ------------------
 
