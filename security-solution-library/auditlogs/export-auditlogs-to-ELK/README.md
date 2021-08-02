@@ -3,20 +3,20 @@
 ![dashboard](https://user-images.githubusercontent.com/85429798/127686785-27658104-6258-4de8-929f-9cf87624fa27.png)
 
 ## Оглавление
-- [Сбор, мониторинг и анализ аудит логов в Yandex Managed Service for Elasticsearch (ELK)](#----------------------------------------yandex-managed-service-for-elasticsearch--elk-)
-  * [Оглавление](#----------)
-  * [Описание решения](#-----------------)
-  * [Что делает решение](#-------------------)
-  * [Схема решения](#-------------)
-  * [Security Content](#security-content)
-  * [Лицензионные ограничения](#------------------------)
-  * [Процесс обновления контента](#---------------------------)
-  * [Развертывание с помощью Terraform](#------------------------terraform)
-      - [Описание](#--------)
-      - [Пререквизиты](#------------)
-      - [Пример вызова модулей:](#----------------------)
-  * [Аудит логи Falco](#-----------falco)
-  * [Аудит логи k8s](#-----------k8s)
+- [Сбор, мониторинг и анализ аудит логов в Yandex Managed Service for Elasticsearch (ELK)](#сбор-мониторинг-и-анализ-аудит-логов-в-yandex-managed-service-for-elasticsearch-elk)
+  - [Оглавление](#оглавление)
+  - [Описание решения](#описание-решения)
+  - [Что делает решение](#что-делает-решение)
+  - [Схема решения](#схема-решения)
+  - [Security Content](#security-content)
+  - [Лицензионные ограничения](#лицензионные-ограничения)
+  - [Процесс обновления контента](#процесс-обновления-контента)
+  - [Развертывание с помощью Terraform](#развертывание-с-помощью-terraform)
+      - [Описание](#описание)
+      - [Пререквизиты](#пререквизиты)
+      - [Пример вызова модулей:](#пример-вызова-модулей)
+  - [Аудит логи Falco](#аудит-логи-falco)
+  - [Аудит логи k8s](#аудит-логи-k8s)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
@@ -46,7 +46,7 @@ Security Content - объекты ELK, которые автоматически
 - Dashboard, на котором отражены все use cases и полезная статистика
 - Набор Saved Queries для удобного поиска Security событий
 - Набор Detection Rules (правила корреляции) на которые настроены оповещения (Клиенту самостоятельно необходимо указать назначение уведомлений)
-- Все интересные поля событий преобразованы в формат [Elastic Common Schema (ECS)](https://www.elastic.co/guide/en/ecs/current/index.html), полная табличка маппинга в файле [/papers/Описание%20объектов.pdf](ссылка)
+- Все интересные поля событий преобразованы в формат [Elastic Common Schema (ECS)](https://www.elastic.co/guide/en/ecs/current/index.html), полная табличка маппинга в файле [/papers/Описание-объектов.pdf](ссылка)
 
 Подробное описание в файле [/papers/ECS-mapping.docx](https://github.com/yandex-cloud/yc-solution-library-for-security/blob/master/auditlogs/export-auditlogs-to-ELK/papers/ECS-mapping_new.pdf)
 
