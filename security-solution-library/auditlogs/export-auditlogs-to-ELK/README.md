@@ -30,7 +30,7 @@
 Решение является постоянно обновляемым и поддерживаемым Security командой Yandex.Cloud
 
 ## Что делает решение
-- [x] Разворачивает в инфраструктуре Yandex.Cloud cluster Managed ELK (возможно через Terraform)
+- [x] Разворачивает в инфраструктуре Yandex.Cloud cluster Managed ELK (возможно через Terraform) (в default конфигурации см. п. Terraform)(рассчитать необходимую конфигурацию для вашей инфраструктуры необходимо совместно с Cloud Архитектором)
 - [x] Разворачивает COI Instance с контейнером на базе образа s3-elk-importer (cr.yandex/crpjfmfou6gflobbfvfv/s3-elk-importer:latest)
 - [x] Загружает Security Content в ELK (Dashboards, Detection Rules (с alerts), etc.)
 - [x] Обеспечивает непрерывную доставку json файлов с аудит логами из Yandex Object Storage в ELK
