@@ -38,6 +38,7 @@
 ## Подготовка/Пререквизиты:
 - установить и настроить [yc client](https://cloud.yandex.ru/docs/cli/quickstart)
 - установить [terraform](https://www.terraform.io/downloads.html)
+- установить [jq](https://macappstore.org/jq/)
 
 ## Развертывание
 
