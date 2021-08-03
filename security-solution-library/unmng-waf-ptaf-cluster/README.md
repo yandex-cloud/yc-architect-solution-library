@@ -24,13 +24,17 @@
 *для установки целой схемы снуля необходимо использовать playbook из папки "from-scratch"
 
 #### Схема до:
-![ha-proxy-До](https://user-images.githubusercontent.com/85429798/127031869-5be84785-0566-4cc5-a1f6-d041d051feb4.png)
+![image](https://user-images.githubusercontent.com/85429798/127995744-e9213d79-6fca-49cd-a2bf-3cf7bead0c75.png)
+
 
 
 
 
 #### Схема после:
-![ha-proxy-после](https://user-images.githubusercontent.com/85429798/127031876-bed5eed2-4218-4dea-986d-4bebc1b2f5c5.png)
+![image](https://user-images.githubusercontent.com/85429798/127995787-9d547d0c-390c-4df7-8577-928607fb3d08.png)
+
+![image](https://user-images.githubusercontent.com/85429798/127995819-fdc647d8-9125-4acf-8708-4088b8c28826.png)
+
 
 
 
