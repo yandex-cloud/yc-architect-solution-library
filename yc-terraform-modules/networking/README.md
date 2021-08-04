@@ -1,4 +1,4 @@
-# Virtual Privite Cloud (VPC) Terraform module for Yandex.Cloud
+# Virtual Private Cloud (VPC) Terraform module for Yandex.Cloud
 ## Features
 
 * Create Network and subnets in your folder.
