@@ -27,12 +27,13 @@ resource "yandex_vpc_subnet" "this" {
   dhcp_options {
     domain_name         = var.domain_name == null ? "internal." : var.domain_name
     domain_name_servers = var.domain_name_servers == null ? [cidrhost(each.value.v4_cidr_blocks, 2)] : var.domain_name_servers
+    ntp_servers         = var.ntp_servers == null ? ["ntp0.NL.net", "clock.isc.org", "ntp.ix.ru"] : var.ntp_servers
   }
 
   labels = var.labels
 }
 
-### Default Security Group
+## Default Security Group
 
 resource "yandex_vpc_default_security_group" "default_sg" {
   count       = var.create_vpc ? 1 : 0

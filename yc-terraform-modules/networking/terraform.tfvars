@@ -2,9 +2,9 @@ labels              = { tag = " demo" }
 network_description = "terraform-created"
 network_name        = "net-module"
 domain_name         = "test.com"
-domain_name_servers = ["8.8.8.8", "2.2.2.2"]
-#vpc_id = "enp5v4es0f4vgdbou270"
-#create_vpc = false
+#domain_name_servers = ["8.8.8.8", "2.2.2.2"]
+#vpc_id = "enp5v4es0f4vgdboXXXX"
+create_vpc = true
 subnets = [
 
   {

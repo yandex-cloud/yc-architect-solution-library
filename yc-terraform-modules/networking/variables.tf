@@ -59,7 +59,11 @@ variable "domain_name_servers" {
   default     = []
   description = "Domain name servers to be added to DHCP options"
 }
-
+variable "ntp_servers" {
+  type        = list(string)
+  default     = []
+  description = "NTP Servers for subnets"
+}
 variable "labels" {
   description = "A set of key/value label pairs to assign."
   type        = map(string)
