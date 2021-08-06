@@ -34,40 +34,53 @@ yc resource-manager folder list-operations --id XXXXXXXXXXXXXX
 
 yc resource-manager folder list-access-bindings --id XXXXXXXXXXXXXX
 ```
+To **import** existing service accounts use:
+
+```
+terraform import 'module.<module name>.yandex_iam_service_account.sa["<SA-name>"]' <SA id>
+
+or
+
+terraform import 'module.iam.yandex_iam_service_account.sa["sa-robot"]' aje0am0b06tj6v8mXXXX
+```
+Then add `SA-name` to your variables and try `terraform plan`
+
+Correct resource path can be found with `terraform state list`
+
 
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version |
+| --------- | ------- |
 | terraform | >= 0.14 |
-| yandex | ~> 0.5 |
+| yandex    | ~> 0.5  |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| yandex | ~> 0.5 |
+| Name   | Version |
+| ------ | ------- |
+| yandex | ~> 0.5  |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| cloud\_binding\_authoritative | "Authoritative. Sets the IAM policy for the CLOUD and replaces any **existing** policy already attached. <br>  If Authoritative = true : take roles from all objects in  variable "cloud\_user\_role\_mapping" and make **unique** role as a new key of map with members" | `bool` | `false` | no |
-| cloud\_id | Cloud-ID where where need to add permissions. Mandatory variable for CLOUD, if omited default CLOUD\_ID will be used | `string` | `null` | no |
-| cloud\_user\_role\_mapping | Group of IAM User-IDs and it's permissions in CLOUD, where name = JOB Tille<br>### Example<br>#cloud\_user\_role\_mapping = [<br>  {<br>    name  = "devops"<br>    users = ["userAccount:idxxxxxx1", "federatedUser:idxxxxxx2"]<br>    roles = ["editor", ]<br>  },<br>  {<br>    name  = "developers"<br>    users = ["userAccount:idxxxxxx3"]<br>    roles = ["viewer","k8s.editor",]<br>  },<br> ] | `any` | `[]` | no |
-| folder\_binding\_authoritative | Authoritative. Sets the IAM policy for the FOLDER and replaces any **existing** policy already attached. | `bool` | `false` | no |
-| folder\_id | Folder-ID where need to add permissions. Mandatory variable for FOLDER, if omited default FOLDER\_ID will be used | `string` | `null` | no |
-| folder\_user\_role\_mapping | Group of IAM User-IDs and it's permissions in FOLDER, where name = JOB Tille<br>### Example<br>#folder\_user\_role\_mapping = [<br>  {<br>    name  = "devops"<br>    users = ["userAccount:idxxxxxx1", "federatedUser:idxxxxxx2"]<br>    roles = ["iam.serviceAccounts.user", "k8s.editor", "k8s.cluster-api.cluster-admin", "container-registry.admin"]<br>  },<br>  {<br>    name  = "developers"<br>    users = ["userAccount:idxxxxxx3"]<br>    roles = ["k8s.viewer",]<br>  },<br>] | `any` | `[]` | no |
-| sa\_role\_mapping | List of SA and it's permissions<br>### Example<br>sa\_role\_mapping = [<br>  {<br>    name  = "sa-cluster"<br>    roles = ["editor",]<br>  },<br>    {<br>    name  = "sa-nodes"<br>    roles = ["container-registry.images.puller",]<br>  },<br>] | `any` | `[]` | no |
+| Name                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Type     | Default | Required |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- | :------: |
+| cloud\_binding\_authoritative  | "Authoritative. Sets the IAM policy for the CLOUD and replaces any **existing** policy already attached. <br>  If Authoritative = true : take roles from all objects in  variable "cloud\_user\_role\_mapping" and make **unique** role as a new key of map with members"                                                                                                                                                                                                                 | `bool`   | `false` |    no    |
+| cloud\_id                      | Cloud-ID where where need to add permissions. Mandatory variable for CLOUD, if omited default CLOUD\_ID will be used                                                                                                                                                                                                                                                                                                                                                                      | `string` | `null`  |    no    |
+| cloud\_user\_role\_mapping     | Group of IAM User-IDs and it's permissions in CLOUD, where name = JOB Tille<br>### Example<br>#cloud\_user\_role\_mapping = [<br>  {<br>    name  = "devops"<br>    users = ["userAccount:idxxxxxx1", "federatedUser:idxxxxxx2"]<br>    roles = ["editor", ]<br>  },<br>  {<br>    name  = "developers"<br>    users = ["userAccount:idxxxxxx3"]<br>    roles = ["viewer","k8s.editor",]<br>  },<br> ]                                                                                    | `any`    | `[]`    |    no    |
+| folder\_binding\_authoritative | Authoritative. Sets the IAM policy for the FOLDER and replaces any **existing** policy already attached.                                                                                                                                                                                                                                                                                                                                                                                  | `bool`   | `false` |    no    |
+| folder\_id                     | Folder-ID where need to add permissions. Mandatory variable for FOLDER, if omited default FOLDER\_ID will be used                                                                                                                                                                                                                                                                                                                                                                         | `string` | `null`  |    no    |
+| folder\_user\_role\_mapping    | Group of IAM User-IDs and it's permissions in FOLDER, where name = JOB Tille<br>### Example<br>#folder\_user\_role\_mapping = [<br>  {<br>    name  = "devops"<br>    users = ["userAccount:idxxxxxx1", "federatedUser:idxxxxxx2"]<br>    roles = ["iam.serviceAccounts.user", "k8s.editor", "k8s.cluster-api.cluster-admin", "container-registry.admin"]<br>  },<br>  {<br>    name  = "developers"<br>    users = ["userAccount:idxxxxxx3"]<br>    roles = ["k8s.viewer",]<br>  },<br>] | `any`    | `[]`    |    no    |
+| sa\_role\_mapping              | List of SA and it's permissions<br>### Example<br>sa\_role\_mapping = [<br>  {<br>    name  = "sa-cluster"<br>    roles = ["editor",]<br>  },<br>    {<br>    name  = "sa-nodes"<br>    roles = ["container-registry.images.puller",]<br>  },<br>]                                                                                                                                                                                                                                        | `any`    | `[]`    |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| ids | List IDs of created service accounts |
-| names | List Names of created service accounts |
-| sa | Map with service accounts info , key = service account name |
+| Name  | Description                                                 |
+| ----- | ----------------------------------------------------------- |
+| ids   | List IDs of created service accounts                        |
+| names | List Names of created service accounts                      |
+| sa    | Map with service accounts info , key = service account name |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
