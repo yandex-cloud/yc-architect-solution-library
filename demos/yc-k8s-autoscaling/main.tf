@@ -60,7 +60,7 @@ resource "yandex_resourcemanager_folder_iam_member" "service_account_master_3" {
 }
 
 resource "yandex_iam_service_account" "k8s_node_sa" {
-  name        = "sa-k8snodes-${random_string.random.result}"
+  name        = "sa-k8s-nodes-${random_string.random.result}"
   description = "service account to manage k8s nodes"
 }
 
