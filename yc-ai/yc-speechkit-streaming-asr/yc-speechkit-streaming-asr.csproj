@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <StartupObject>YC.SpeechKit.Streaming.Asr.Client</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="google\api\annotations.proto" />
+    <None Remove="google\api\http.proto" />
+    <None Remove="google\rpc\code.proto" />
+    <None Remove="google\rpc\error_details.proto" />
+    <None Remove="google\rpc\status.proto" />
+    <None Remove="google\type\dayofweek.proto" />
+    <None Remove="google\type\timeofday.proto" />
+    <None Remove="yandex\cloud\ai\stt\v2\stt_service.proto" />
+    <None Remove="yandex\cloud\ai\tts\v3\tts.proto" />
+    <None Remove="yandex\cloud\ai\tts\v3\tts_service.proto" />
+    <None Remove="yandex\cloud\api\operation.proto" />
+    <None Remove="yandex\cloud\operation\operation.proto" />
+    <None Remove="yandex\cloud\operation\operation_service.proto" />
+    <None Remove="yandex\cloud\validation.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="google\api\annotations.proto" />
+    <Protobuf Include="google\api\http.proto" />
+    <Protobuf Include="google\rpc\code.proto" />
+    <Protobuf Include="google\rpc\error_details.proto" />
+    <Protobuf Include="google\rpc\status.proto" />
+    <Protobuf Include="google\type\dayofweek.proto" />
+    <Protobuf Include="google\type\timeofday.proto" />
+    <Protobuf Include="yandex\cloud\ai\stt\v2\stt_service.proto" />
+    <Protobuf Include="yandex\cloud\ai\tts\v3\tts.proto" />
+    <Protobuf Include="yandex\cloud\ai\tts\v3\tts_service.proto" />
+    <Protobuf Include="yandex\cloud\api\operation.proto" />
+    <Protobuf Include="yandex\cloud\operation\operation.proto" />
+    <Protobuf Include="yandex\cloud\operation\operation_service.proto" />
+    <Protobuf Include="yandex\cloud\validation.proto" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.17.3" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.39.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.39.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
+  </ItemGroup>
+  
+   <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup> 
+ 
+</Project>
