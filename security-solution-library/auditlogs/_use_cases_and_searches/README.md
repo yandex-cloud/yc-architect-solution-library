@@ -1,3 +1,5 @@
-# Use cases и важные события безопасности в аудит логах
-В данном разделе собраны use cases и важные события безопасности платформы Yandex Cloud
+## 🚚 
 
+Все решения по Security теперь находятся в [yc-solution-library-for-security](https://github.com/yandex-cloud/yc-solution-library-for-security)
+
+All Security solutions are now in [yc-solution-library-for-security](https://github.com/yandex-cloud/yc-solution-library-for-security)
