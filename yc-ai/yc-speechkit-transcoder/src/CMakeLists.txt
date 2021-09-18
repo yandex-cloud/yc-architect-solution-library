@@ -7,6 +7,9 @@ project ("yc-speechkit-transcoder")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+
 find_package(PkgConfig REQUIRED) 
 
 ########################################################################
@@ -101,3 +104,7 @@ FOREACH(grpc ${grpc_files})
 ENDFOREACH()
 # add_subdirectory("transcoder")
 
+# Add source to this project's executable.
+add_executable (asr-client "client.cpp"  ${grpc_cc_src} ${grpc_h_src} ${protobuf_cc_src} ${protobuf_h_src})
+
+target_link_libraries(asr-client PUBLIC  gRPC::grpc++ gRPC::grpc  protobuf::libprotobuf)
