@@ -4,3 +4,6 @@
 [submodule "yc-ai/yc-speechkit-batch-asr/yc-cloud-api"]
 	path = yc-ai/yc-speechkit-batch-asr/yc-cloud-api
 	url = https://github.com/yandex-cloud/cloudapi
+[submodule "yc-ai/yc-speechkit-transcoder/src/yandex-cloud-api"]
+	path = yc-ai/yc-speechkit-transcoder/src/yandex-cloud-api
+	url = https://github.com/yandex-cloud/cloudapi

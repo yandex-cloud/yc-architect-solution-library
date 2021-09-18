@@ -1,0 +1,37 @@
+﻿{
+  "configurations": [
+    {
+      "name": "Linux-GCC-Debug",
+      "generator": "Unix Makefiles",
+      "configurationType": "Debug",
+      "cmakeExecutable": "cmake",
+      "remoteCopySourcesExclusionList": [ ".vs", ".git", "out" ],
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "remoteMachineName": "-1794365334;localhost (username=makhlu, port=22, authentication=Password)",
+      "remoteCMakeListsRoot": "$HOME/${projectDirName}/src/",
+      "remoteBuildRoot": "$HOME/${projectDirName}/${workspaceHash}/out/build/${name}",
+      "remoteInstallRoot": "$HOME/${projectDirName}/out/install/${name}",
+      "remoteCopySources": true,
+      "rsyncCommandArgs": "-t --delete --delete-excluded",
+      "remoteCopyBuildOutput": true,
+      "remoteCopySourcesMethod": "rsync",
+      "addressSanitizerRuntimeFlags": "detect_leaks=0",
+      "intelliSenseMode": "linux-gcc-x64",
+      "remoteCopyAdditionalIncludeDirectories": [ "/usr/include/gstreamer-1.0/", "/usr/include/glib-2.0/" ]
+    },
+    {
+      "name": "WSL-GCC-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeExecutable": "cmake",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "wslPath": "${defaultWSLPath}"
+    }
+  ]
+}
