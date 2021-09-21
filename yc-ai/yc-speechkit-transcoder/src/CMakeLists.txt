@@ -109,4 +109,5 @@ add_executable (asr-client "client.cpp"  ${grpc_cc_src} ${grpc_h_src} ${protobuf
 
 target_link_libraries(asr-client PUBLIC gRPC::grpc++ gRPC::grpc  protobuf::libprotobuf)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/config.txt DESTINATION .)
+#copy default configuration file to output
+configure_file(config.txt config.txt COPYONLY)

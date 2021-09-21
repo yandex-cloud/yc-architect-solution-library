@@ -33,4 +33,11 @@ std::string model = "general";
 std::string auth_model = "Bearer";
 std::string auth_token;
 
+
+/* Config param const*/
+
+const char* CFG_PARAM_CONFIG = "config"; // config file path
+const char* CFG_PARAM_AUDIO_SOURCE = "audio-source"; // audio source uri (file:// or http://)
+
+
 #endif //YC_SPEECHKIT_TRANSCODER_CLIENT_H
