@@ -107,6 +107,6 @@ ENDFOREACH()
 # Add source to this project's executable.
 add_executable (asr-client "client.cpp"  ${grpc_cc_src} ${grpc_h_src} ${protobuf_cc_src} ${protobuf_h_src} client.h)
 
-target_link_libraries(asr-client PUBLIC  gRPC::grpc++ gRPC::grpc  protobuf::libprotobuf)
+target_link_libraries(asr-client PUBLIC gRPC::grpc++ gRPC::grpc  protobuf::libprotobuf)
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/config.txt DESTINATION .)

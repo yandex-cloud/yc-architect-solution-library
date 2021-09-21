@@ -9,6 +9,13 @@
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/create_channel.h>
 
+#include <map>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+
+std::map<std::string, std::string> options;
+
 #ifndef YC_SPEECHKIT_TRANSCODER_CLIENT_H
 #define YC_SPEECHKIT_TRANSCODER_CLIENT_H
 
@@ -16,7 +23,7 @@ using yandex::cloud::ai::stt::v2::RecognitionSpec;
 using yandex::cloud::ai::stt::v2::RecognitionSpec_AudioEncoding;
 
 std::string str_pipeline_template;
-std::string in_audio_uri;
+std::string source_uri;
 
 /*  RecognitionSpec */
 std::string language_code;
