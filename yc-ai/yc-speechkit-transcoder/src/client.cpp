@@ -1,8 +1,25 @@
 #include <iostream>
 #include <fstream>
+
 #include "client.h"
+#include "audio-prep-svc/audio_prep_svc.h"
+
 
 using namespace std;
+
+class audio_transformer_callback : public  audio_prep_svc_callback{
+    public:
+    virtual void format_detection_result(std::string detection_result_json)  override
+    {
+
+    }
+    virtual void preparation_pipeline_compleated(std::string pipeline_result_json)  override
+    {
+
+    }
+    private:
+};
+
 
 bool add_option(std::string option_name, std::string option_value){
         options[option_name] = option_value;
@@ -61,9 +78,10 @@ int main(int argc, char** argv)
             if (!parse_config()) {
                 error = true;
             }else{
-                //detect();
-                //transcode();
-                //recognize();
+                auto prepare_audio_callback = std::make_shared<audio_transformer_callback>();
+                audio_preparation_svc prepare_svc(options,prepare_audio_callback);
+                prepare_svc.discover_audio_format(options[CFG_PARAM_AUDIO_SOURCE]);
+                prepare_svc.start_preparation_pipeline(options[CFG_PARAM_AUDIO_SOURCE]);
             }
         }
     }

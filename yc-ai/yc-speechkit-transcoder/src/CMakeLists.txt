@@ -1,4 +1,4 @@
-﻿# CMakeList.txt : CMake project for sk-transcoder, include source and define
+﻿# CMakeList.txt : CMake project for sk-audio-prep-svc, include source and define
 # project specific logic here.
 #
 cmake_minimum_required (VERSION 3.8)
@@ -10,7 +10,18 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 
-find_package(PkgConfig REQUIRED) 
+find_package(PkgConfig REQUIRED)
+########################################################################
+#   GStreamer
+########################################################################
+find_package(GStreamer)
+if(GStreamer_FOUND)
+	message(STATUS "GStreamer FOUND!!")
+	include_directories(${GSTREAMER_INCLUDE_DIRS})
+endif()
+
+
+pkg_check_modules(GLIB_PKG REQUIRED IMPORTED_TARGET glib-2.0 gstreamer-pbutils-1.0 gstreamer-aws-1.0)
 
 ########################################################################
 #   Protobuf
@@ -21,6 +32,10 @@ find_package(gRPC CONFIG REQUIRED)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 
 include_directories(${Protobuf_INCLUDE_DIRS})
+include_directories(${GSTREAMER_INCLUDE})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/audio-prep-svc)
+
 
 # gRPC C++ plugin
 get_target_property(gRPC_CPP_PLUGIN_EXECUTABLE gRPC::grpc_cpp_plugin LOCATION)
@@ -102,12 +117,14 @@ FOREACH(grpc ${grpc_files})
 
 
 ENDFOREACH()
-# add_subdirectory("transcoder")
+
+# Add parson dependency for JSON
+add_subdirectory("parson")
 
 # Add source to this project's executable.
-add_executable (asr-client "client.cpp"  ${grpc_cc_src} ${grpc_h_src} ${protobuf_cc_src} ${protobuf_h_src} client.h)
+add_executable (asr-client  ${grpc_cc_src} ${grpc_h_src} ${protobuf_cc_src} ${protobuf_h_src} "client.cpp"  audio-prep-svc/audio_prep_svc.cpp speechkit_asr_svc.cpp  ../parson/parson.c ../parson/parson.h audio-prep-svc/discoverer.cpp )
 
-target_link_libraries(asr-client PUBLIC gRPC::grpc++ gRPC::grpc  protobuf::libprotobuf)
+target_link_libraries(asr-client  PUBLIC PkgConfig::GLIB_PKG ${GSTREAMER_LIBRARIES} gio-2.0  gRPC::grpc++ gRPC::grpc  protobuf::libprotobuf)
 
 #copy default configuration file to output
 configure_file(config.txt config.txt COPYONLY)
