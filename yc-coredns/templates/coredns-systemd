@@ -1,0 +1,20 @@
+[Unit] \n
+Description=CoreDNS DNS server \n
+Documentation=https://coredns.io \n
+After=network.target \n
+\n
+[Service] \n
+PermissionsStartOnly=true \n
+LimitNOFILE=1048576 \n
+LimitNPROC=512 \n
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE \n
+AmbientCapabilities=CAP_NET_BIND_SERVICE \n
+NoNewPrivileges=true \n
+User=coredns \n
+WorkingDirectory=~ \n
+ExecStart=/usr/local/bin/coredns -conf=/etc/coredns/Corefile \n
+ExecReload=/bin/kill -SIGUSR1 $MAINPID \n
+Restart=on-failure \n
+\n
+[Install] \n
+WantedBy=multi-user.target \n
