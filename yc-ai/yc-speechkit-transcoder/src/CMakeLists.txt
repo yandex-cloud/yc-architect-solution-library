@@ -122,7 +122,7 @@ ENDFOREACH()
 add_subdirectory("parson")
 
 # Add source to this project's executable.
-add_executable (asr-client  ${grpc_cc_src} ${grpc_h_src} ${protobuf_cc_src} ${protobuf_h_src} "client.cpp"  audio-prep-svc/audio_prep_svc.cpp speechkit_asr_svc.cpp  ../parson/parson.c ../parson/parson.h audio-prep-svc/discoverer.cpp )
+add_executable (asr-client  ${grpc_cc_src} ${grpc_h_src} ${protobuf_cc_src} ${protobuf_h_src} "client.cpp"  audio-prep-svc/audio_prep_svc.cpp speechkit_asr_svc.cpp  ../parson/parson.c ../parson/parson.h )
 
 target_link_libraries(asr-client  PUBLIC PkgConfig::GLIB_PKG ${GSTREAMER_LIBRARIES} gio-2.0  gRPC::grpc++ gRPC::grpc  protobuf::libprotobuf)
 

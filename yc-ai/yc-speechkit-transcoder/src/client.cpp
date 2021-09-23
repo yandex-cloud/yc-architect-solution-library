@@ -3,22 +3,35 @@
 
 #include "client.h"
 #include "audio-prep-svc/audio_prep_svc.h"
-
+#include "speechkit_asr_svc.h"
 
 using namespace std;
+
+
+class asr_process_callback : public asr_svc_callback{
+public:
+    virtual void asr_result(std::string asr_result_json) override{
+        std::cout << "ASR results:\n" << asr_result_json << std::endl;
+    }
+
+};
+
 
 class audio_transformer_callback : public  audio_prep_svc_callback{
     public:
     virtual void format_detection_result(std::string detection_result_json)  override
     {
-
+        std::cout << "Media format recognition completed." << std::endl;
     }
     virtual void preparation_pipeline_compleated(std::string pipeline_result_json)  override
     {
-
+        speechkit_asr_svc asr_svc(options);
+        auto callback = std::make_shared<asr_process_callback>();
+         asr_svc.start_asr_task(callback, options[CFG_PARAM_AUDIO_SOURCE]);
     }
     private:
 };
+
 
 
 bool add_option(std::string option_name, std::string option_value){
@@ -94,38 +107,3 @@ int main(int argc, char** argv)
     }
 
 }
-
-
-
-/* bool parse_config(std::istream& cfgfile)
-{
-   for (std::string line; std::getline(cfgfile, line); )
-    {
-        std::istringstream iss(line);
-        std::string id, eq, val;
-
-        bool error = false;
-
-        if (!(iss >> id))
-        {
-            error = true;
-        }
-        else if (id[0] == '#')
-        {
-            continue;
-        }
-        else if (!(iss >> eq >> val >> std::ws) || eq != "=" || iss.get() != EOF)
-        {
-            error = true;
-        }
-
-        if (error)
-        {
-            // do something appropriate: throw, skip, warn, etc.
-        }
-        else
-        {
-            options[id] = val;
-        }
-    }
-}*/

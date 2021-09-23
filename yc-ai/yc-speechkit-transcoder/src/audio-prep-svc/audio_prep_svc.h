@@ -12,7 +12,8 @@
 #include <string>
 #include <memory>
 #include "parson/parson.h"
-#include "discoverer.h"
+
+
 
 class audio_prep_svc_callback {
 public:
@@ -20,20 +21,39 @@ public:
     virtual void preparation_pipeline_compleated(std::string pipeline_result_json) = 0;
 };
 
+
+
 class audio_preparation_svc{
+
+
+
+/* Structure to contain all our information, so we can pass it around */
+typedef struct _DiscovererData {
+    GstDiscoverer* discoverer;
+    GMainLoop* loop;
+    std::map<std::string, std::string> config;
+    std::shared_ptr<audio_prep_svc_callback> callback;
+} DiscovererData;
+
 public:
+    const char* CFG_PIPELINE_TEMPLATE = "str_pipeline_template";
     audio_preparation_svc(std::map<std::string, std::string> config, std::shared_ptr<audio_prep_svc_callback> callback);
     void discover_audio_format(std::string audio_source_uri);
     void start_preparation_pipeline(std::string audio_source_uri);
+
 private:
 
-    /* This function is called when the discoverer has finished examining
-   * all the URIs we provided.*/
-    void on_finished_cb(GstDiscoverer* discoverer, DiscovererData* data);
-    JSON_Object* serialize_discoverer_data(DiscovererData* data);
 
-    std::map<std::string, std::string> _config;
-    std::shared_ptr<audio_prep_svc_callback> _callback;
+    JSON_Object* serialize_discoverer_data(DiscovererData* data);
+    /* This function is called when the discoverer has finished examining
+* all the URIs we provided.*/
+    static void on_finished_cb(GstDiscoverer* discoverer, DiscovererData* data);
+    static void on_discovered_cb(GstDiscoverer* discoverer, GstDiscovererInfo* info, GError* err, DiscovererData* data);
+    static void print_topology(GstDiscovererStreamInfo* info, gint depth);
+    static void print_stream_info(GstDiscovererStreamInfo* info, gint depth);
+    static void print_tag_foreach(const GstTagList* tags, const gchar* tag, gpointer user_data);
+
+    DiscovererData _discovery{};
 protected:
 };
 
