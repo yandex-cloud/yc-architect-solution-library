@@ -1,0 +1,8 @@
+.:53 { \n
+  forward . dns://${dns_ip} \n
+  log \n
+  errors \n
+  cache { \n
+    serve_stale 1h \n
+  } \n
+} \n
