@@ -1,0 +1,54 @@
+#cloud-config
+
+datasource:
+  Ec2:
+    strict_id: false
+ssh_pwauth: yes
+users:
+  - name: admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - "${ssh_key}"
+packages:
+  - mdadm
+  - xfsprogs
+write_files:
+  - content: |
+      #!/bin/bash
+      echo "Identifying disks ..."
+      DISK_LIST=$(lsblk -nd --output=NAME | xargs)
+      DISK_LIST=$(echo $DISK_LIST | sed -e 's/^\w*\ *//')
+
+      CNT=1
+      for disk in $DISK_LIST; do
+        eval "DISK_$CNT"=$(ls -la /dev/disk/by-id/ | grep $disk | grep -o 'virtio-[^ ,]\+')
+        CNT=$(expr $CNT + 1)
+      done
+
+      echo "Creating partitions ..."
+      for i in $DISK_1 $DISK_2 ; do
+        parted --script /dev/disk/by-id/$i "mklabel gpt"
+        parted --script /dev/disk/by-id/$i "mkpart primary 0% 100%"
+        parted --script /dev/disk/by-id/$i "set 1 raid on"
+      done
+
+      echo "Building the disk array ..."
+      yes | mdadm --create /dev/md100 --level=1 --raid-devices=2 /dev/disk/by-id/$DISK_1 /dev/disk/by-id/$DISK_2
+      mkfs.xfs /dev/md100
+      sleep 20
+
+      echo "Creating /data mount point ..."
+      ADMBLK_ID=$(blkid | sed -n '/md100/s/.*UUID=\"\([^\"]*\)\".*/\1/p')
+      mkdir /data
+      echo "UUID=$ADMBLK_ID /data xfs defaults 0 0" | tee -a /etc/fstab
+      mount -a
+
+      df | grep /dev/md100
+      echo "Done."
+    path: "/root/raid_build.sh"
+    permissions: "0740"
+runcmd:
+  - sleep 5
+  - sudo -i
+  - /root/raid_build.sh
