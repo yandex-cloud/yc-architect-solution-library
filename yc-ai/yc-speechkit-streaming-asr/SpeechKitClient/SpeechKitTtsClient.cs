@@ -85,8 +85,9 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
         {
 
                 UtteranceSynthesisRequest request = MakeRequest(text, model);
+              //   request.Hints.Add(new Hints() { Voice = "kuznetsov_male" });
 
-                Metadata callHeaders = this.MakeMetadata();
+            Metadata callHeaders = this.MakeMetadata();
                 callHeaders.Add("x-folder-id", this.FolderId);
 
 
@@ -161,15 +162,15 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
                 Text = text,
                 OutputAudioSpec = new AudioFormatOptions
                 {
-                    RawAudio = new RawAudio
+                   /* RawAudio = new RawAudio
                     {                        
                          AudioEncoding = RawAudio.Types.AudioEncoding.Linear16Pcm,
                           SampleRateHertz = 22050
-                    }
-                  /*  ContainerAudio = new ContainerAudio
+                    }*/
+                    ContainerAudio = new ContainerAudio
                     {
                         ContainerAudioType = ContainerAudio.Types.ContainerAudioType.Wav
-                    }*/
+                    }
                }
             };
 

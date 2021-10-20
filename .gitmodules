@@ -7,3 +7,15 @@
 [submodule "yc-ai/yc-speechkit-transcoder/src/yandex-cloud-api"]
 	path = yc-ai/yc-speechkit-transcoder/src/yandex-cloud-api
 	url = https://github.com/yandex-cloud/cloudapi
+[submodule "yc-ai/yc-speechkit-transcoder/src/parson"]
+	path = yc-ai/yc-speechkit-transcoder/src/parson
+	url = https://github.com/kgabis/parson
+[submodule "yc-ai/yc-speechkit-transcoder/src/amazon-s3-gst-plugin"]
+	path = yc-ai/yc-speechkit-transcoder/src/amazon-s3-gst-plugin
+	url = https://github.com/amzn/amazon-s3-gst-plugin
+[submodule "yc-ai/yc-speechkit-transcoder/src/cpp-netlib"]
+	path = yc-ai/yc-speechkit-transcoder/src/cpp-netlib
+	url = https://github.com/cpp-netlib/cpp-netlib
+[submodule "yc-ai/yc-vision-batch-classify/yc-cloud-api"]
+	path = yc-ai/yc-vision-batch-classify/yc-cloud-api
+	url = https://github.com/yandex-cloud/cloudapi
