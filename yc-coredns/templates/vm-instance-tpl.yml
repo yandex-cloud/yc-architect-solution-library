@@ -1,0 +1,22 @@
+#cloud-config
+
+datasource:
+  Ec2:
+    strict_id: false
+ssh_pwauth: no
+users:
+  - name: admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - "${ssh_key}"
+write_files:
+  - content: "${coredns_config}"
+    path: /etc/coredns/Corefile
+    permissions: '0644'
+  - content: "${coredns_systemd}"
+    path: /etc/systemd/system/coredns.service
+    permissions: '0644'
+runcmd:
+  - sudo -i
+  - "${runcmd_script}"

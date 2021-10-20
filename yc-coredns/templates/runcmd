@@ -1,0 +1,8 @@
+curl -O -L https://github.com/coredns/coredns/releases/download/v1.8.4/coredns_1.8.4_linux_amd64.tgz &&
+tar -zxf coredns_1.8.4_linux_amd64.tgz --directory /usr/local/bin &&
+useradd -d /var/lib/coredns -m coredns &&
+systemctl disable systemd-resolved.service &&
+systemctl stop systemd-resolved &&
+sed -i 's/127.0.0.53/127.0.0.1/' /etc/resolv.conf &&
+systemctl enable coredns &&
+systemctl start coredns
