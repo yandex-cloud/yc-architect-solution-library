@@ -136,10 +136,11 @@ curl -H "Host: nginx.example.com" http://$URL
 ```
 Далее выполняем
 ```
-kubectl get --raw /apis/custom.metrics.k8s.io/v1beta1 |jq .| grep ingresses.extensions/nginx_ingress_controller_requests_per_second        
+kubectl get --raw /apis/custom.metrics.k8s.io/v1beta1 |jq .| grep ingresses.networking.k8s.io/nginx_ingress_controller_requests_per_second
+       
 
 ```
-Должны получить в течение пары минут следующий результат: `"name": "ingresses.extensions/nginx_ingress_controller_requests_per_second"`
+Должны получить в течение пары минут следующий результат: `"name": "ingresses.networking.k8s.io/nginx_ingress_controller_requests_per_second",`
 
 ### Проверка результата
 
