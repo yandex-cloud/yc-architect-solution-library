@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace vision.batch.classifier
@@ -25,7 +26,11 @@ namespace vision.batch.classifier
 
         private static void MakeDirectoryTasks(string dir, ref List<ClassifyTaskModel> taskList)
         {
-            foreach (string fileName in Directory.GetFiles(dir, "*.jpeg | *.jpg | *.png"))
+            var imageFiles = Directory.GetFiles(dir, "*.*")
+                    .Where(file => file.ToLower().EndsWith("jpg") || file.ToLower().EndsWith("jpeg") || file.ToLower().EndsWith("png"))
+                    .ToArray();
+
+            foreach (string fileName in imageFiles)
             {
                 taskList.Add(new ClassifyTaskModel(fileName));
             }

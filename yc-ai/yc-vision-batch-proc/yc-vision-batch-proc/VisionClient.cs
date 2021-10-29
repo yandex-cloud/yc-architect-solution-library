@@ -63,10 +63,8 @@ namespace vision.batch
                 VisionClassifier classifier = new VisionClassifier(cfg, _loggerFactory);
                 List<ClassifyTaskModel> tasks = ClassifyTaskHelper.MakeVisionClassificationTasks(cfg);
 
-                foreach (ClassifyTaskModel task in tasks)
-                {
-                    classifier.Classify(new ClassifyTaskModel[] { task });
-                }
+                    classifier.Classify(tasks.ToArray());
+
 
         }
 
