@@ -22,7 +22,7 @@ namespace vision.batch
         private static Uri endpointAddress = new Uri("https://vision.api.cloud.yandex.net:443");
 
         private Configuration config;
-        private const int MAX_BATCH_SIZE = 8; // See https://cloud.yandex.ru/docs/vision/api-ref/grpc/vision_service#BatchAnalyze
+        private const int MAX_BATCH_SIZE = 5; // See https://cloud.yandex.ru/docs/vision/api-ref/grpc/vision_service#BatchAnalyze
 
         private DirectoryInfo outDirectory;
 
@@ -81,7 +81,7 @@ namespace vision.batch
 
                     taskResponse = JObject.Parse(call.ToString());
 
-                    isErr = isError(call);
+                    isErr = isError(taskResponse);
                     if (isErr)
                     {
                         this.log.LogInformation($"Quota exceeded waiting 5 sec.");
@@ -112,19 +112,12 @@ namespace vision.batch
             }
         }
 
-        private bool isError(BatchAnalyzeResponse response)
+        private bool isError(dynamic taskResponse)
         {
+            JArray parseResponse = (JArray)taskResponse.results;
+            
 
-            foreach (AnalyzeResult result in response.Results)               
-            {
-                dynamic parseResponse = JObject.Parse(result.ToString());
-                if (result.Error != null && result.Error.Code != (int) Google.Rpc.Code.Ok)
-                {
-                    this.log.LogError($"Error {result.Error}: {result.Results}");
-                    return true;
-                }
-            }
-            return false;
+            return parseResponse.ToString().Contains("limit on requests was exceeded", StringComparison.InvariantCultureIgnoreCase);
         }
 
         private AnalyzeSpec makeAnalyzeSpec(ClassifyTaskModel task)
