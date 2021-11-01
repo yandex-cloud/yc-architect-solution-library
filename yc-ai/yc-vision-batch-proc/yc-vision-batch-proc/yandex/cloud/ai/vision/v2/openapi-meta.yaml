@@ -1,0 +1,7 @@
+info:
+  title: Yandex Vision API
+  version: v2
+  description: The service does not operate with resources. All service's methods are presented on the [Vision](Vision/) page.
+  x-y-docUri: api-ref
+  x-y-baseUrl: "https://vision.api.cloud.yandex.net"
+docName: "/docs/vision/v2/api-ref"
