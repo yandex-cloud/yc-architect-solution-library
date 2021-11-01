@@ -29,9 +29,9 @@ namespace vision.batch
             var logger = Log.Logger;
             try
             {
-                if (cfg.mode.Equals(Mode.CLASSIFICATION))
+                if (cfg.mode.Equals(Mode.CLASSIFICATION) || cfg.mode.Equals(Mode.IMAGE_COPY_SEARCH))
                 {
-                    Log.Information($"Initiating classification call for {cfg.source}");
+                    Log.Information($"Initiating {cfg.mode} call for {cfg.source}");
                     DoVisionClassification(cfg, _loggerFactory);
                 }
                /* else if (cfg.mode.Equals(Mode.IMAGE_COPY_SEARCH))

@@ -9,6 +9,11 @@ namespace vision.batch.classifier
     public static class ClassifyTaskHelper
     {
 
+        public static String GetTimestamp(this DateTime value)
+        {
+            return value.ToString("yyyyMMddHHmmss");// fff
+        }
+
         public static List<ClassifyTaskModel> MakeVisionClassificationTasks(Configuration cfg)
         {
             List<ClassifyTaskModel> taskList = new List<ClassifyTaskModel>();

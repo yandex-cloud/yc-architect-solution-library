@@ -8,7 +8,7 @@ namespace vision.batch
 {
     public class Configuration
     {
-        [Option("mode", Required = false, Default = Mode.TEXT_DETECTION, HelpText = "Operation mode:  TEXT_DETECTION, CLASSIFICATION, FACE_DETECTION, IMAGE_COPY_SEARCH")]
+        [Option("mode", Required = true, Default = Mode.TEXT_DETECTION, HelpText = "Operation mode:  TEXT_DETECTION, CLASSIFICATION, FACE_DETECTION, IMAGE_COPY_SEARCH")]
         public Mode mode { get; set; }
 
         [Option("source", Required = true,  HelpText = "Path to sorce image file or directiry with files. JPEG, PNG PDF formats are supported")]
