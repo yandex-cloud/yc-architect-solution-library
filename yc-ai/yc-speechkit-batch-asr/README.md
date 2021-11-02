@@ -25,8 +25,16 @@
 dotnet SkBatchAsrClient.dll</li>
 </ol>
 
-###№ Команда запускается в двух режимах:
-Есть два режима - создание заданий на распознавание:
---mode stt_create_tasks
-Получение результатов заданий:
---mode stt_task_results
+### Команда запускается в двух режимах:
+<ul>
+<li>- создание заданий на распознавание (запускается первым):<br/>
+  --mode stt_create_tasks 
+</li>
+<li>Получение результатов заданий (запускается для получения результатов):
+  --mode stt_task_results</li>
+</ul>
+
+### Пример команды на запуск процесса создания задач на распознавание:
+```
+dotnet SkBatchAsrClient.dll  --s3-accessKey "xxxxxxx" --s3-secretKey  "xxxxxxx" --bucket my_s3_bycket_with_wav --iam-token “xxxxxxxxx" --folder-id xxxxxx   --audio-encoding Linear16Pcm --sample-rate 48000 --model="general:rc" --lang="ru-RU" --mode stt_task_result
+``` 
