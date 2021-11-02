@@ -1,11 +1,12 @@
 # Batch recognizer — распознавание большого количества файлов 
 
 Сценарий для распознавания больших архивов аудио.
-<P>Аудио файлы должны быть предварительно конвертированы в формат, который поддерживается SpeetchKit (LPCM или Ogg) и загружены на Object Storage.</P>
+<P>Аудио файлы должны быть предварительно конвертированы в формат, [который поддерживается SpeetchKit (LPCM или Ogg)]:https://cloud.yandex.ru/docs/speechkit/stt/formats, иметь расширение *.wav<br/>
+Подготовленные файлы должны быть загружены на Object Storage. Для больших архивов поддерживаются вложенные папки с wav файлами.</P>
 
 ### Инструкция по установке:
 <ol>
-<li>Создайте в интерфейсе облака “бакет” – хранилище файлов куда можно будет загрузить данные. https://cloud.yandex.ru/docs/storage/operations/buckets/create </li>
+<li>Создайте в интерфейсе облака “бакет” – хранилище файлов куда можно будет загрузить аудиофайлы. https://cloud.yandex.ru/docs/storage/operations/buckets/create </li>
 <li>Создайте сервисный аккаунт https://cloud.yandex.ru/docs/iam/operations/sa/create  с правами “editor” в том-же каталоге где был создан “бакет” 
   https://cloud.yandex.ru/docs/iam/operations/sa/assign-role-for-sa</li>
 <li>Сгенерируйте статические ключи доступа для созданного сервисного аккаунта https://cloud.yandex.ru/docs/iam/operations/sa/create-access-key<<Обязательно запишите access key и secret key>> эти ключи будут нужны для авторизации программы в сервисе хранилища</li>
@@ -27,14 +28,19 @@ dotnet SkBatchAsrClient.dll</li>
 
 ### Команда запускается в двух режимах:
 <ul>
-<li>- создание заданий на распознавание (запускается первым):<br/>
-  --mode stt_create_tasks 
+<li>- создание заданий на распознавание (запускается первым):
+  <p> *** --mode stt_create_tasks ***</p>
 </li>
 <li>Получение результатов заданий (запускается для получения результатов):
-  --mode stt_task_results</li>
+  <p> ***  --mode stt_task_results</li>***</p>
 </ul>
 
 #### Пример команды на запуск процесса создания задач на распознавание:
 ```bsh
+dotnet SkBatchAsrClient.dll  --s3-accessKey "xxxxxxx" --s3-secretKey  "xxxxxxx" --bucket my_s3_bycket_with_wav --iam-token “xxxxxxxxx" --folder-id xxxxxx   --audio-encoding Linear16Pcm --sample-rate 48000 --model="general:rc" --lang="ru-RU" --mode stt_create_tasks
+``` 
+#### Пример команды за получение результатов:
+```bsh
 dotnet SkBatchAsrClient.dll  --s3-accessKey "xxxxxxx" --s3-secretKey  "xxxxxxx" --bucket my_s3_bycket_with_wav --iam-token “xxxxxxxxx" --folder-id xxxxxx   --audio-encoding Linear16Pcm --sample-rate 48000 --model="general:rc" --lang="ru-RU" --mode stt_task_result
 ``` 
+
