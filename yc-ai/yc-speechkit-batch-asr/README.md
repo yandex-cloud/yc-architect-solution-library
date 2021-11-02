@@ -34,7 +34,7 @@ dotnet SkBatchAsrClient.dll</li>
   --mode stt_task_results</li>
 </ul>
 
-### Пример команды на запуск процесса создания задач на распознавание:
-```
+#### Пример команды на запуск процесса создания задач на распознавание:
+```bsh
 dotnet SkBatchAsrClient.dll  --s3-accessKey "xxxxxxx" --s3-secretKey  "xxxxxxx" --bucket my_s3_bycket_with_wav --iam-token “xxxxxxxxx" --folder-id xxxxxx   --audio-encoding Linear16Pcm --sample-rate 48000 --model="general:rc" --lang="ru-RU" --mode stt_task_result
 ``` 
