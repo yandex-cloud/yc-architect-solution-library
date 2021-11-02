@@ -47,7 +47,8 @@ dotnet SkBatchAsrClient.dll  --s3-accessKey "xxxxxxx" --s3-secretKey  "xxxxxxx" 
 + --bucket my_s3_bycket_with_wav – “бакет” созданный в пункте 1
 + --iam-token – токен полученный при запуске команды yc iam create-token в пункте 8
 + --folder-id xxxxxx   - iD каталога где будет производится распознавание
-+ --audio-encoding Linear16Pcm --sample-rate 48000 – используемый в файле кодек.
++ --audio-encoding Linear16Pcm – используемый в файле кодек.
++ --sample-rate 48000 - частота дискретизации (должна соответсвовать частоте дискретизации исходных аудио файлов)
 Если файл нужно предварительно транскодировать используйте скрипт по транскодигу: https://github.com/yandex-cloud/yc-architect-solution-library/tree/main/yc-ai/yc-speechkit-transcoder <br/>
 или используйте FFMPEG для конвертации в нужный формат<br/>
 Пример команды, которая конвертирует все файлы с расширением *mp4* в папке:
