@@ -1,7 +1,8 @@
 # Batch recognizer — распознавание большого количества файлов 
 
 Сценарий для распознавания больших архивов аудио.
-<P>Аудио файлы должны быть предварительно конвертированы в формат, [который поддерживается SpeetchKit](https://cloud.yandex.ru/docs/speechkit/stt/formats), иметь расширение *.wav<br/>
+
+Аудио файлы должны быть предварительно конвертированы в формат, который [поддерживается SpeetchKit](https://cloud.yandex.ru/docs/speechkit/stt/formats), и иметь расширение *.wav <br/>
 Подготовленные файлы должны быть загружены на Object Storage. Для больших архивов поддерживаются вложенные папки с wav файлами.</P>
 
 ### Инструкция по установке:
@@ -43,4 +44,24 @@ dotnet SkBatchAsrClient.dll  --s3-accessKey "xxxxxxx" --s3-secretKey  "xxxxxxx" 
 ```bsh
 dotnet SkBatchAsrClient.dll  --s3-accessKey "xxxxxxx" --s3-secretKey  "xxxxxxx" --bucket my_s3_bycket_with_wav --iam-token “xxxxxxxxx" --folder-id xxxxxx   --audio-encoding Linear16Pcm --sample-rate 48000 --model="general:rc" --lang="ru-RU" --mode stt_task_result
 ``` 
-
+<ul>
+<li>-s3-accessKey – ключ доступа к хранилищу полученный в пункте 3</li>
+<li>--s3-secretKey  - секретная часть ключа доступа к хранилищу полученная в пункте 3</li>
+<li>--bucket my_s3_bycket_with_wav – “бакет” созданный в пункте 1</li>
+<li>--iam-token – токен полученный при запуске команды yc iam create-token в пункте 8</li>
+<li>--folder-id xxxxxx   - iD каталога где будет производится распознавание</li>
+<li>--audio-encoding Linear16Pcm --sample-rate 48000 – используемый в файле кодек. <br/>
+Если файл нужно предварительно транскодировать используйте скрипт по транскодигу: https://github.com/yandex-cloud/yc-architect-solution-library/tree/main/yc-ai/yc-speechkit-transcoder </br>
+или используйте FFMPEG для конвертации в нужный формат<br/>
+Пример команды, которая конвертирует все файлы с расширением *mp4* в папке:
+```bsh
+for f in *.mp4; do ffmpeg -i "$f" -f s16le -acodec pcm_s16le -map 0:1 -ac 1 -ar 48000 "${f%.*}.wav"; done )
+```
+Пример команды, которая конвертирует файл с инменем *input-audio.mp3*:
+```bsh
+ffmpeg -i "input-audio.mp3"  -acodec pcm_s16le -ac 1 -ar 48000  "output-audio.wav"
+```
+</li>
+<li>--model="general:rc" выбор модели для распознавания https://cloud.yandex.ru/docs/speechkit/stt/models</li>
+<li>--lang="ru-RU язык который нужно распознать</li>
+</ul>
