@@ -1,0 +1,51 @@
+#cloud-config
+
+datasource:
+  Ec2:
+    strict_id: false
+  my-data:
+    disk1_id: ${disk_1}
+    disk2_id: ${disk_2}
+ssh_pwauth: yes
+users:
+  - name: admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - "${ssh_key}"
+packages:
+  - mdadm
+  - xfsprogs
+write_files:
+  - content: |
+      #!/bin/bash
+      echo "Creating partitions ..."
+      for i in $DISK_1 $DISK_2 ; do
+        parted --script /dev/disk/by-id/$i "mklabel gpt"
+        parted --script /dev/disk/by-id/$i "mkpart primary 0% 100%"
+        parted --script /dev/disk/by-id/$i "set 1 raid on"
+      done
+
+      echo "Building the disk array ..."
+      yes | mdadm --create /dev/md100 --level=1 --raid-devices=2 /dev/disk/by-id/$DISK_1 /dev/disk/by-id/$DISK_2
+      mkfs.xfs /dev/md100
+      sleep 20
+
+      echo "Creating /data mount point ..."
+      ADMBLK_ID=$(blkid | sed -n '/md100/s/.*UUID=\"\([^\"]*\)\".*/\1/p')
+      mkdir /data
+      echo "UUID=$ADMBLK_ID /data xfs defaults 0 0" | tee -a /etc/fstab
+      mount -a
+
+      df | grep /dev/md100
+      echo "Done."
+    path: "/root/raid_build.sh"
+    permissions: "0740"
+runcmd:
+  - sleep 5
+  - sudo -i
+  - export DISK_1=${disk_1}
+  - export DISK_2=${disk_2}
+  - /root/raid_build.sh
+  #- unset DISK_1
+  #- unset DISK_2
