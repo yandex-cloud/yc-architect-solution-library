@@ -84,8 +84,8 @@ namespace vision.batch
                     isErr = isError(taskResponse);
                     if (isErr)
                     {
-                        this.log.LogInformation($"Quota exceeded waiting 5 sec.");
-                        Thread.Sleep(5 * 1000);
+                        this.log.LogInformation($"Quota exceeded waiting 1 sec.");
+                        Thread.Sleep(1000);
                     }
 
                 } while (isErr);

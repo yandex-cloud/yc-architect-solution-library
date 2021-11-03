@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcppnetlib-server-parsers.a  CMakeFiles/cppnetlib-server-parsers.dir/server_request_parsers_impl.cpp.o
+/usr/bin/ranlib libcppnetlib-server-parsers.a

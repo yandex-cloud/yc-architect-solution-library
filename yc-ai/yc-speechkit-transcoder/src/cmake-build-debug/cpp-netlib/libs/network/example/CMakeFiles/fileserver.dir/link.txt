@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wall -std=c++11 -g  -rdynamic CMakeFiles/fileserver.dir/http/fileserver.cpp.o  -o ../../../example/fileserver  /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0 /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0 -lpthread ../src/libcppnetlib-server-parsers.a -lrt -lssl -lcrypto /usr/lib/x86_64-linux-gnu/libboost_atomic.so.1.71.0 -lpthread 

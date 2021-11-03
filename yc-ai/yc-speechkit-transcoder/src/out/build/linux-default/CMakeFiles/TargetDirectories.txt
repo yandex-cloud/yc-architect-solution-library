@@ -1,0 +1,14 @@
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/CMakeFiles/install/strip.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/CMakeFiles/install/local.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/CMakeFiles/install.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/CMakeFiles/list_install_components.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/CMakeFiles/rebuild_cache.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/CMakeFiles/edit_cache.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/CMakeFiles/asr-client.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/parson/CMakeFiles/install/strip.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/parson/CMakeFiles/install/local.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/parson/CMakeFiles/install.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/parson/CMakeFiles/list_install_components.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/parson/CMakeFiles/rebuild_cache.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/parson/CMakeFiles/edit_cache.dir
+/mnt/c/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-transcoder/src/out/build/linux-default/parson/CMakeFiles/parson.dir

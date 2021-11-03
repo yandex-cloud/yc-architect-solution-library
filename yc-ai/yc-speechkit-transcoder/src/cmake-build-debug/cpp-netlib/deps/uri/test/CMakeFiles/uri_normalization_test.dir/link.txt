@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wall -std=c++11 -g  -rdynamic CMakeFiles/uri_normalization_test.dir/uri_normalization_test.cpp.o  -o ../tests/uri_normalization_test  -lpthread ../src/libnetwork-uri.a ../../../../lib/libgtest_maind.a -lssl -lcrypto ../../../../lib/libgtestd.a -lpthread 

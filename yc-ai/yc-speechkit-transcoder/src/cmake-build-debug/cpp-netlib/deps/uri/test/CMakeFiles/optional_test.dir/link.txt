@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wall -std=c++11 -g  -rdynamic CMakeFiles/optional_test.dir/optional_test.cpp.o  -o ../tests/optional_test  -lpthread ../src/libnetwork-uri.a ../../../../lib/libgtest_maind.a -lssl -lcrypto ../../../../lib/libgtestd.a -lpthread 

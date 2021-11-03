@@ -3,12 +3,46 @@
 //
 
 #include "audio_prep_svc.h"
-
+#include "uri.h"
 
     audio_preparation_svc::audio_preparation_svc(std::map<std::string, std::string> config, std::shared_ptr<audio_prep_svc_callback> callback)
     {
         _discovery.config = config;
         _discovery.callback = callback;
+    }
+
+
+    gboolean   audio_preparation_svc::bus_call(GstBus* bus,            GstMessage* msg,            gpointer    data)
+    {
+        GMainLoop* loop = (GMainLoop*)data;
+
+        switch (GST_MESSAGE_TYPE(msg)) {
+        case GST_MESSAGE_EOS:
+            g_print("End-of-stream\n");
+            g_main_loop_quit(loop);
+            break;
+        case GST_MESSAGE_ERROR: {
+            gchar* debug = NULL;
+            GError* err = NULL;
+
+            gst_message_parse_error(msg, &err, &debug);
+
+            g_print("Error: %s\n", err->message);
+            g_error_free(err);
+
+            if (debug) {
+                g_print("Debug details: %s\n", debug);
+                g_free(debug);
+            }
+
+            g_main_loop_quit(loop);
+            break;
+        }
+        default:
+            break;
+        }
+
+        return TRUE;
     }
 
     void audio_preparation_svc::discover_audio_format(std::string audio_source_uri){
@@ -28,8 +62,8 @@
         }
 
         /* Connect to the interesting signals */
-        g_signal_connect(_discovery.discoverer, "discovered", G_CALLBACK(on_discovered_cb), &_discovery);
-        g_signal_connect(_discovery.discoverer, "finished", G_CALLBACK(on_finished_cb), &_discovery);
+        g_signal_connect(_discovery.discoverer, "discovered", G_CALLBACK(audio_preparation_svc::on_discovered_cb), &_discovery);
+        g_signal_connect(_discovery.discoverer, "finished", G_CALLBACK(audio_preparation_svc::on_finished_cb), &_discovery);
 
         /*   Create a GLib Main Loop and set it to run, so we can wait for the signals */
         _discovery.loop = g_main_loop_new(NULL, FALSE);
@@ -49,7 +83,10 @@
         GMainLoop* loop;
         loop = g_main_loop_new(NULL, FALSE);
 
-        std::string str_pipeline = _discovery.config[CFG_PIPELINE_TEMPLATE];
+        std::string str_pipeline;
+        if (!make_pipeline_string(audio_source_uri, str_pipeline)){
+           g_print("Pipeline string parameter substitution error!\n");
+        }
 
         GstElement* pipeline =  gst_parse_launch(str_pipeline.c_str(), NULL);
 
@@ -57,8 +94,8 @@
         bus = gst_pipeline_get_bus(GST_PIPELINE(pipeline));
 
 
-        //watch_id = gst_bus_add_watch(bus, (gpointer) on_finished_cb , loop);
-        g_signal_connect(_discovery.discoverer, "finished", G_CALLBACK(on_finished_cb), &_discovery);
+        watch_id = gst_bus_add_watch(bus, audio_preparation_svc::bus_call, loop);
+       // g_signal_connect(_discovery.discoverer, "finished", G_CALLBACK(on_finished_cb), &_discovery);
         gst_object_unref(bus);
 
         /* run */
@@ -238,6 +275,55 @@ void audio_preparation_svc::print_stream_info(GstDiscovererStreamInfo* info, gin
         gst_tag_list_foreach(tags, print_tag_foreach, GINT_TO_POINTER(depth + 2));
     }
 }
+
+    bool audio_preparation_svc::make_pipeline_string(const std::string& audio_source_uri, std::string& str_pipeline){
+
+         str_pipeline = _discovery.config[CFG_PIPELINE_TEMPLATE];
+
+        std::size_t found_start = 0, found_end = 0;
+        std::string pipeline_iterator (str_pipeline);
+        std::string param_name, param_value;
+        do{
+            found_start   = found_end; // init from last iteration
+            found_start = pipeline_iterator.find('{',found_start) +1;
+            found_end = pipeline_iterator.find('}',found_start);
+
+            // find parameters and values
+            param_name = pipeline_iterator.substr(found_start, found_end - found_start);
+            if (param_name.compare("source_uri") == 0){
+                param_value = audio_source_uri;
+            }else if (param_name.compare("stage-audio-name") == 0) {
+                 if (!make_storage_audio_file_name(audio_source_uri, param_value)){
+                     g_print(" Error building bucket path from source uri: %s", audio_source_uri.c_str());
+                     return false;
+                 }
+            }else{
+                param_value = _discovery.config[param_name];
+            }
+
+            if (!replace(str_pipeline, '{' + param_name + '}', param_value)){
+                g_print(" Error substitution param %s to value %s", param_name.c_str(), param_value.c_str());
+                return false;
+            }
+
+
+        } while (found_start > 0 && found_start <= pipeline_iterator.length());
+
+        return true;
+    }
+
+    bool audio_preparation_svc::replace(std::string& str, const std::string& from, const std::string& to) {
+        size_t start_pos = str.find(from);
+        if(start_pos == std::string::npos)
+            return false;
+        str.replace(start_pos, from.length(), to);
+        return true;
+    }
+
+   bool audio_preparation_svc::make_storage_audio_file_name(const std::string& audio_source_uri,  std::string& audio_bucket_path){
+       Uri uri = Uri::Parse(audio_source_uri);
+        return true;
+    }
 
 /* Print information regarding a stream and its substreams, if any */
 void audio_preparation_svc::print_topology(GstDiscovererStreamInfo* info, gint depth) {

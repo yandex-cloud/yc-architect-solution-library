@@ -15,6 +15,8 @@
     <None Remove="google\type\dayofweek.proto" />
     <None Remove="google\type\timeofday.proto" />
     <None Remove="yandex\cloud\ai\stt\v2\stt_service.proto" />
+    <None Remove="yandex\cloud\ai\stt\v3\stt.proto" />
+    <None Remove="yandex\cloud\ai\stt\v3\stt_service.proto" />
     <None Remove="yandex\cloud\ai\tts\v3\tts.proto" />
     <None Remove="yandex\cloud\ai\tts\v3\tts_service.proto" />
     <None Remove="yandex\cloud\api\operation.proto" />
@@ -32,6 +34,8 @@
     <Protobuf Include="google\type\dayofweek.proto" />
     <Protobuf Include="google\type\timeofday.proto" />
     <Protobuf Include="yandex\cloud\ai\stt\v2\stt_service.proto" />
+    <Protobuf Include="yandex\cloud\ai\stt\v3\stt.proto" />
+    <Protobuf Include="yandex\cloud\ai\stt\v3\stt_service.proto" />
     <Protobuf Include="yandex\cloud\ai\tts\v3\tts.proto" />
     <Protobuf Include="yandex\cloud\ai\tts\v3\tts_service.proto" />
     <Protobuf Include="yandex\cloud\api\operation.proto" />

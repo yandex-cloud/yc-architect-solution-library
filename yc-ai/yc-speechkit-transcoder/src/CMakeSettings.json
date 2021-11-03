@@ -9,7 +9,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "linux_x64" ],
+      "inheritEnvironments": [ "linux_arm" ],
       "remoteMachineName": "-1794365334;localhost (username=makhlu, port=22, authentication=Password)",
       "remoteCMakeListsRoot": "$HOME/${projectDirName}/src/",
       "remoteBuildRoot": "$HOME/${projectDirName}/${workspaceHash}/out/build/${name}",
