@@ -1,9 +1,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <gst/gst.h>
-#include <gst/pbutils/pbutils.h>
-
 #include "client.h"
 #include "audio-prep-svc/audio_prep_svc.h"
 #include "speechkit_asr_svc.h"
@@ -94,12 +91,9 @@ int main(int argc, char** argv)
             if (!parse_config()) {
                 error = true;
             }else{
-                /* Initialize GStreamer */
-                gst_init(&argc, &argv);
-
                 auto prepare_audio_callback = std::make_shared<audio_transformer_callback>();
                 audio_preparation_svc prepare_svc(options,prepare_audio_callback);
-            //    prepare_svc.discover_audio_format(options[CFG_PARAM_AUDIO_SOURCE]);
+                prepare_svc.discover_audio_format(options[CFG_PARAM_AUDIO_SOURCE]);
                 prepare_svc.start_preparation_pipeline(options[CFG_PARAM_AUDIO_SOURCE]);
             }
         }

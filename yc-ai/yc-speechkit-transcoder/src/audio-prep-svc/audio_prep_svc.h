@@ -40,9 +40,6 @@ public:
     audio_preparation_svc(std::map<std::string, std::string> config, std::shared_ptr<audio_prep_svc_callback> callback);
     void discover_audio_format(std::string audio_source_uri);
     void start_preparation_pipeline(std::string audio_source_uri);
-    static gboolean   bus_call(GstBus* bus, GstMessage* msg, gpointer    data);
-    static void on_finished_cb(GstDiscoverer* discoverer, DiscovererData* data);
-    static void on_discovered_cb(GstDiscoverer* discoverer, GstDiscovererInfo* info, GError* err, DiscovererData* data);
 
 private:
 
@@ -50,14 +47,12 @@ private:
     JSON_Object* serialize_discoverer_data(DiscovererData* data);
     /* This function is called when the discoverer has finished examining
 * all the URIs we provided.*/
-
+    static void on_finished_cb(GstDiscoverer* discoverer, DiscovererData* data);
+    static void on_discovered_cb(GstDiscoverer* discoverer, GstDiscovererInfo* info, GError* err, DiscovererData* data);
     static void print_topology(GstDiscovererStreamInfo* info, gint depth);
     static void print_stream_info(GstDiscovererStreamInfo* info, gint depth);
     static void print_tag_foreach(const GstTagList* tags, const gchar* tag, gpointer user_data);
 
-    static bool replace(std::string& str, const std::string& from, const std::string& to);
-    bool make_pipeline_string(const std::string& audio_source_uri, std::string& str_pipeline);
-    static bool make_storage_audio_file_name(const  std::string& audio_source_uri, std::string& audio_bucket_path);
     DiscovererData _discovery{};
 protected:
 };

@@ -1,8 +1,0 @@
-language_code=ru-RU
-audio_encoding=RecognitionSpec_AudioEncoding::RecognitionSpec_AudioEncoding_OGG_OPUS
-sample_rate_hertz=48000
-model=general
-auth_model=Bearer
-auth_token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-bucket=s3-gst-plugin
-str_pipeline_template=curlhttpsrc location={source_uri} !decodebin !audioconvert !audioresample  quality = 10 !capsfilter caps="audio/x-raw,format=S16LE,channels=1,rate={sample_rate_hertz}" ! wavenc ! s3sink bucket={bucket}  key={stage-audio-name} aws-sdk-endpoint="storage.yandexcloud.net:443" content-type="audio/wav"

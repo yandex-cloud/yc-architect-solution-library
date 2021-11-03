@@ -4,6 +4,6 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup>
-    <ActiveDebugProfile>moderation</ActiveDebugProfile>
+    <ActiveDebugProfile>image-copysearch</ActiveDebugProfile>
   </PropertyGroup>
 </Project>

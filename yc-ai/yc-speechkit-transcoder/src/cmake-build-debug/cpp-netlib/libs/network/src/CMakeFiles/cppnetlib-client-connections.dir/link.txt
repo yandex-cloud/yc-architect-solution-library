@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcppnetlib-client-connections.a  CMakeFiles/cppnetlib-client-connections.dir/client.cpp.o
-/usr/bin/ranlib libcppnetlib-client-connections.a

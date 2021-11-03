@@ -1,2 +1,0 @@
-/usr/bin/ar qc libparson.a  CMakeFiles/parson.dir/parson.c.o
-/usr/bin/ranlib libparson.a

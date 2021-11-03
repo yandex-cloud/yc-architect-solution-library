@@ -1,20 +1,2 @@
 
 .DS_Store
-/.vs
-/yc-ai/yc-speechkit-batch-asr/.vs
-/yc-ai/yc-speechkit-batch-asr/bin/Debug/netcoreapp3.1
-/yc-ai/yc-speechkit-batch-asr/obj
-/yc-ai/yc-speechkit-batch-asr/yandex/cloud/ai/vision/v1
-/yc-ai/yc-speechkit-batch-asr/yandex/cloud/ai/translate/v2
-/yc-ai/yc-speechkit-streaming-asr/yandex/cloud
-/yc-ai/yc-speechkit-transcoder/.vs
-/yc-ai/yc-speechkit-transcoder/src/out/build/WSL-GCC-Debug
-/yc-ai/yc-speechkit-transcoder/src/google
-/yc-ai/yc-speechkit-transcoder/src/yandex/cloud
-/yc-ai/yc-vision-batch-proc/.vs
-/yc-ai/yc-vision-batch-proc/yc-vision-batch-proc/bin/Debug/netcoreapp3.1
-/yc-ai/yc-vision-batch-proc/yc-vision-batch-proc/obj
-/yc-ai/yc-vision-batch-proc/yc-vision-batch-proc/Properties/launchSettings.json
-/yc-ai/.vs
-/yc-ai/yc-speechkit-batch-asr/Properties/launchSettings.json
-/yc-ai/yc-speechkit-transcoder/.idea
