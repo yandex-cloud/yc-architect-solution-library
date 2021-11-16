@@ -21,8 +21,8 @@ namespace SkBatchAsrClient
     {
         public static IServiceProvider serviceProvider { get; private set; }
 
-        
-      //  public static Configuration Config { get; private set; }
+
+        public const String TASK_DB_FILE_NAME = "tasks.csv";
 
         static void Main(string[] args)
         {
@@ -46,7 +46,7 @@ namespace SkBatchAsrClient
                     DoCreateTasks(cfg, _loggerFactory);
                 }else if (cfg.mode.Equals(Mode.stt_task_results))
                 {
-                    Log.Information($"Read tasks results from {cfg.tasksFile}");
+                    
                     DoTaskResults(cfg, _loggerFactory);
                 }
                 else
@@ -70,14 +70,18 @@ namespace SkBatchAsrClient
 
         private static void DoTaskResults(Configuration cfg, ILoggerFactory _loggerFactory)
         {
-            SkTaskDb taskDb = new SkTaskDb(cfg.tasksFile, Log.Logger);
+            string dbFile = Path.Combine(cfg.outputPath, TASK_DB_FILE_NAME);
+
+            Log.Information($"Read tasks results from {dbFile}");
+
+            SkTaskDb taskDb = new SkTaskDb(dbFile, Log.Logger);
 
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", cfg.iamToken);
 
             foreach (SkTaskModel task in taskDb.Tasks)
             {
-                if (!taskDb.CheckCompleated(cfg.bucket, task))
+                if (!taskDb.CheckCompleated(cfg, task))
                 {
                     string taskResults = @"https://operation.api.cloud.yandex.net/operations/" + task.TaskId;
                     var response = httpClient.GetStringAsync(taskResults).GetAwaiter().GetResult();
@@ -86,7 +90,7 @@ namespace SkBatchAsrClient
 
                     if ((bool)jsonResponse.done)
                     {
-                        string txtFile = taskDb.StoreResults(jsonResponse, cfg.bucket, task);
+                        string txtFile = taskDb.StoreResults(jsonResponse, cfg, task);
 
                         Log.Information($"Task {task.TaskId} text sucessfully stored to {txtFile}");
                     }
@@ -107,7 +111,11 @@ namespace SkBatchAsrClient
         {
             IS3Client s3Client = serviceProvider.GetService<IS3Client>();
 
-            SkTaskDb taskDb = new SkTaskDb(cfg.tasksFile, Log.Logger);
+            string dbFile = Path.Combine(cfg.outputPath, TASK_DB_FILE_NAME);
+
+            Log.Information($"Store recognition tasks list into {dbFile}");
+
+            SkTaskDb taskDb = new SkTaskDb(dbFile, Log.Logger);
 
 
             RecognitionSpec rSpec = new RecognitionSpec()
@@ -192,8 +200,8 @@ namespace SkBatchAsrClient
             [Option("bucket", Required = true, HelpText = "Yandex Object Storage bucket.")]
             public string bucket { get; set; }
 
-            [Option("tasksFile", Required = false, Default = "tasks.csv", HelpText = "file to store recognition tasks information")]
-            public string tasksFile { get; set; }
+            [Option("outputPath", Required = true, HelpText = "path  to store recognition tasks file tasks.csv and service output")]
+            public string outputPath { get; set; }
 
             [Option("serviceURL", Required = false, Default = "https://storage.yandexcloud.net",  HelpText = "Yandex Object Storage serviceURL.")]
             public string serviceURL { get; set; }

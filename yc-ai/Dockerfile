@@ -36,3 +36,5 @@ COPY --from=publish /app/yc-speechkit-streaming-asr/ .
 WORKDIR /app/yc-speechkit-batch-asr/
 COPY --from=publish /app/yc-speechkit-batch-asr/ .
 #ENTRYPOINT ["dotnet", "yc-speechkit-streaming-asr.dll"]
+
+WORKDIR /app

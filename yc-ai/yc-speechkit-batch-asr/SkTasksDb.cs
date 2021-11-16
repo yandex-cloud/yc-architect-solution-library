@@ -88,17 +88,17 @@ namespace SkBatchAsrClient
         }
 
 
-        public string StoreResults(dynamic jsonResponse, string bucketDir, SkTaskModel task)
+        public string StoreResults(dynamic jsonResponse, Configuration cfg, SkTaskModel task)
         {
-            string path = makeTaskPath(bucketDir, task);
+            string path = makeTaskPath(cfg, task);
             string taskDir = CheckDir(Path.GetDirectoryName(path));
 
             // write json
-            string jsonFileName = makeJsonOutputFileName(bucketDir, task);
+            string jsonFileName = makeJsonOutputFileName(cfg, task);
             File.WriteAllText(jsonFileName, jsonResponse.ToString(Formatting.Indented));
 
             // write text
-            string txtFileName = makeTxtOutputFileName(bucketDir, task);
+            string txtFileName = makeTxtOutputFileName(cfg, task);
             File.WriteAllText(txtFileName, extractText((JObject)jsonResponse));
 
             log.Information($"Task id {task.TaskId} results succesfully stored at {jsonFileName}");
@@ -106,27 +106,27 @@ namespace SkBatchAsrClient
 
         }
 
-        private string makeTaskPath(string bucketDir, SkTaskModel task)
+        private string makeTaskPath(Configuration cfg, SkTaskModel task)
         {
-            return bucketDir + '/' + task.Path;
+            return  Path.Combine(cfg.outputPath,cfg.bucket,task.Path);
         }
 
-        private string makeTxtOutputFileName(string bucketDir, SkTaskModel task)
+        private string makeTxtOutputFileName(Configuration cfg, SkTaskModel task)
         {
-            return Path.ChangeExtension(makeTaskPath(bucketDir, task), ".txt");
+            return Path.ChangeExtension(makeTaskPath(cfg, task), ".txt");
         }
 
-        private string makeJsonOutputFileName(string bucketDir, SkTaskModel task)
+        private string makeJsonOutputFileName(Configuration cfg, SkTaskModel task)
         {
-            return Path.ChangeExtension(makeTaskPath(bucketDir, task), ".json");
+            return Path.ChangeExtension(makeTaskPath(cfg, task), ".json");
         }
 
         /**
          * Task is compleated if output file exists
          **/
-        public bool CheckCompleated(string bucketDir, SkTaskModel task)
+        public bool CheckCompleated(Configuration cfg, SkTaskModel task)
         {
-            return File.Exists(makeTxtOutputFileName(bucketDir, task)) && File.Exists(makeJsonOutputFileName(bucketDir, task));
+            return File.Exists(makeTxtOutputFileName(cfg, task)) && File.Exists(makeJsonOutputFileName(cfg, task));
         }
 
         private string CheckDir(string path)
@@ -172,6 +172,6 @@ namespace SkBatchAsrClient
 
         public int Count { get;}
 
-        public bool CheckCompleated(string bucketDir, SkTaskModel task);
+        public bool CheckCompleated(Configuration cfg, SkTaskModel task);
     }
 }
