@@ -12,16 +12,16 @@
 
 
 ### Инструкция по установке:
-<ol>
-<li>Создайте в интерфейсе облака “бакет” – хранилище файлов куда можно будет загрузить аудиофайлы. https://cloud.yandex.ru/docs/storage/operations/buckets/create </li>
-<li>Создайте сервисный аккаунт https://cloud.yandex.ru/docs/iam/operations/sa/create  с правами “editor” в том-же каталоге где был создан “бакет” 
-  https://cloud.yandex.ru/docs/iam/operations/sa/assign-role-for-sa</li>
-<li>Сгенерируйте статические ключи доступа для созданного сервисного аккаунта https://cloud.yandex.ru/docs/iam/operations/sa/create-access-key<<Обязательно запишите access key и secret key>> эти ключи будут нужны для авторизации программы в сервисе хранилища</li>
-<li>Установите на рабочую станцию https://cloud.yandex.com/docs/cli/quickstart#install консоль облака для упрощенного получения токена авторизации в сервисе распознавания аудио.</li>
-<liАвторизуйте YC от имени вашей учетной записи https://cloud.yandex.ru/docs/cli/operations/authentication/user или https://cloud.yandex.ru/docs/cli/operations/authentication/federated-user или от сервисного аккаунта из пункта 2</li>
-<li>Скачайте актуальную версию   https://dotnet.microsoft.com/download</li>
-  <li>Скомпилируйте приложение или скачайте и распакуйте <a href='https://github.com/yandex-cloud/yc-architect-solution-library/releases/tag/SpeechKit'> архив с релизом </a> в удобную директорию</li>
-</ol>
++ Создайте в интерфейсе облака “бакет” – хранилище файлов куда можно будет загрузить аудиофайлы. https://cloud.yandex.ru/docs/storage/operations/buckets/create 
++ Создайте сервисный аккаунт https://cloud.yandex.ru/docs/iam/operations/sa/create  с правами “editor” в том-же каталоге где был создан “бакет” 
+  https://cloud.yandex.ru/docs/iam/operations/sa/assign-role-for-sa
++ Сгенерируйте статические ключи доступа для созданного сервисного аккаунта https://cloud.yandex.ru/docs/iam/operations/sa/create-access-key ***Обязательно запишите access key и secret key*** эти ключи будут нужны для авторизации программы в сервисе хранилища
++ Установите на рабочую станцию https://cloud.yandex.com/docs/cli/quickstart#install консоль облака для упрощенного получения токена авторизации в сервисе распознавания аудио.
++ Установите на рабочую станцию [.NET](https://dotnet.microsoft.com/download)
++ Авторизуйте YC от имени вашей учетной записи https://cloud.yandex.ru/docs/cli/operations/authentication/user или https://cloud.yandex.ru/docs/cli/operations/authentication/federated-user или от сервисного аккаунта из пункта 2
++ Скачайте актуальную версию   https://dotnet.microsoft.com/download
++ Скомпилируйте приложение или скачайте и распакуйте [архив с релизом](https://github.com/yandex-cloud/yc-architect-solution-library/releases/tag/SpeechKit) в удобную директорию
+
 
 ### Инструкция по работе:
 <ol>
