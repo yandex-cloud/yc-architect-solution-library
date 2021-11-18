@@ -130,7 +130,7 @@ namespace YC.SpeechKit.Streaming.Asr
 
             
             SpeechKitSttStreamClient speechKitClient =
-                    new SpeechKitSttStreamClient(new Uri("http://217.28.229.194:8086"), args.folderId, args.iamToken, rSpec, _loggerFactory);//https://stt.api.cloud.yandex.net:443
+                    new SpeechKitSttStreamClient(new Uri("https://stt.api.cloud.yandex.net:443"), args.folderId, args.iamToken, rSpec, _loggerFactory);//
                 // Subscribe for speech to text events comming from SpeechKit
                 SpeechKitClient.SpeechToTextResponseReader.ChunkRecived += SpeechToTextResponseReader_ChunksRecived;
 
