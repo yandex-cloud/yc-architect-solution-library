@@ -19,6 +19,3 @@
 [submodule "yc-ai/yc-vision-batch-classify/yc-cloud-api"]
 	path = yc-ai/yc-vision-batch-classify/yc-cloud-api
 	url = https://github.com/yandex-cloud/cloudapi
-[submodule "yc-ai/yc-speechkit-cli/yandex-cloud-api"]
-	path = yc-ai/yc-speechkit-cli/yandex-cloud-api
-	url = https://github.com/yandex-cloud/cloudapi

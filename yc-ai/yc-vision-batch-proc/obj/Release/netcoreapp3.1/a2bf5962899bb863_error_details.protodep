@@ -1,2 +1,0 @@
-obj\Release\netcoreapp3.1\google\rpc/ErrorDetails.cs: C:/Users/makhlu/.nuget/packages/grpc.tools/2.41.1/build/native/include/google/protobuf/duration.proto\
- google/rpc/error_details.proto

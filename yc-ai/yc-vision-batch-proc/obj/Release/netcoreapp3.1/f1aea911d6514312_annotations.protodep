@@ -1,3 +1,0 @@
-obj\Release\netcoreapp3.1\google\api/Annotations.cs: google/api/http.proto\
- C:/Users/makhlu/.nuget/packages/grpc.tools/2.41.1/build/native/include/google/protobuf/descriptor.proto\
- google/api/annotations.proto

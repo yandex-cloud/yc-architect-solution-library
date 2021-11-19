@@ -1,6 +1,0 @@
-# ninja log v5
-0	501	1637308691571126300	CMakeFiles/yc-speechkit-cli.dir/yc-speechkit-cli.cpp.o	6f48cca006c4af63
-504	737	1637308691810122300	yc-speechkit-cli	2b32428e22e32a93
-0	54	0	clean	a7c70eacb11a5051
-3	543	1637309395457088300	CMakeFiles/yc-speechkit-cli.dir/yc-speechkit-cli.cpp.o	6f48cca006c4af63
-546	809	1637309395723216200	yc-speechkit-cli	2b32428e22e32a93
