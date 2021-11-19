@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "classification": {
+      "commandName": "Project",
+      "commandLineArgs": "--mode CLASSIFICATION --folder-id b1gvp43cei68d5sfhsu7 --source \"C:\\Users\\makhlu\\Downloads\" --model quality  --iam-token \"t1.9euelZqbm8bMjZvPmJOVk82PzcvIxu3rnpWaksyWzMmRlpTPmcaPncvKzJDl8_cgQwF0-e8WOxBQ_t3z92BxfnP57xY7EFD-.5Hh6q6AEB41ArwlLT_DiUf04rZQ-qXakk2WTRDtRgx8YTwYzqZzPAN11soKQvFJPC41aUwJC_Rs9HRWYh-EPBw\" "
+    },
+    "image-copysearch": {
+      "commandName": "Project",
+      "commandLineArgs": "--mode IMAGE_COPY_SEARCH --folder-id b1gvp43cei68d5sfhsu7 --source \"C:\\Users\\makhlu\\YandexDisk\\Yandex.Clients\\ТАСС\\500\"   --iam-token \"t1.9euelZqbm8bMjZvPmJOVk82PzcvIxu3rnpWaksyWzMmRlpTPmcaPncvKzJDl8_cgQwF0-e8WOxBQ_t3z92BxfnP57xY7EFD-.5Hh6q6AEB41ArwlLT_DiUf04rZQ-qXakk2WTRDtRgx8YTwYzqZzPAN11soKQvFJPC41aUwJC_Rs9HRWYh-EPBw\" "
+    },
+    "moderation": {
+      "commandName": "Project",
+      "commandLineArgs": "--mode CLASSIFICATION --folder-id b1gvp43cei68d5sfhsu7 --source \"C:\\Users\\makhlu\\Downloads\" --model moderation  --iam-token \"t1.9euelZqJxouZlM7IlJGYy8fNjsqblu3rnpWaksyWzMmRlpTPmcaPncvKzJDl8_cEYntz-e9IAHRP_d3z90QQeXP570gAdE_9.pa-3lo8mD7JvV7UyF74SCzZRymn7dZrcs5mPwgIHzESc_ewWtJfflxPtGD3bCT_h8ixhh6lUD1yaOKjzFKgIBw\" "
+    }
+  }
+}

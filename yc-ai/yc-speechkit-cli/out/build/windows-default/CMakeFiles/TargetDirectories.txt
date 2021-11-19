@@ -1,0 +1,3 @@
+C:/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-cli/out/build/windows-default/CMakeFiles/yc-speechkit-cli.dir
+C:/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-cli/out/build/windows-default/CMakeFiles/edit_cache.dir
+C:/PROJECTS/GitHub/yc-architect-solution-library/yc-ai/yc-speechkit-cli/out/build/windows-default/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,2 @@
+obj\Debug\netcoreapp3.1\yandex\cloud\ai\vision\v2/ImageClassifier.cs: yandex/cloud/ai/vision/v2/image.proto\
+ yandex/cloud/ai/vision/v2/image_classifier.proto

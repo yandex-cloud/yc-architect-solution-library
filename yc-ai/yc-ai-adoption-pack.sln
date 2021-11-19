@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "yc-speechkit-batch-asr", "y
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "yc-speechkit-hybrid", "yc-speechkit-hybrid\yc-speechkit-hybrid.csproj", "{C6BA12C0-0FAF-4EF9-8AA5-DA0C96253396}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{38F895FA-3E06-42AA-9351-DA12B3BD6D13}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "yc-vision-batch-proc", "yc-vision-batch-proc\yc-vision-batch-proc.csproj", "{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +87,26 @@ Global
 		{C6BA12C0-0FAF-4EF9-8AA5-DA0C96253396}.Release|x64.Build.0 = Release|Any CPU
 		{C6BA12C0-0FAF-4EF9-8AA5-DA0C96253396}.Release|x86.ActiveCfg = Release|Any CPU
 		{C6BA12C0-0FAF-4EF9-8AA5-DA0C96253396}.Release|x86.Build.0 = Release|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Debug|ARM.Build.0 = Debug|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Debug|x64.Build.0 = Debug|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Debug|x86.Build.0 = Debug|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Release|ARM.ActiveCfg = Release|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Release|ARM.Build.0 = Release|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Release|ARM64.Build.0 = Release|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Release|x64.ActiveCfg = Release|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Release|x64.Build.0 = Release|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Release|x86.ActiveCfg = Release|Any CPU
+		{F2605612-F3D3-4540-9AD7-84E2D7A29B5F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,4 @@
+obj\Release\netcoreapp3.1\yandex\cloud\ai\vision\v2/ImageClassifierService.cs \
+obj\Release\netcoreapp3.1\yandex\cloud\ai\vision\v2/ImageClassifierServiceGrpc.cs: yandex/cloud/ai/vision/v2/image.proto\
+ yandex/cloud/ai/vision/v2/image_classifier.proto\
+ yandex/cloud/ai/vision/v2/image_classifier_service.proto
