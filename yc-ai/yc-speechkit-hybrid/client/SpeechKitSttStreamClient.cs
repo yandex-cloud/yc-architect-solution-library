@@ -35,20 +35,17 @@ namespace ai.adoptionpack.speechkit.hybrid.client
             {
                   RecognitionModel = new RecognitionModelOptions() { 
                       Model = "general",
-                      /*AudioFormat = new AudioFormatOptions()
-                      {
-                          RawAudio = new RawAudio()
-                          {
-                               AudioEncoding = RawAudio.Types.AudioEncoding.Linear16Pcm,
-                                SampleRateHertz = 48000,
-                                 AudioChannelCount = 1
-                          }
-                          }*/
                            AudioFormat = new AudioFormatOptions() { 
                                ContainerAudio = new ContainerAudio() { 
-                                   ContainerAudioType =  rSpec.audioEncoding                                   
+                                   ContainerAudioType =  rSpec.audioEncoding,
+                                     
                                }
-                           }
+                           },
+                            TextNormalization = new TextNormalizationOptions()
+                            {
+                                 TextNormalization = TextNormalizationOptions.Types.TextNormalization.Enabled,
+                                  ProfanityFilter = false
+                            }
                       }
             };
             speechKitRpcClient = new Recognizer.RecognizerClient(MakeChannel(loggerFactory));
@@ -64,15 +61,13 @@ namespace ai.adoptionpack.speechkit.hybrid.client
             {
 
                 AsyncDuplexStreamingCall<StreamingRequest, StreamingResponse> call = speechKitRpcClient.RecognizeStreaming();
-                //  headers: this.MakeMetadata(), 
-                //   deadline: DateTime.UtcNow.AddMinutes(5));  // check https://cloud.yandex.com/docs/speechkit/stt/streaming#session-restrictions for limitation details
                 StreamingRequest rR = new StreamingRequest();
                 rR.SessionOptions = this.sessionConf;
 
                 call.RequestStream.WriteAsync(rR).Wait();
 
                 
-                Task responseReader = SpeechToTextResponseReader.ReadResponseStream(call, cancelToken);
+                Task responseReader = SpeechToTextResponseReader.ReadResponseStream(call);
 
                 Task.Factory.StartNew(() =>
                 {

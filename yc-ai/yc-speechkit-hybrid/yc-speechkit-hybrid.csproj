@@ -14,7 +14,6 @@
     <None Remove="google\rpc\status.proto" />
     <None Remove="google\type\dayofweek.proto" />
     <None Remove="google\type\timeofday.proto" />
-    <None Remove="yandex\cloud\ai\stt\v2\stt_service.proto" />
     <None Remove="yandex\cloud\ai\stt\v3\stt.proto" />
     <None Remove="yandex\cloud\ai\stt\v3\stt_service.proto" />
     <None Remove="yandex\cloud\ai\tts\v3\tts.proto" />
@@ -33,7 +32,6 @@
     <Protobuf Include="google\rpc\status.proto" />
     <Protobuf Include="google\type\dayofweek.proto" />
     <Protobuf Include="google\type\timeofday.proto" />
-    <Protobuf Include="yandex\cloud\ai\stt\v2\stt_service.proto" />
     <Protobuf Include="yandex\cloud\ai\stt\v3\stt.proto" />
     <Protobuf Include="yandex\cloud\ai\stt\v3\stt_service.proto" />
     <Protobuf Include="yandex\cloud\ai\tts\v3\tts.proto" />
@@ -46,15 +44,16 @@
   
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.19.1" />
-    <PackageReference Include="Grpc.Net.Client" Version="2.40.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.42.0">
+    <PackageReference Include="Google.Protobuf" Version="3.8.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.23.2" />
+    <PackageReference Include="Grpc.Tools" Version="2.23.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />

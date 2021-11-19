@@ -19,7 +19,7 @@ namespace ai.adoptionpack.speechkit.hybrid
     {
         public static IServiceProvider serviceProvider = ConfigureServices(new ServiceCollection());
 
-        static CancellationTokenSource cancelSource = new CancellationTokenSource();
+        public static CancellationTokenSource cancelSource = new CancellationTokenSource();
         static Options args;
         static void Main(string[] args)
         {
@@ -77,8 +77,9 @@ namespace ai.adoptionpack.speechkit.hybrid
          */
         static void DoTts(ILoggerFactory _loggerFactory)
         {
-           /* */
+           /* TODO */
         }
+
 
 
         /**
@@ -113,6 +114,8 @@ namespace ai.adoptionpack.speechkit.hybrid
            
         }
 
+
+
         static void HandleParseError(IEnumerable<Error> errs)
         {
             Log.Error($"Command line arguments parsing error.");
@@ -123,15 +126,20 @@ namespace ai.adoptionpack.speechkit.hybrid
 
             Log.Information(e.AsJson()); // Log partial results
 
-           if (e.EventCase == StreamingResponse.EventOneofCase.Final)
-            {
+         //  if (e.EventCase == StreamingResponse.EventOneofCase.Final)
+        //   {
                 string FinalResultsFile = args.inputFilePath + ".speechkit.out";
-                File.WriteAllText(FinalResultsFile, e.AsJson());//Write final results into file     
+                File.AppendAllText(FinalResultsFile, e.AsJson());//Write final results into file     
+
+               string FinalTextResultsTxtFile = args.inputFilePath + ".txt";
+                File.AppendAllText(FinalTextResultsTxtFile, Helpers.extractText(e.AsJson()));//Write final results into file    
+              
+           
                 Log.Information($"Results output file: {FinalResultsFile}");
-                cancelSource.Cancel();
-            }
+        //    }
 
         }
+
 
 
         private static IServiceProvider ConfigureServices(IServiceCollection services)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,22 @@ namespace ai.adoptionpack.speechkit.hybrid
     public static class Helpers
     {
 
-   
+        public static string extractText(string json)
+        {
+
+            dynamic jsonResponse = JObject.Parse(json);
+
+            IEnumerable<JToken> chunks = jsonResponse.SelectTokens("Alternatives[*].Text");
+
+            StringBuilder text = new StringBuilder();
+
+            foreach (JToken chunk in chunks)
+            {
+                text.AppendLine(chunk.ToString());
+            }
+
+            return text.ToString();
+        }
         public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> collection, int batchSize)
         {
             var nextbatch = new List<T>(batchSize);

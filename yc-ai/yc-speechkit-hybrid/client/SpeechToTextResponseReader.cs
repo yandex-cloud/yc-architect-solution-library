@@ -13,7 +13,7 @@ namespace ai.adoptionpack.speechkit.hybrid.client
 
         static internal event EventHandler<ChunkRecievedEventArgs> ChunkRecived;
 
-        internal static Task ReadResponseStream(AsyncDuplexStreamingCall<StreamingRequest, StreamingResponse> grpcCall, CancellationToken cancelToken)
+        internal static Task ReadResponseStream(AsyncDuplexStreamingCall<StreamingRequest, StreamingResponse> grpcCall)
         {
             return Task.Factory.StartNew(async () =>
             {
@@ -35,6 +35,7 @@ namespace ai.adoptionpack.speechkit.hybrid.client
                         }else if (response.EventCase == StreamingResponse.EventOneofCase.StatusCode && response.StatusCode.CodeType == CodeType.Closed)
                         {                         
                             log.Information($"Call compleated");
+                            Client.cancelSource.Cancel();
                             return;
                         }
                         
