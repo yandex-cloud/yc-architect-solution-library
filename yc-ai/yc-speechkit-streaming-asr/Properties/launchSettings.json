@@ -1,0 +1,23 @@
+{
+  "profiles": {
+    "TTS(Synthezis)": {
+      "commandName": "Project",
+      "commandLineArgs": " --iam-token 't1.9euelZqLmJaVyI6czZ6cy8rNk5CWlO3rnpWamJKSj47JmcmTj4yPisaZiorl9PcwKDJz-e8pbniO3fT3cFYvc_nvKW54js3n9euelZqVmp3KyZiYyp7LiZCak5Keme_9.PLf6jBxxqaguW23JYWMGL6PXt7yC0Nb5W--E2KnlIZg1HkhE6lEecq2P2pTj0J4_-TnofAXwnLm2Uo3RxfdgCA'   --folder-id b1gvp43cei68d5sfhsu7 --in-file=\"C:\\tmp\\synthez.txt\" --mode=tts --audio-encoding Linear16Pcm"
+    },
+    "ASR (recognition)": {
+      "commandName": "Project",
+      "commandLineArgs": "--service-uri=\"http://51.250.3.164:8080\" --in-file=\"C:\\tmp\\test21.wav\" --mode=stt --audio-format Wav"
+    },
+    "ASR-OGG": {
+      "commandName": "Project",
+      "commandLineArgs": "--service-uri=\"http://51.250.11.135:8080\" --in-file=\"C:\\tmp\\test21.wav\" --mode=stt --audio-format Wav"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    },
+    "asr-cloud": {
+      "commandName": "Project",
+      "commandLineArgs": " --iam-token \"t1.9euelZqLmJaVyI6czZ6cy8rNk5CWlO3rnpWamJKSj47JmcmTj4yPisaZiorl9PcwKDJz-e8pbniO3fT3cFYvc_nvKW54js3n9euelZqVmp3KyZiYyp7LiZCak5Keme_9.PLf6jBxxqaguW23JYWMGL6PXt7yC0Nb5W--E2KnlIZg1HkhE6lEecq2P2pTj0J4_-TnofAXwnLm2Uo3RxfdgCA\"   --folder-id b1gvp43cei68d5sfhsu7  --in-file=\"C:\\tmp\\test.wav\" --audio-encoding Linear16Pcm "
+    }
+  }
+}

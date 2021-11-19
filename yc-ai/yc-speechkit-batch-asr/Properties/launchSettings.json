@@ -1,0 +1,18 @@
+{
+  "profiles": {
+    "SkBatchAsrClient": {
+      "commandName": "Project"
+    },
+    "AsrCreateLongRunningTasks": {
+      "commandName": "Project",
+      "commandLineArgs": "dotnet yc-speechkit-batch-asr.dll   --s3-accessKey \"Xiqe_A6e6NVRZ-qufabl\" --s3-secretKey  \"OB1cB9EuwRGJWtK1V2p4-p-eXNoQ8y9Z0zMaDczU\" --bucket spbtv --iam-token \"t1.9euelZqLkIrKm4-JzY2Jmoucycidz-3rnpWamJKSj47JmcmTj4yPisaZiorl9PdKTTJz-e83ZGiV3fT3Cnwvc_nvN2Rolc3n9euelZqVmp3KyZiYyp7LiZCak5Keme_9.Lp7iMS0fv8mzoY0tO8wWPc5WpwCJD041hZybKrHmouI5YqD9WEim01qLicUnIYLwTsz3alASpguyS3kYZI9bCg\" --folder-id b1gvp43cei68d5sfhsu7   --audio-encoding Linear16Pcm --sample-rate 48000 --model=\"general:rc\" --lang=\"ru-RU\" --mode stt_create_tasks --outputPath=\"C:\\\\tmp\""
+    },
+    "AsrGetLongRunningTasksResult": {
+      "commandName": "Project",
+      "commandLineArgs": "--s3-accessKey \"Xiqe_A6e6NVRZ-qufabl\" --s3-secretKey  \"OB1cB9EuwRGJWtK1V2p4-p-eXNoQ8y9Z0zMaDczU\" --bucket spbtv --iam-token \"t1.9euelZqLkIrKm4-JzY2Jmoucycidz-3rnpWamJKSj47JmcmTj4yPisaZiorl9PdKTTJz-e83ZGiV3fT3Cnwvc_nvN2Rolc3n9euelZqVmp3KyZiYyp7LiZCak5Keme_9.Lp7iMS0fv8mzoY0tO8wWPc5WpwCJD041hZybKrHmouI5YqD9WEim01qLicUnIYLwTsz3alASpguyS3kYZI9bCg\" --folder-id b1gvp43cei68d5sfhsu7   --audio-encoding Linear16Pcm --sample-rate 48000 --model=\"general:rc\" --lang=\"ru-RU\" --mode stt_task_results --outputPath=\"C:\\\\tmp\""
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

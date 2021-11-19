@@ -4,11 +4,11 @@
 <p>More information regarding  this service https://cloud.yandex.com/en-ru/docs/speechkit/hybrid-speechkit/conception </p>
 
 <h2> How to run </h2>
-<ol>  
+<ol>
+  <li>Deploy SpeechKit Hybrid service - https://cloud.yandex.com/en-ru/docs/speechkit/hybrid-speechkit/conception</li>
   <li>Download and install .NET Core runtime for Win/Mac/Linux https://dotnet.microsoft.com/download </li>
   <li>Download, install and init Yandex Cloud Command Line interface tools https://cloud.yandex.com/docs/cli/quickstart#install</li>
   <li>Compile sources or download and unzip compiled client or download container</li>
-  <li>Generate IaM token with command <code>yc iam create-token</code></li>
   <li>Prepare your audio in Ogg (Opus) or Wav audio source file.
     <p>input audio must be <a href='https://cloud.yandex.com/docs/speechkit/stt/formats#lpcm'> in supported format</a></p>
   </li>
