@@ -30,7 +30,7 @@ resource "yandex_function" "spawn-snapshot-tasks" {
   name               = "spawn-snapshot-tasks"
   description        = "Generating tasks for snapshots with cron scheduler and sending to ymq"
   user_hash          = "1.0.0"
-  runtime            = "golang114"
+  runtime            = "golang116"
   entrypoint         = "spawn-snapshot-tasks.SpawnHandler"
   tags               = ["my_tag"]
   memory             = var.memory
@@ -57,7 +57,7 @@ resource "yandex_function" "snapshot-disks" {
   name               = "snapshot-disks"
   description        = "Generating tasks for snapshots with cron scheduler and sending to ymq"
   user_hash          = "1.0.0"
-  runtime            = "golang114"
+  runtime            = "golang116"
   entrypoint         = "snapshot-disks.SnapshotHandler"
   tags               = ["my_tag"]
   memory             = var.memory
@@ -79,7 +79,7 @@ resource "yandex_function" "delete-expired" {
   name               = "delete-expired"
   description        = "Generating tasks for snapshots with cron scheduler and sending to ymq"
   user_hash          = "1.0.0"
-  runtime            = "golang114"
+  runtime            = "golang116"
   entrypoint         = "delete-expired.DeleteHandler"
   tags               = ["my_tag"]
   memory             = var.memory
