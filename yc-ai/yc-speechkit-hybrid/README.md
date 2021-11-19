@@ -9,10 +9,12 @@
   <li>Download, install and init Yandex Cloud Command Line interface tools https://cloud.yandex.com/docs/cli/quickstart#install</li>
   <li>Compile sources or download and unzip compiled client or download container</li>
   <li>Generate IaM token with command <code>yc iam create-token</code></li>
-  <li>Prepare your audio in Ogg (Opus) or </li>
-  <li>execute in command line:
-    <code>dotnet ai.adoptionpack.speechkit.hybrid.dll  --service-uri=\"http://<your-speechkit-hybrid-endpoint>:8080" --in-file="path_to your_input.wav" --mode=stt --audio-format Wav</code>
-    <code>dotnet ai.adoptionpack.speechkit.hybrid.dll  --service-uri=\"http://<your-speechkit-hybrid-endpoint>:8080" --in-file="path_to your_input.ogg" --mode=stt --audio-format OggOpus</code>
-    <p>input audio must be in supported format <a href='https://cloud.yandex.com/docs/speechkit/stt/formats#lpcm'>lpcm format</a></li>
+  <li>Prepare your audio in Ogg (Opus) or Wav audio source file.
+    <p>input audio must be <a href='https://cloud.yandex.com/docs/speechkit/stt/formats#lpcm'> in supported format</a></p>
+  </li>
+  <li>command line example:
+     <p><code>dotnet ai.adoptionpack.speechkit.hybrid.dll  --service-uri=\"http://<your-speechkit-hybrid-endpoint>:8080" --in-file="path_to your_input.wav" --mode=stt --audio-format Wav</code></p>
+     <p><code>dotnet ai.adoptionpack.speechkit.hybrid.dll  --service-uri=\"http://<your-speechkit-hybrid-endpoint>:8080" --in-file="path_to your_input.ogg" --mode=stt --audio-format OggOpus</code></p>
+    </li>
 </ol>
   
