@@ -13,13 +13,14 @@ namespace ai.adoptionpack.speechkit.hybrid.client
     */
     public class ChunkRecievedEventArgs : EventArgs
     {
-        public AlternativeUpdate SpeechToTextChunk { get; private set; }
-        public StreamingResponse.EventOneofCase EventCase { get; private set; }
+        public StreamingResponse SpeechToTextChunk { get; private set; }
+        public StreamingResponse.EventOneofCase EventCase { 
+            get { return SpeechToTextChunk.EventCase;  } 
+        }
 
-        internal ChunkRecievedEventArgs(AlternativeUpdate chunk, StreamingResponse.EventOneofCase eventCase)
+        internal ChunkRecievedEventArgs(StreamingResponse eventResponse)
         {
-            this.SpeechToTextChunk = chunk;
-            this.EventCase = eventCase;
+            this.SpeechToTextChunk = eventResponse;
         }
 
 

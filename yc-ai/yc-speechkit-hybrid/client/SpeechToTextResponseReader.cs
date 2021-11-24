@@ -21,30 +21,20 @@ namespace ai.adoptionpack.speechkit.hybrid.client
                 log.Information("Started new ResponseStream reading task");
                 try
                 {
-                    grpcCall.ResponseStream.MoveNext().Wait();
+                  //  grpcCall.ResponseStream.MoveNext().Wait();
                     await foreach (var response in grpcCall.ResponseStream.ReadAllAsync())
                     {
+                        ChunkRecievedEventArgs evt = new ChunkRecievedEventArgs(response);
+                        ChunkRecived?.Invoke(null, evt);
 
                         log.Information($"{response.EventCase} chunk of {response.CalculateSize()} bytes recieved in {response.ResponseWallTimeMs}");
 
-                        AlternativeUpdate altUpdate = null;
-                        if (response.EventCase == StreamingResponse.EventOneofCase.Partial) {
-                            altUpdate = response.Partial;
-                        } else if (response.EventCase == StreamingResponse.EventOneofCase.Final) { 
-                            altUpdate = response.Final;
-                        }else if (response.EventCase == StreamingResponse.EventOneofCase.StatusCode && response.StatusCode.CodeType == CodeType.Closed)
+                        if (response.EventCase == StreamingResponse.EventOneofCase.StatusCode && response.StatusCode.CodeType == CodeType.Closed)
                         {                         
                             log.Information($"Call compleated");
                             Client.cancelSource.Cancel();
                             return;
-                        }
-                        
-                        if (altUpdate != null)
-                        {
-                            ChunkRecievedEventArgs evt = new ChunkRecievedEventArgs(altUpdate, response.EventCase);
-                            ChunkRecived?.Invoke(null, evt);
-                           
-                        }
+                        }                      
                     }
                     
                 }

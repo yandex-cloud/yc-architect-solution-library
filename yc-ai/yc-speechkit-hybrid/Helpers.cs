@@ -10,12 +10,12 @@ namespace ai.adoptionpack.speechkit.hybrid
     public static class Helpers
     {
 
-        public static string extractText(string json)
+        public static string extractText(string json, String jsonPath)
         {
 
             dynamic jsonResponse = JObject.Parse(json);
 
-            IEnumerable<JToken> chunks = jsonResponse.SelectTokens("Alternatives[*].Text");
+            IEnumerable<JToken> chunks = jsonResponse.SelectTokens(jsonPath);
 
             StringBuilder text = new StringBuilder();
 

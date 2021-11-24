@@ -19,6 +19,20 @@ namespace ai.adoptionpack.speechkit.hybrid
     {
         public static IServiceProvider serviceProvider = ConfigureServices(new ServiceCollection());
 
+        private static String PartialTextResultsOutFile{
+            get { return args.inputFilePath + ".partial.txt"; }
+        }
+
+        private static String FinalTextResultsOutFile
+        {
+            get { return args.inputFilePath + ".Final.txt"; }
+        }
+
+       private static String TraceResultsOutFile
+        {
+            get { return args.inputFilePath + ".trace.json"; }
+        }
+
         public static CancellationTokenSource cancelSource = new CancellationTokenSource();
         static Options args;
         static void Main(string[] args)
@@ -98,9 +112,9 @@ namespace ai.adoptionpack.speechkit.hybrid
 
             CancellationToken cancelToken = cancelSource.Token;
             speechKitClient.SendAsrData(File.ReadAllBytes(args.inputFilePath), cancelToken);
-                    
-                
-             while (true)
+
+
+            while (true)
             {
                 Thread.Sleep(200);
                 if (cancelToken.IsCancellationRequested)
@@ -110,8 +124,10 @@ namespace ai.adoptionpack.speechkit.hybrid
                     return;
                 }
             }
-   
            
+            Log.Information($"Final results output file: {FinalTextResultsOutFile}");
+            Log.Information($"Partial results output file: {PartialTextResultsOutFile}");
+            Log.Information($"Trace service output file: {TraceResultsOutFile}");
         }
 
 
@@ -123,20 +139,25 @@ namespace ai.adoptionpack.speechkit.hybrid
 
         private static void SpeechToTextResponseReader_ChunksRecived(object sender, ChunkRecievedEventArgs e)
         {
-
-            Log.Information(e.AsJson()); // Log partial results
-
-         //  if (e.EventCase == StreamingResponse.EventOneofCase.Final)
-        //   {
-                string FinalResultsFile = args.inputFilePath + ".speechkit.out";
-                File.AppendAllText(FinalResultsFile, e.AsJson());//Write final results into file     
-
-               string FinalTextResultsTxtFile = args.inputFilePath + ".txt";
-                File.AppendAllText(FinalTextResultsTxtFile, Helpers.extractText(e.AsJson()));//Write final results into file    
-              
+            String eventPayload = e.AsJson();
+            Log.Information(eventPayload); // Log partial results
            
-                Log.Information($"Results output file: {FinalResultsFile}");
-        //    }
+           File.AppendAllText(TraceResultsOutFile, eventPayload);//Write final results into file     
+
+           if (e.EventCase == StreamingResponse.EventOneofCase.Final)
+           {         
+             
+                File.AppendAllText(FinalTextResultsOutFile, Helpers.extractText(eventPayload, "Final.Alternatives[*].Text"));//Write final results into file    
+
+                
+            }
+            else if (e.EventCase == StreamingResponse.EventOneofCase.Partial)
+            {
+                string PartialTextResultsTxtFile = args.inputFilePath + ".partial.txt";
+                File.AppendAllText(PartialTextResultsTxtFile, Helpers.extractText(eventPayload, "Partial.Alternatives[*].Text"));//Write partial results into file    
+
+                Log.Information($"Results output file: {PartialTextResultsTxtFile}");
+            }
 
         }
 
