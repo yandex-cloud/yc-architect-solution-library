@@ -50,7 +50,7 @@ namespace SkBatchAsrClient
 
                     var qResponse = response.S3Objects.AsQueryable<S3Object>();
                     var retVal = from key in qResponse
-                                // where key.Key.EndsWith(".wav")
+                                 where key.Key.EndsWith(".wav") || key.Key.EndsWith(".ogg")
                                  orderby key.Key
                                  select new SkTaskModel
                                  {
