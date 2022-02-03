@@ -1,0 +1,9 @@
+images:
+  app:
+    image:
+      name: "fluent/fluent-bit"
+
+ydsStream: "your-yds-stream-name"
+ycApiKey:
+    keyId: "sa-static-keyId-aws-sdk"
+    accessKey: "sa-static-accessKey-aws-sdk"

@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "log": {
+      "type": "string"
+    },
+    "stream": {
+      "type": "string"
+    },
+    "time": {
+      "type": "string"
+    },
+    "kubernetes": {
+      "type": "object",
+      "properties": {
+        "pod_name": {
+          "type": "string"
+        },
+        "namespace_name": {
+          "type": "string"
+        },
+        "pod_id": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "properties": {
+            "k8s-app": {
+              "type": "string"
+            },
+            "pod-template-hash": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "k8s-app",
+            "pod-template-hash"
+          ]
+        },
+        "annotations": {
+          "type": "object",
+          "properties": {
+            "cluster-autoscaler.kubernetes.io/safe-to-evict": {
+              "type": "string"
+            },
+            "scheduler.alpha.kubernetes.io/critical-pod": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cluster-autoscaler.kubernetes.io/safe-to-evict",
+            "scheduler.alpha.kubernetes.io/critical-pod"
+          ]
+        },
+        "host": {
+          "type": "string"
+        },
+        "container_name": {
+          "type": "string"
+        },
+        "docker_id": {
+          "type": "string"
+        },
+        "container_hash": {
+          "type": "string"
+        },
+        "container_image": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pod_name",
+        "namespace_name",
+        "pod_id",
+        "labels",
+        "annotations",
+        "host",
+        "container_name",
+        "docker_id",
+        "container_hash",
+        "container_image"
+      ]
+    }
+  },
+  "required": [
+    "log",
+    "stream",
+    "time",
+    "kubernetes"
+  ]
+}
