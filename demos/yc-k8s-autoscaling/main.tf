@@ -69,6 +69,11 @@ resource "yandex_resourcemanager_folder_iam_member" "service_account_node" {
   member    = "serviceAccount:${yandex_iam_service_account.k8s_node_sa.id}"
   role      = "container-registry.images.puller"
 }
+resource "null_resource" "iam_sleep" {
+  provisioner "local-exec" {
+    command = "sleep 5"
+  }
+}
 # Master
 resource "yandex_kubernetes_cluster" "regional_cluster" {
   name        = "demo"
@@ -127,7 +132,8 @@ resource "yandex_kubernetes_cluster" "regional_cluster" {
     yandex_resourcemanager_folder_iam_member.service_account_master,
     yandex_resourcemanager_folder_iam_member.service_account_master_2,
     yandex_resourcemanager_folder_iam_member.service_account_master_3,
-  yandex_resourcemanager_folder_iam_member.service_account_node]
+    yandex_resourcemanager_folder_iam_member.service_account_node,
+  null_resource.iam_sleep]
 }
 
 ### K8s Node Groups
