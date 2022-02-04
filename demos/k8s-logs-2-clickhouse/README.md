@@ -18,6 +18,6 @@
 
 * Разверните fluentbit, подключенный к Yandex DataS Streams через Kenezis Stream API, выполнив Helm chart из этого репозитория 
   ```
-  helm install yds-fluentbit ./k8s-logs-ydt-ch
+  helm install yds-fluentbit .
   ```
 Убедитесь что pod с  fluentbit запустился и успешно передает данные в YDS
