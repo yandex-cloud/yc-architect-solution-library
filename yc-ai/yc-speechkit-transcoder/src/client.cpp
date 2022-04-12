@@ -5,6 +5,7 @@
 #include "audio-prep-svc/audio_prep_svc.h"
 #include "speechkit_asr_svc.h"
 
+
 using namespace std;
 
 
@@ -41,7 +42,20 @@ bool add_option(std::string option_name, std::string option_value){
 
 bool parse_config_option(char* config_option_line){
     std::string config_option_name;
+    
+
+
+    std::string  s_config_option_line =  std::string(config_option_line);
+    s_config_option_line = ltrim(s_config_option_line);
+    
+    if (s_config_option_line.length() == 0) {
+        return false; // False if line is null
+    }else if (s_config_option_line.cbegin()[0] == '#') {
+        return false; // This is comment line - ignore
+    }
+
     std::istringstream is_option(config_option_line);
+
     if (std::getline(is_option, config_option_name, '=')) {
         std::string config_option_value;
         if (std::getline(is_option, config_option_value)) {
