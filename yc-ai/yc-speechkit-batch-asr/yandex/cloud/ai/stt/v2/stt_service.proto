@@ -64,6 +64,9 @@ message RecognitionSpec {
     LINEAR16_PCM = 1;
 
     OGG_OPUS = 2;
+
+    // transcription only
+    MP3 = 3;
   }
 
   AudioEncoding audio_encoding = 1;
@@ -89,6 +92,9 @@ message RecognitionSpec {
 
   // This mark allows disable normalization text
   bool raw_results = 10;
+
+  // Rewrite text in literature style (default: false)
+  bool literature_text = 11;
 }
 
 message SpeechRecognitionChunk {

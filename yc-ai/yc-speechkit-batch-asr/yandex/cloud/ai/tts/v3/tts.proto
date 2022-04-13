@@ -30,7 +30,7 @@ message RawAudio {
     enum AudioEncoding {
         AUDIO_ENCODING_UNSPECIFIED = 0;
 
-        // 16-bit signed little-endian (Linear PCM).
+        // Audio bit depth 16-bit signed little-endian (Linear PCM).
         LINEAR16_PCM = 1;
     }
 
@@ -45,9 +45,10 @@ message ContainerAudio {
     enum ContainerAudioType {
         CONTAINER_AUDIO_TYPE_UNSPECIFIED = 0;
 
-        // RIFF linear pcm with header audio file format.
+        // Audio bit depth 16-bit signed little-endian (Linear PCM).
         WAV = 1;
         OGG_OPUS = 2;
+        MP3 = 3;
     }
     ContainerAudioType container_audio_type = 1;
 }
@@ -65,7 +66,7 @@ message AudioVariable {
     string variable_name = 1;
     // Start time of the variable in milliseconds.
     int64 variable_start_ms = 2;
-    // Lenght of the variable in milliseconds.
+    // Length of the variable in milliseconds.
     int64 variable_length_ms = 3;
 }
 
@@ -109,25 +110,35 @@ message Hints {
         AudioTemplate audio_template = 2;
         // hint to change speed
         double speed = 3;
-        // hint to regulate volume
+        // hint to regulate volume. For LOUDNESS_NORMALIZATION_TYPE_UNSPECIFIED normalization will use MAX_PEAK, if volume in (0, 1], LUFS if volume in [-145, 0).
         double volume = 4;
+        string role = 5;
     }
 }
 
 message UtteranceSynthesisRequest {
     // The name of the model.
-    //
-    // Currently avalible only `general`.
+    // Specifies basic synthesis functionality. Currently should be empty. Do not use it
     string model = 1;
     // Text to synthesis, one of text synthesis markups.
     oneof Utterance {
         // Raw text (e.g. "Hello, Alice").
         string text = 2;
-        // Text template instalce, e.g. `{"Hello, {username}" with username="Alice"}`.
+        // Text template instance, e.g. `{"Hello, {username}" with username="Alice"}`.
         TextTemplate text_template = 3;
     }
     // Optional hints for synthesis.
     repeated Hints hints = 4;
     // Optional. Default: 22050 Hz, linear 16-bit signed little-endian PCM, with WAV header
     AudioFormatOptions output_audio_spec = 5;
+    // Normalization type
+    enum LoudnessNormalizationType {
+        LOUDNESS_NORMALIZATION_TYPE_UNSPECIFIED = 0;
+        MAX_PEAK = 1;
+        LUFS = 2;
+    }
+    // Optional. Default: LUFS, type of loudness normalization, default value -19.
+    LoudnessNormalizationType loudness_normalization_type = 6;
+    // Optional. Automatically split long text to several utterances and bill accordingly. Some degradation in service quality is possible.
+    bool unsafe_mode = 7;
 }
