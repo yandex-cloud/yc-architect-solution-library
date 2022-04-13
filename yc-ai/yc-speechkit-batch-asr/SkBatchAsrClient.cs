@@ -123,6 +123,7 @@ namespace SkBatchAsrClient
                 LanguageCode = cfg.lang,
                 ProfanityFilter = true,
                 Model = cfg.model,
+                LiteratureText = cfg.punctuation,
                 PartialResults = false, //возвращать только финальные результаты false
                 AudioEncoding = cfg.audioEncoding,
                 SampleRateHertz = cfg.sampleRate
@@ -221,7 +222,10 @@ namespace SkBatchAsrClient
             [Option("lang", Required = false, Default = "ru-RU", HelpText = "Language: ru-RU en-US - kk-KK")]
             public string lang { get; set; }
 
-        [Option("sample-rate", Required = false, Default = 48000, HelpText = "The sampling frequency of the submitted audio (48000, 16000, 8000). Required if format is set to Linear16Pcm")]
+            [Option("auto-punctuation", Required = false, Default = false, HelpText = "speech recognition with punctuation")]
+            public bool punctuation { get; set; }
+
+            [Option("sample-rate", Required = false, Default = 48000, HelpText = "The sampling frequency of the submitted audio (48000, 16000, 8000). Required if format is set to Linear16Pcm")]
             public int sampleRate { get; set; }
 
 
