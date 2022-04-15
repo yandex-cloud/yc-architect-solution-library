@@ -223,7 +223,6 @@
         json_object_set_string(root_object, "status", rtrim(tmp_value).c_str());
 
         /*Construct output json with media deiscovered  information */
-        g_print("\nDuration: %" GST_TIME_FORMAT "\n", GST_TIME_ARGS(gst_discoverer_info_get_duration(info)));       
         std::snprintf(buff, sizeof(buff), "%" GST_TIME_FORMAT "\n", GST_TIME_ARGS(gst_discoverer_info_get_duration(info)));        
         tmp_value = std::string(buff);
         json_object_set_string(root_object, "duration", rtrim(tmp_value).c_str());
@@ -232,22 +231,16 @@
         tags = gst_discoverer_info_get_tags(info);       
         JSON_Value* tags_value = json_value_init_object();
         if (tags) {
-            g_print("Tags:\n");
             gst_tag_list_foreach(tags, print_tag_foreach, tags_value);
         }
         
-        json_object_dotset_value(root_object, "tags", tags_value);
+        json_object_set_value(root_object, "tags", tags_value);
 
-        g_print("Seekable: %s\n", (gst_discoverer_info_get_seekable(info) ? "yes" : "no"));
         json_object_set_string(root_object, "seekable", (gst_discoverer_info_get_seekable(info) ? "yes" : "no"));
-
-        g_print("\n");
 
         sinfo = gst_discoverer_info_get_stream_info(info);
         if (!sinfo)
             return;
-
-        g_print("Stream information:\n");
         
         JSON_Value* streams_array = json_value_init_array();
         print_topology(sinfo, 1, streams_array);
@@ -255,7 +248,6 @@
         gst_discoverer_stream_info_unref(sinfo);
 
         json_object_set_value(root_object, "streams", streams_array);
-        g_print("\n");
 
         char* serialized_string = json_serialize_to_string_pretty(root_value);
         data->callback->format_detection_result(std::string(serialized_string));
@@ -267,7 +259,7 @@
 void audio_preparation_svc::print_tag_foreach(const GstTagList* tags, const gchar* tag, gpointer user_data) {
     GValue val = { 0, };
     gchar* str;
-   // gint depth = GPOINTER_TO_INT(user_data);
+
     JSON_Value* tags_value = reinterpret_cast<JSON_Value*>(user_data);
 
     gst_tag_list_copy_value(&val, tags, tag);
@@ -276,8 +268,6 @@ void audio_preparation_svc::print_tag_foreach(const GstTagList* tags, const gcha
         str = g_value_dup_string(&val);
     else
         str = gst_value_serialize(&val);
-
-    g_print("%*s%s: %s\n", 2 , " ", gst_tag_get_nick(tag), str);
  
     json_object_set_string(json_value_get_object(tags_value), gst_tag_get_nick(tag), str);
 
@@ -287,7 +277,7 @@ void audio_preparation_svc::print_tag_foreach(const GstTagList* tags, const gcha
 }
 
 /* Print information regarding a stream */
-void audio_preparation_svc::print_stream_info(GstDiscovererStreamInfo* info, gint depth, JSON_Value* streams_array) {
+void audio_preparation_svc::print_stream_info(GstDiscovererStreamInfo* info, gint depth, JSON_Value* stream_array_item) {
     gchar* desc = NULL;
     GstCaps* caps;
     const GstTagList* tags;
@@ -301,10 +291,8 @@ void audio_preparation_svc::print_stream_info(GstDiscovererStreamInfo* info, gin
             desc = gst_caps_to_string(caps);
         gst_caps_unref(caps);
     }
-   
-    JSON_Value* stream_value =  json_value_init_object();
-        g_print("%*s%s: %s\n", 2 * depth, " ", gst_discoverer_stream_info_get_stream_type_nick(info), (desc ? desc : ""));
-       json_object_set_string(json_value_get_object(stream_value), gst_discoverer_stream_info_get_stream_type_nick(info), (desc ? desc : ""));
+      
+       json_object_set_string(json_value_get_object(stream_array_item), gst_discoverer_stream_info_get_stream_type_nick(info), (desc ? desc : ""));
 
     if (desc) {
         g_free(desc);
@@ -313,11 +301,13 @@ void audio_preparation_svc::print_stream_info(GstDiscovererStreamInfo* info, gin
 
     tags = gst_discoverer_stream_info_get_tags(info);
     if (tags) {
-        g_print("%*sTags:\n", 2 * (depth + 1), " ");
-       // gst_tag_list_foreach(tags, print_tag_foreach, stream_value);
+                
+         JSON_Value* tags_value = json_value_init_object();
+            gst_tag_list_foreach(tags, print_tag_foreach, tags_value);
+         json_object_set_value(json_value_get_object(stream_array_item), "tags", tags_value);
     }
     
-    json_array_append_value(json_value_get_array(streams_array), stream_value);
+    
 }
 
 /* Print information regarding a stream and its substreams, if any */
@@ -326,8 +316,9 @@ void audio_preparation_svc::print_topology(GstDiscovererStreamInfo* info, gint d
 
     if (!info)
         return;
-
-    print_stream_info(info, depth, streams_array);
+    JSON_Value* stream_value = json_value_init_object();
+     print_stream_info(info, depth, stream_value);
+    json_array_append_value(json_value_get_array(streams_array), stream_value);
 
     next = gst_discoverer_stream_info_get_next(info);
     if (next) {
