@@ -2,21 +2,27 @@
 // Created by makhlu on 22.09.2021.
 //
 
+#include  <../transcoder-config.h>
 #include "audio_prep_svc.h"
+
 
 
     audio_preparation_svc::audio_preparation_svc(std::map<std::string, std::string> config, std::shared_ptr<audio_prep_svc_callback> callback)
     {
+        /* Initialize cumstom data structure */
+        memset(&_discovery, 0, sizeof(DiscovererData));
         _discovery.config = config;
         _discovery.callback = callback;
+    }
+
+
+    audio_preparation_svc::~audio_preparation_svc() {
+        free(&_discovery);
     }
 
     void audio_preparation_svc::discover_audio_format(std::string audio_source_uri){
 
         GError* err = NULL;
-
-        /* Initialize cumstom data structure */
-        memset(&_discovery, 0, sizeof(_discovery));
 
         g_print("Discovering '%s'\n", audio_source_uri.c_str());
         /* Instantiate the Discoverer */
@@ -42,6 +48,7 @@
         g_object_unref(_discovery.discoverer);
         g_main_loop_unref(_discovery.loop);
     }
+
     void audio_preparation_svc::start_preparation_pipeline(std::string audio_source_uri){
         GstBus* bus;
         GstMessage* msg;
@@ -49,7 +56,9 @@
         GMainLoop* loop;
         loop = g_main_loop_new(NULL, FALSE);
 
-        std::string str_pipeline = _discovery.config[CFG_PIPELINE_TEMPLATE];
+        std::string str_pipeline =  make_pipeline_string(audio_source_uri);
+
+        g_print("Starting pipeline: %s\n", str_pipeline.c_str());
 
         GstElement* pipeline =  gst_parse_launch(str_pipeline.c_str(), NULL);
 
@@ -97,6 +106,32 @@
         gst_object_unref(pipeline);
         g_source_remove(watch_id);
         g_main_loop_unref(loop);
+    }
+
+    /* Substitute template params*/
+    std::string  audio_preparation_svc::make_pipeline_string(std::string audio_source_uri) {
+
+        // CFG_PARAM_SOURCE_URI is not in app config - add them from call param
+        _discovery.config[CFG_PARAM_SOURCE_URI] = audio_source_uri;
+
+        std::string  pipeline_string = _discovery.config[CFG_PIPELINE_TEMPLATE];
+
+       for (auto const& map_token : _discovery.config)
+       {
+           size_t index = 0;
+           std::string pattern = "{" + map_token.first + "}";
+           index = pipeline_string.find(pattern, index);
+           if (index != std::string::npos) {
+               int replace_len = pattern.length(); //pattern.length() > map_token.second.length() ? pattern.length() : map_token.second.length();
+               pipeline_string.replace(index, replace_len , map_token.second);
+               index += replace_len;
+           }
+       }
+
+       g_print("Pipeline is: %s\n", pipeline_string.c_str());
+
+       return pipeline_string;
+      
     }
 
     void audio_preparation_svc::on_finished_cb(GstDiscoverer* discoverer, DiscovererData* data) {

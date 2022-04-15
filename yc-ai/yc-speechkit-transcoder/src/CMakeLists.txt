@@ -122,9 +122,9 @@ ENDFOREACH()
 add_subdirectory("parson")
 
 # Add source to this project's executable.
-add_executable (asr-client  ${grpc_cc_src} ${grpc_h_src} ${protobuf_cc_src} ${protobuf_h_src} "client.cpp"  audio-prep-svc/audio_prep_svc.cpp speechkit_asr_svc.cpp  ../parson/parson.c ../parson/parson.h )
+add_executable (transcoder-client  ${grpc_cc_src} ${grpc_h_src} ${protobuf_cc_src} ${protobuf_h_src} "transcoder-client.h" "speechkit_asr_svc.h"  "transcoder-client.h" "transcoder-client.cpp"  "speechkit_asr_svc.cpp"  "parson/parson.c" "parson/parson.h"   "audio-prep-svc/audio_prep_svc.h" "audio-prep-svc/audio_prep_svc.cpp" "transcoder-config.h")
 
-target_link_libraries(asr-client  PUBLIC PkgConfig::GLIB_PKG ${GSTREAMER_LIBRARIES} gio-2.0  gRPC::grpc++ gRPC::grpc  protobuf::libprotobuf)
+target_link_libraries(transcoder-client  PUBLIC PkgConfig::GLIB_PKG ${GSTREAMER_LIBRARIES} gio-2.0  gRPC::grpc++ gRPC::grpc  protobuf::libprotobuf)
 
 #copy default configuration file to output
 configure_file(config.txt config.txt COPYONLY)

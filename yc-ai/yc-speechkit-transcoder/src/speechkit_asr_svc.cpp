@@ -11,7 +11,7 @@
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/create_channel.h>
 #include <thread>
-#include "config.h"
+
 
 using yandex::cloud::ai::stt::v2::LongRunningRecognitionRequest;
 
@@ -40,7 +40,7 @@ void speechkit_asr_svc::start_asr_task(std::shared_ptr<asr_svc_callback> callbac
 grpc::ClientContext* speechkit_asr_svc::init_asr_client_context(std::map<std::string, std::string> config){
 
     grpc::ClientContext* context = new grpc::ClientContext();
-    std::string str_bearer = config[CFG_PARAM_AUTH_MODEL] + ' ' + config[CFG_PARAM_AUTH_TOKEN];
+    std::string str_bearer;// = config[CFG_PARAM_AUTH_MODEL] + ' ' + config[CFG_PARAM_AUTH_TOKEN];
     context->AddMetadata("authorization", str_bearer.c_str());
     context->AddMetadata("x-data-logging-enabled", "true");
     return context;

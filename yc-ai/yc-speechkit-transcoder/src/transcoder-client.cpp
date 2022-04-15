@@ -1,7 +1,8 @@
 #include <iostream>
 #include <fstream>
 
-#include "client.h"
+#include "transcoder-client.h"
+#include "transcoder-config.h"
 #include "audio-prep-svc/audio_prep_svc.h"
 #include "speechkit_asr_svc.h"
 
@@ -35,20 +36,19 @@ class audio_transformer_callback : public  audio_prep_svc_callback{
 
 
 
+
 bool add_option(std::string option_name, std::string option_value){
-        options[option_name] = option_value;
+        options[trim(option_name)] = trim(option_value);
         return !options[option_name].empty();
 }
 
-bool parse_config_option(char* config_option_line){
+bool parse_config_option(std::string config_option_line){
     std::string config_option_name;
-    
 
-
-    std::string  s_config_option_line =  std::string(config_option_line);
-    s_config_option_line = ltrim(s_config_option_line);
+    std::string  s_config_option_line = ltrim(config_option_line);
     
     if (s_config_option_line.length() == 0) {
+        std::cout << "Error parsing config line: " << config_option_line << std::endl;
         return false; // False if line is null
     }else if (s_config_option_line.cbegin()[0] == '#') {
         return false; // This is comment line - ignore
@@ -75,9 +75,7 @@ bool parse_config(){
 
     if (cfg_file_in){
         for (std::string line; std::getline(cfg_file_in, line); ) {
-            if (!parse_config_option((char *)line.c_str())){
-                std::cout << "Error parsing config line: " << line << std::endl;
-            }
+            parse_config_option(line);
         }
         return true;
     }else{
@@ -117,6 +115,7 @@ int main(int argc, char** argv)
         return -1;
     }else{
         std::cout << "Completed." << std::endl;
+
         return 0;
     }
 
