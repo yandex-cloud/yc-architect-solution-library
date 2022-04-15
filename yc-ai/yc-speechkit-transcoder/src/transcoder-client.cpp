@@ -23,7 +23,7 @@ class audio_transformer_callback : public  audio_prep_svc_callback{
     public:
     virtual void format_detection_result(std::string detection_result_json)  override
     {
-        std::cout << "Media format recognition completed." << detection_result_json << std::endl;
+        std::cout << "Discovery json.\n" << detection_result_json << std::endl;
     }
 
     virtual void preparation_pipeline_compleated(std::string pipeline_result_json)  override
