@@ -13,11 +13,20 @@
         memset(&_discovery, 0, sizeof(DiscovererData));
         _discovery.config = config;
         _discovery.callback = callback;
+
+        int argc = 0; char** argv;
+
+        g_print("Initializing GStreamer\n");
+        gst_init(&argc, &argv);
     }
 
 
     audio_preparation_svc::~audio_preparation_svc() {
-        free(&_discovery);
+        if (_discovery.discoverer)
+            g_object_unref(_discovery.discoverer);
+
+        if (_discovery.loop)
+            g_main_loop_unref(_discovery.loop);
     }
 
     void audio_preparation_svc::discover_audio_format(std::string audio_source_uri){
@@ -36,6 +45,16 @@
         /* Connect to the interesting signals */
         g_signal_connect(_discovery.discoverer, "discovered", G_CALLBACK(on_discovered_cb), &_discovery);
         g_signal_connect(_discovery.discoverer, "finished", G_CALLBACK(on_finished_cb), &_discovery);
+
+        /* Start the discoverer process (nothing to do yet) */
+        gst_discoverer_start(_discovery.discoverer);
+
+        /* Add a request to process asynchronously the URI passed through the command line */
+        if (!gst_discoverer_discover_uri_async(_discovery.discoverer, audio_source_uri.c_str())) {
+            g_print("Failed to start discovering URI '%s'\n", audio_source_uri.c_str());
+            g_object_unref(_discovery.discoverer);
+            return;
+        }
 
         /*   Create a GLib Main Loop and set it to run, so we can wait for the signals */
         _discovery.loop = g_main_loop_new(NULL, FALSE);
@@ -58,7 +77,7 @@
 
         std::string str_pipeline =  make_pipeline_string(audio_source_uri);
 
-        g_print("Starting pipeline: %s\n", str_pipeline.c_str());
+        printf("Starting pipeline: %s\n", str_pipeline.c_str());
 
         GstElement* pipeline =  gst_parse_launch(str_pipeline.c_str(), NULL);
 
@@ -141,16 +160,6 @@
 
         if (!data->callback) {
             g_print("Error. Callback do not set");
-        }else{
-
-            JSON_Value *root_value = json_value_init_object();
-            JSON_Object *root_object = json_value_get_object(root_value);
-
-
-            char* serialized_string = json_serialize_to_string_pretty(root_value );
-
-            data->callback->format_detection_result(std::string(serialized_string));
-            json_value_free(root_value);
         }
     }
 
@@ -198,15 +207,26 @@
             return;
         }
 
-        /* If we got no error, show the retrieved information */
 
+        JSON_Value* root_value = json_value_init_object();
+        JSON_Object* root_object = json_value_get_object(root_value);
+
+        /*Construct output json with media deiscovered  information */
         g_print("\nDuration: %" GST_TIME_FORMAT "\n", GST_TIME_ARGS(gst_discoverer_info_get_duration(info)));
+        char buff[100];
+        std::snprintf(buff, sizeof(buff), "%" GST_TIME_FORMAT "\n", GST_TIME_ARGS(gst_discoverer_info_get_duration(info)));
+        
+        std::string tmp_value = std::string(buff);
+        json_object_set_string(root_object, "duration", rtrim(tmp_value).c_str());
 
-        tags = gst_discoverer_info_get_tags(info);
+        /* Tags*/
+        tags = gst_discoverer_info_get_tags(info);       
+        JSON_Value* tags_value = json_value_init_array();
         if (tags) {
             g_print("Tags:\n");
             gst_tag_list_foreach(tags, print_tag_foreach, GINT_TO_POINTER(1));
         }
+        json_object_dotset_value(root_object, "tags", tags_value);
 
         g_print("Seekable: %s\n", (gst_discoverer_info_get_seekable(info) ? "yes" : "no"));
 
@@ -223,6 +243,13 @@
         gst_discoverer_stream_info_unref(sinfo);
 
         g_print("\n");
+
+        char* serialized_string = json_serialize_to_string_pretty(root_value);
+        data->callback->format_detection_result(std::string(serialized_string));
+
+
+        json_value_free(root_value);
+        g_print("Test:\n");
     }
 
 /* Print a tag in a human-readable format (name: value) */
