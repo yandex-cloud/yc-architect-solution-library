@@ -1,0 +1,55 @@
+apiVersion: kubernetes.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: NodeGroup
+metadata:
+  name: kube-nodegroup-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    clusterIdRef:
+      name: kube-{{ include "crossplane.fullname" . }}
+    name: kube-nodegroup-{{ include "crossplane.fullname" . }}
+    description: kube-nodegroup-{{ include "crossplane.fullname" . }}
+    version: {{ .Values.kubeVersion | default "1.21" | quote }}
+    instanceTemplate:
+      - platformId: "standard-v3"
+        networkInterface:
+          - nat: true
+            securityGroupIdsRefs:
+            - name: kube-sg-main-{{ include "crossplane.fullname" . }}
+            - name: kube-sg-public-{{ include "crossplane.fullname" . }}
+            - name: kube-sg-ssh-{{ include "crossplane.fullname" . }}
+            - name: kube-sg-api-{{ include "crossplane.fullname" . }}
+            subnetIdsRefs:
+              {{- range $key, $value := .Values.subnets }}
+              - name: subnet-{{ include "crossplane.fullname" $ }}-{{ $key }}
+              {{- end }}
+        resources:
+          - memory: 2
+            cores: 2
+        bootDisk:
+          - type: "network-ssd"
+            size: 64
+        schedulingPolicy:
+          - preemptible: true
+    scalePolicy:
+      - fixedScale:
+          - size: 3
+    # allocationPolicy:
+    #   {{- range $key, $value := .Values.subnets }}
+    #   - location: 
+    #     - zone: {{ $value.zone }}
+    #       subnetIdRef: 
+    #         name: subnet-{{ include "crossplane.fullname" $ }}-{{ $key }}
+    #   {{- end }}
+    maintenancePolicy:
+      - autoUpgrade: true
+        autoRepair: true
+        maintenanceWindow:
+          - startTime: "18:00"
+            duration: "3h"
+            day: "monday"
+          - startTime: "18:00"
+            duration: "4h30m"
+            day: "friday"
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}

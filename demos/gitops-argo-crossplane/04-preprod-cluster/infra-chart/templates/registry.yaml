@@ -1,0 +1,11 @@
+apiVersion: container.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: Registry
+metadata:
+  name: cr-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    name: cr-{{ include "crossplane.fullname" . }}
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}

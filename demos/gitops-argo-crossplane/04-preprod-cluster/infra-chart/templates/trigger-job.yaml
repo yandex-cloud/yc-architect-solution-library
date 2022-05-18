@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: trigger-job-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: run-trigger
+        image: curlimages/curl
+        command:
+          - "curl"
+          - "-X"
+          - "POST"
+          - "--fail" 
+          - "-F"
+          - "token={{ required "Gitlab api token is required" .Values.gitlab.token }}"
+          - "-F"
+          - "ref=master" 
+          - "-F" 
+          - "variables[CP_CLUSTER_NAME]=kube-{{ include "crossplane.fullname" . }}"
+          - "{{ required "Gitlab ci pipeline URL is required" .Values.gitlab.ciPipelineTriggerUrl }}"
+      restartPolicy: Never
+  backoffLimit: 2
