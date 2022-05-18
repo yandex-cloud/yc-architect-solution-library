@@ -1,0 +1,14 @@
+apiVersion: kms.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: SymmetricKey
+metadata:
+  name: kms-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    name: kms-{{ include "crossplane.fullname" . }}
+    description: kms-{{ include "crossplane.fullname" . }}
+    defaultAlgorithm: AES_256
+    rotationPeriod: 8760h
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}

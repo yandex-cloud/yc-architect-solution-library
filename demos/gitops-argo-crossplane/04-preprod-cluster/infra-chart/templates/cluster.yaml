@@ -1,0 +1,53 @@
+apiVersion: kubernetes.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: Cluster
+metadata:
+  name: kube-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    name: kube-{{ include "crossplane.fullname" . }}
+    description: kube-{{ include "crossplane.fullname" . }}
+    networkIdRef:
+      name: vpc-{{ include "crossplane.fullname" . }}
+    master:
+      - version: {{ .Values.kubeVersion | default "1.21" | quote }}
+        {{ if .Values.kubeClusterZonal | default true }}
+        zonal:
+          - zone: {{ .Values.subnets.a.zone }}
+            subnetIdRef:
+              name: subnet-{{ include "crossplane.fullname" . }}-a
+        {{ else }}
+        regional:
+          region: ru-central1
+          {{- range $key, $value := .Values.subnets }}
+          location: 
+            zone: {{ $value.zone }}
+            subnetIdRef: subnet-{{ include "crossplane.fullname" $ }}-{{ $key }}
+          {{- end }}
+        {{ end }}
+        publicIp: true
+        securityGroupIdsRefs:
+        - name: kube-sg-main-{{ include "crossplane.fullname" . }}
+        - name: kube-sg-public-{{ include "crossplane.fullname" . }}
+        - name: kube-sg-ssh-{{ include "crossplane.fullname" . }}
+        - name: kube-sg-api-{{ include "crossplane.fullname" . }}
+        maintenancePolicy:
+          - autoUpgrade: true
+            maintenanceWindow:
+              - startTime: "18:00"
+                duration: "3h"
+    serviceAccountIdRef:
+      name: kube-sa-{{ include "crossplane.fullname" . }}
+    nodeServiceAccountIdRef:
+      name: kube-sa-{{ include "crossplane.fullname" . }}
+    releaseChannel: {{ .Values.kubeReleaseChannel | default "RAPID" }}
+    networkPolicyProvider: CALICO
+    kmsProvider:
+      - keyIdRef:
+          name: kms-{{ include "crossplane.fullname" . }}
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  writeConnectionSecretToRef:
+    name: kube-{{ include "crossplane.fullname" . }}
+    namespace: default
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}

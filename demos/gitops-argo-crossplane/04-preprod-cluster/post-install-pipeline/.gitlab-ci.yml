@@ -1,0 +1,42 @@
+variables:
+  KUBE_VERSION: v1.23.5 
+  ARGOCD_VERSION: v2.3.3
+  ARGOCD_NS: argo-cd
+  CROSSPLANE_NS: crossplane
+  YC_CREDS: yc-creds
+prepare: 
+  stage: deploy
+  image: alpine:3.15
+  before_script:
+    - apk add -q --no-cache bash curl jq gettext
+      # Install kubectl and argocd cli
+    - curl -f -s -L https://storage.googleapis.com/kubernetes-release/release/$KUBE_VERSION/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl 
+    - curl -f -s -L https://github.com/argoproj/argo-cd/releases/download/$ARGOCD_VERSION/argocd-linux-amd64 -o /usr/local/bin/argocd
+    - chmod +x /usr/local/bin/kubectl /usr/local/bin/argocd
+      # Install yc cli
+    - curl -f -s -LO https://storage.yandexcloud.net/yandexcloud-yc/install.sh 
+    - bash install.sh -i /usr/local/yandex-cloud -n 
+    - ln -s /usr/local/yandex-cloud/bin/yc /usr/local/bin/yc 
+      # Set up Kubernetes context
+    - export KUBECONFIG=/tmp/kubeconfig
+    - kubectl config set-cluster k8s --insecure-skip-tls-verify=true --server=https://kubernetes.default
+    - kubectl config set-credentials ci --token="$(echo $K8S_CI_TOKEN | base64 -d)"
+    - kubectl config set-context ci --cluster=k8s --user=ci --namespace $ARGOCD_NS
+    - kubectl config use-context ci
+  script:
+    - kubectl -n "$CROSSPLANE_NS" get secret "$YC_CREDS" -o jsonpath='{.data.credentials}' | base64 -d > key.json
+    - yc config profile create sa-profile
+    - yc config set service-account-key key.json
+    - cluster_id=$(kubectl get cluster $CP_CLUSTER_NAME -o jsonpath='{.status.atProvider.id}') && export cluster_id
+    - yc managed-kubernetes cluster get-credentials --id $cluster_id --external --kubeconfig kube_$CP_CLUSTER_NAME --force 
+    - kc_context=$(kubectl --kubeconfig kube_$CP_CLUSTER_NAME config view -o jsonpath='{.contexts[].name}') && export kc_context
+    - argocd --core login
+#    - argo_cluster=$(argocd cluster list -o json | jq ".[] | select(.name == \"$kc_context\") | .server") && export argo_cluster
+#    - test -n "$argo_cluster" || argocd cluster add $kc_context --kubeconfig kube_$CP_CLUSTER_NAME -y
+    - argocd --core cluster add $kc_context --kubeconfig kube_$CP_CLUSTER_NAME --yes --upsert || true
+    - argo_cluster=$(argocd cluster list -o json | jq ".[] | select(.name == \"$kc_context\") | .server") && export argo_cluster
+    - test -n "$argo_cluster" 
+    - envsubst '$argo_cluster' < test-app.yaml | kubectl apply -f -
+  only:
+    variables:
+      - $CP_CLUSTER_NAME

@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-app
+  namespace: argo-cd
+spec:
+  destination:
+    namespace: my-app
+    server: $argo_cluster
+  project: default
+  source:
+    helm:
+      valueFiles:
+      - values.yaml
+      parameters:
+        - name: image.repository
+          value: ""
+        - name: image.tag
+          value: ""
+    path: .helm
+    repoURL: https://<gitlab host>.gitlab.yandexcloud.net/demo/my-app.git
+  syncPolicy:
+    automated: {}
+    syncOptions:
+    - CreateNamespace=true
