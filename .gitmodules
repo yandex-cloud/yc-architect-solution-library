@@ -1,5 +1,5 @@
-[submodule "yc-ai/yc-cloud-api"]
-	path = yc-ai/yc-cloud-api
+[submodule "yc-ai/cloudapi"]
+	path = yc-ai/cloudapi
 	url = https://github.com/yandex-cloud/cloudapi
 [submodule "yc-ai/yc-speechkit-batch-asr/yc-cloud-api"]
 	path = yc-ai/yc-speechkit-batch-asr/yc-cloud-api
