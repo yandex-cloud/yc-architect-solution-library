@@ -26,10 +26,10 @@ namespace yc.ai.webUI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           
-            // services.AddControllers().AddNewtonsoftJson(); ;
-            services.AddRazorPages();
-            services.AddControllersWithViews();
+
+            // services.AddControllers().AddNewtonsoftJson(); 
+            services.AddControllers();
+            services.AddRazorPages();           
             services.AddSignalR();
             services.AddCors();
             services.AddOpenApiDocument();
@@ -60,7 +60,7 @@ namespace yc.ai.webUI
             
             app.UseRouting();
 
-            // app.UseAuthorization();
+            app.UseAuthorization();
             app.UseCors(options => options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
             app.UseOpenApi(settings =>
@@ -85,16 +85,16 @@ namespace yc.ai.webUI
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultControllerRoute();
+                endpoints.MapControllerRoute(
+                     name: "default",
+                     pattern: "{controller=Home}/{action=Stt}/{id?}");
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
                 endpoints.MapHub<SpeechKitHub>("/asrhub");
             });
             /* app.UseEndpoints(endpoints =>
              {
-                 endpoints.MapControllerRoute(
-                     name: "default",
-                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                 
              });*/
         }
     }

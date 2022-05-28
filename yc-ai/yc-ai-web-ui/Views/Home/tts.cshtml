@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Speech synth";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Use this page for testing <a href="https://cloud.yandex.com/en/docs/speechkit/tts/">SpeechKit</a> API's for speech synthesis</p>
+
+<form id="tts-form" class="needs-validation" novalidate>
+     <div class="form-group">
+          <label for="api-key" class="col-form-label">SpeechKit API Key Or IAM token:</label>
+            <input type="text" class="form-control" id="api-key" aria-describedby="api-key-Help" placeholder="Speechkit API Key" required />
+             <div>
+                    <small id="registry-id-Help" class="form-text text-muted">
+                        IAM Tokens / API keys are used for simplified authorization in the Yandex Cloud API.
+                        <a href="https://cloud.yandex.com/en/docs/speechkit/api-ref/authentication" target="_blank">Authentication in the API...</a>
+                    </small>
+                </div>
+         <label class="col-form-label custom-control-inline">API type:</label>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="trace-type-event" name="trace-type-radio" class="custom-control-input" checked value="API_v3_gRPC">
+                <label class="custom-control-label" for="trace-type-event">API v3 gRPC</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="trace-type-state" name="trace-type-radio" disabled class="custom-control-input" value="API_v3_gRPC_Hybrid">
+                <label class="custom-control-label" for="trace-type-state">API v3 gRPC (Hybrid)</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="trace-type-cmd" name="trace-type-radio" disabled  class="custom-control-input" value="API_v1">
+                <label class="custom-control-label" for="trace-type-cmd">API V1</label>
+            </div>
+     </div>
+     <div class="form-group">
+            <label for="message" class="col-form-label">Text Or TextTemplate:</label>
+            <textarea rows="3" class="form-control" id="message" aria-describedby="message-Help" placeholder="Event message or command data" required></textarea>
+            <small id="message-Help" class="form-text text-muted">Provide Text  or <a href="https://cloud.yandex.ru/docs/speechkit/new-v3/api-ref/grpc/tts_service#TextTemplate">Text Template</a> to Synthesize. Text Template detected automatically if {variable} pattern exist in the input. 
+                For each variable additional input control dynamically generated.</small>
+            <div class="invalid-feedback">
+                Error
+            </div>
+      </div>
+       <button id="tts_send" type="button" class="btn btn-primary">Synthesize</button>
+</form>
+    <hr>

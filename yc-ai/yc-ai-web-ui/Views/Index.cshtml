@@ -1,0 +1,86 @@
+﻿@page
+@model yc.ai.webUI.Pages.IndexModel
+@{
+    ViewData["Title"] = "Trace device";
+}
+
+<section id="form">
+    <h3 id="connection">
+        Trace event data a single device topic:
+    </h3>
+    <a class="text-muted" href="https://cloud.yandex.com/docs/iot-core/operations/subscribe#one-device" target="_blank">Please see documentation for details</a>
+
+    <form id="iot-core-trace-form" class="needs-validation" novalidate>
+        <div class="form-group">
+            <label for="device-id" class="col-form-label">Device Id:</label>
+            <input type="text" class="form-control" id="device-id" aria-describedby="device-id-Help" placeholder="Device Id trace data from" required />
+            <div class="invalid-feedback">Please provide a device identifier.</div>
+            <label class="col-form-label custom-control-inline">Trace type:</label>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="trace-type-event" name="trace-type-radio" class="custom-control-input" checked value="Events">
+                <label class="custom-control-label" for="trace-type-event">Events</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="trace-type-state" name="trace-type-radio" class="custom-control-input" value="State">
+                <label class="custom-control-label" for="trace-type-state">State</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="trace-type-cmd" name="trace-type-radio" class="custom-control-input" value="Commands">
+                <label class="custom-control-label" for="trace-type-cmd">Commands</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="registry-id" class="col-form-label">Registry Id:</label>
+            <input type="text" class="form-control" id="registry-id" aria-describedby="registry-id-Help" required placeholder="Registry id device belongs to" />
+            <div><small id="registry-id-Help" class="form-text text-muted">We don't store your credentials</small></div>
+            <div class="invalid-feedback">
+                Please provide a registry identifier.
+            </div>
+            <label for="registry-pwd" class="col-form-label">Password:</label>
+            <input type="password" class="form-control" id="registry-pwd" aria-describedby="registry-pwd-Help" placeholder="Registry password / certificate password" required />
+            <small id="registry-pwd-Help" class="form-text text-muted">registry password for username and password authorization (optional for certificate-based authorization)</small>
+            <div class="invalid-feedback">
+                Please provide a password.
+            </div>
+            <label for="registry-cert" class="col-form-label">Private key:<span class="text-muted">(required for certificate-based authorization only)</span> </label>
+            <textarea disabled rows="3" class="form-control" id="registry-cert" aria-describedby="registry-cert-Help" placeholder="Registry certificate file"></textarea>
+            <small id="registry-cert-Help" class="form-text text-muted"></small>
+        </div>
+        <button id="trace" type="button" class="btn btn-primary">
+            <span id="traceSpinner" class="spinner spinner-border spinner-border-sm" style="display:none;" role="status" aria-hidden="true"></span>
+            Trace
+        </button>
+        <button id="stopTrace" type="button" class="btn btn-primary" style="display:none;">Stop trace</button>
+    </form>
+    <hr>
+</section>
+    <a id="scroll-to" class="scroll text-muted" href="#telemetry"></a>
+    <ul id="messageList"></ul>
+    <section id="telemetry">
+    </section>
+@section Scripts
+    {
+    <script src="~/js/trace.js"></script>
+    <script type="text/javascript">
+        document.getElementById("trace-type-cmd").addEventListener("change", async () => {
+            if ($("#trace-type-cmd")[0].checked) {
+                // Command mode
+                $("#registry-id")[0].value = "";
+                $("#registry-id").prop("disabled", true);
+                $("#registry-id").attr('required', false);
+            }
+        });
+
+        function enableRegistryIdInput() {
+            if (!$("#trace-type-cmd")[0].checked){
+                    // event or state mode
+                    $("#registry-id").prop("disabled", false);
+                    $("#registry-id").attr('required', true);
+            }
+        }
+
+        document.getElementById("trace-type-event").addEventListener("change", enableRegistryIdInput);
+        document.getElementById("trace-type-state").addEventListener("change", enableRegistryIdInput)
+
+    </script>
+}
