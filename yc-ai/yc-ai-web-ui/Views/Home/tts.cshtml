@@ -38,6 +38,21 @@
                 Error
             </div>
       </div>
-       <button id="tts_send" type="button" class="btn btn-primary">Synthesize</button>
-</form>
+     <div id="accordion">
+	    <h3>Hints</h3>
+	    <div>
+		    <p>You can specify <a href="https://cloud.yandex.com/docs/speechkit/new-v3/api-ref/grpc/tts_service#Hints">hint for TTS engine</a> to specify 
+                synthesised audio characteristics.</p>
+	    </div>
+	    <h3>Text template variables</h3>
+	    <div>
+		    <p>
+		    <p>Used if <a href="https://cloud.yandex.ru/docs/speechkit/new-v3/api-ref/grpc/tts_service#TextTemplate">Text template</a> provided for synthezis, e.g. {"Hello, {username}" with username="Alice"}.</p>
+              <p>Section will be visiable only if text template provided</p>
+		    </p>
+	    </div>
+    </div>
+    <BR/>
+       <button id="tts_send" type="button" class="ui-button ui-widget ui-corner-all">Synthesize</button>
+    </form>
     <hr>
