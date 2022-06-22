@@ -168,10 +168,10 @@
 
 <br/>
 
-Удалите ApplicationSet:
+Удалите application:
 
 <br/>
 
 ```bash
-kubectl delete applicationset --namespace argocd dynamic-dev-env
+kubectl delete application --namespace argocd dynamic-env
 ```
