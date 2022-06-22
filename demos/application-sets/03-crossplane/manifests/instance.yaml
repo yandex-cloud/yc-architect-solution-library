@@ -1,0 +1,21 @@
+apiVersion: compute.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: Instance
+metadata:
+  name: crossplane-demo
+spec:
+  forProvider:
+    name: crossplane-demo
+    platformId: standard-v1
+    zone: ru-central1-a
+    resources:
+      - cores: 2
+        memory: 4
+    bootDisk:
+      - initializeParams:
+          # ubuntu 20.04
+          # yc compute image list --folder-id standard-images | grep 'ubuntu-20-04-lts'
+          - imageId: fd8f30hur3255mjfi3hq
+    networkInterface:
+      - subnetIdRef:
+          name: crossplane-demo-a
+    folderId: <FOLDER ID>

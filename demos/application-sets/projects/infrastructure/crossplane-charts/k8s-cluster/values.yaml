@@ -1,0 +1,28 @@
+cloudId: "xxxxxx" # yc config list
+folderId: "xxxxxx" # yc config list
+
+providerConfigName: "default" # name of crossplane providerconfig for yc
+
+projectName: "demo"
+projectSuffix: "prod" # prod/preprod/test/dev
+
+clusterType: "zonal" # zonal/regional
+clusterVersion: "1.21"
+clusterReleaseChannel: "RAPID"
+
+clusterServiceAccountRoles: ["k8s.clusters.agent"] # not implemented
+nodeServiceAccountRoles: ["container-registry.image.puller"] # not implemented
+
+securityGroupsEnabled: true # true/false (default: true)
+secretEncryptionEnabled: true # true/false (default: true)
+
+subnets:
+  a:
+    zone: ru-central1-a
+    cidr: 10.10.0.0/24
+  b:
+    zone: ru-central1-b
+    cidr: 10.11.0.0/24
+  c:
+    zone: ru-central1-c
+    cidr: 10.12.0.0/24

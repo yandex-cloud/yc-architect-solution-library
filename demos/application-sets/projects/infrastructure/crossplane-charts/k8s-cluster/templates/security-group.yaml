@@ -1,0 +1,75 @@
+{{ if .Values.securityGroupsEnabled }}
+apiVersion: vpc.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: kube-sg-all-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    name: kube-sg-all-{{ include "crossplane.fullname" . }}
+    description: kube-sg-all-{{ include "crossplane.fullname" . }}
+    egress:
+    - description: outgoing-all
+      fromPort: 0
+      toPort: 65535
+      protocol: ANY
+      v4CidrBlocks:
+      - 0.0.0.0/0
+    ingress:
+    - description: incoming-api-6443
+      port: 6443
+      protocol: TCP
+      v4CidrBlocks:
+      - 0.0.0.0/0
+    - description: incoming-api-443
+      port: 443
+      protocol: TCP
+      v4CidrBlocks:
+      - 0.0.0.0/0
+    - description: incoming-http
+      port: 80
+      protocol: TCP
+      v4CidrBlocks:
+      - 0.0.0.0/0
+    - description: incoming-ssh
+      port: 22
+      protocol: TCP
+      v4CidrBlocks:
+      - 0.0.0.0/0
+    - description: incoming-nodeport
+      fromPort: 30000
+      toPort: 32767
+      protocol: TCP
+      v4CidrBlocks:
+      - 0.0.0.0/0
+    - description: incoming-from-balancer
+      fromPort: 0
+      toPort: 65535
+      protocol: TCP
+      v4CidrBlocks:
+      - 198.18.235.0/24
+      - 198.18.248.0/24
+    - description: node-to-node
+      fromPort: 0
+      toPort: 65535
+      protocol: ANY
+      predefinedTarget: self_security_group
+    - description: pod-to-pod
+      fromPort: 0
+      toPort: 65535
+      protocol: ANY
+      v4CidrBlocks:
+      - 10.112.0.0/16
+      - 10.96.0.0/16
+    - description: icmp-internal
+      protocol: ICMP
+      v4CidrBlocks:
+      - 172.16.0.0/12
+      - 10.0.0.0/8
+      - 192.168.0.0/16
+    networkIdRef: 
+      name: vpc-{{ include "crossplane.fullname" . }}
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}
+{{ end }}

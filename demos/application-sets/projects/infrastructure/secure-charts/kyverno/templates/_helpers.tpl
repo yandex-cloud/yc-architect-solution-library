@@ -1,0 +1,194 @@
+{{/* vim: set filetype=mustache: */}}
+
+{{/* Expand the name of the chart. */}}
+{{- define "kyverno.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "kyverno.fullname" -}}
+{{- if .Values.fullnameOverride -}}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/* Create chart name and version as used by the chart label. */}}
+{{- define "kyverno.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/* Helm required labels */}}
+{{- define "kyverno.labels" -}}
+app.kubernetes.io/component: kyverno
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ template "kyverno.name" . }}
+app.kubernetes.io/part-of: {{ template "kyverno.name" . }}
+app.kubernetes.io/version: "{{ .Chart.Version }}"
+helm.sh/chart: {{ template "kyverno.chart" . }}
+{{- if .Values.customLabels }}
+{{ toYaml .Values.customLabels }}
+{{- end }}
+{{- end -}}
+
+{{/* Helm required labels */}}
+{{- define "kyverno.test-labels" -}}
+app.kubernetes.io/component: kyverno
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ template "kyverno.name" . }}-test
+app.kubernetes.io/part-of: {{ template "kyverno.name" . }}
+app.kubernetes.io/version: "{{ .Chart.Version }}"
+helm.sh/chart: {{ template "kyverno.chart" . }}
+{{- end -}}
+
+{{/* matchLabels */}}
+{{- define "kyverno.matchLabels" -}}
+app.kubernetes.io/name: {{ template "kyverno.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end -}}
+
+{{/* Get the config map name. */}}
+{{- define "kyverno.configMapName" -}}
+{{- printf "%s" (default (include "kyverno.fullname" .) .Values.config.existingConfig) -}}
+{{- end -}}
+
+{{/* Get the metrics config map name. */}}
+{{- define "kyverno.metricsConfigMapName" -}}
+{{- printf "%s" (default (printf "%s-metrics" (include "kyverno.fullname" .)) .Values.config.existingMetricsConfig) -}}
+{{- end -}}
+
+{{/* Get the namespace name. */}}
+{{- define "kyverno.namespace" -}}
+{{- if .Values.namespace -}}
+    {{- .Values.namespace -}}
+{{- else -}}
+    {{- .Release.Namespace -}}
+{{- end -}}
+{{- end -}}
+
+{{/* Create the name of the service to use */}}
+{{- define "kyverno.serviceName" -}}
+{{- printf "%s-svc" (include "kyverno.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/* Create the name of the service account to use */}}
+{{- define "kyverno.serviceAccountName" -}}
+{{- if .Values.rbac.serviceAccount.create -}}
+    {{ default (include "kyverno.fullname" .) .Values.rbac.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.rbac.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/* Create the default PodDisruptionBudget to use */}}
+{{- define "podDisruptionBudget.spec" -}}
+{{- if and .Values.podDisruptionBudget.minAvailable .Values.podDisruptionBudget.maxUnavailable }}
+{{- fail "Cannot set both .Values.podDisruptionBudget.minAvailable and .Values.podDisruptionBudget.maxUnavailable" -}}
+{{- end }}
+{{- if not .Values.podDisruptionBudget.maxUnavailable }}
+minAvailable: {{ default 1 .Values.podDisruptionBudget.minAvailable }}
+{{- end }}
+{{- if .Values.podDisruptionBudget.maxUnavailable }}
+maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+{{- end }}
+{{- end }}
+
+{{- define "kyverno.replicaCount" -}}
+{{- if not (empty .Values.replicaCount) }}
+replicas: {{ .Values.replicaCount }}
+{{- else if eq .Values.mode "standalone" }}
+replicas: 1
+{{- else if eq .Values.mode "ha" }}
+replicas: 3
+{{- end }}
+{{- end }}
+
+{{/* Expand the name of the chart. */}}
+{{- define "kyverno-policies.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/* Create chart name and version as used by the chart label. */}}
+{{- define "kyverno-policies.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/* Helm required labels */}}
+{{- define "kyverno-policies.labels" -}}
+app.kubernetes.io/component: kyverno
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ template "kyverno-policies.name" . }}
+app.kubernetes.io/part-of: {{ template "kyverno-policies.name" . }}
+app.kubernetes.io/version: "{{ .Chart.Version }}"
+helm.sh/chart: {{ template "kyverno-policies.chart" . }}
+{{- if .Values.customLabels }}
+{{ toYaml .Values.customLabels }}
+{{- end }}
+{{- end -}}
+
+{{/* Set if a baseline policy is managed */}}
+{{- define "kyverno-policies.podSecurityBaseline" -}}
+{{- if or (eq .Values.podSecurityStandard "baseline") (eq .Values.podSecurityStandard "restricted") }}
+{{- true }}
+{{- else if and (eq .Values.podSecurityStandard "custom") (has .name .Values.podSecurityPolicies) }}
+{{- true }}
+{{- else -}}
+{{- false }}
+{{- end -}}
+{{- end -}}
+
+{{/* Set if a restricted policy is managed */}}
+{{- define "kyverno-policies.podSecurityRestricted" -}}
+{{- if eq .Values.podSecurityStandard "restricted" }}
+{{- true }}
+{{- else if and (eq .Values.podSecurityStandard "custom") (has .name .Values.podSecurityPolicies) }}
+{{- true }}
+{{- else -}}
+{{- false }}
+{{- end -}}
+{{- end -}}
+
+{{/* Set if a other policies are managed */}}
+{{- define "kyverno-policies.podSecurityOther" -}}
+{{- if has .name .Values.includeOtherPolicies }}
+{{- true }}
+{{- else -}}
+{{- false }}
+{{- end -}}
+{{- end -}}
+
+{{/* Get deployed Kyverno version from Kubernetes */}}
+{{- define "kyverno-policies.kyvernoVersion" -}}
+{{- $version := "" -}}
+{{- with (lookup "apps/v1" "Deployment" .Release.Namespace "kyverno") -}}
+  {{- with (first .spec.template.spec.containers) -}}
+    {{- $imageTag := (split ":" .image)._1 -}}
+    {{- $version = trimPrefix "v" $imageTag -}}
+  {{- end -}}
+{{- end -}}
+{{ $version }}
+{{- end -}}
+
+{{/* Fail if deployed Kyverno does not match */}}
+{{- define "kyverno-policies.supportedKyvernoCheck" -}}
+{{- $supportedKyverno := index . "ver" -}}
+{{- $top := index . "top" }}
+{{- if (include "kyverno-policies.kyvernoVersion" $top) -}}
+  {{- if not ( semverCompare $supportedKyverno (include "kyverno-policies.kyvernoVersion" $top) ) -}}
+    {{- fail (printf "Kyverno version is too low, expected %s" $supportedKyverno) -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}

@@ -1,0 +1,54 @@
+apiVersion: kubernetes.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: Cluster
+metadata:
+  name: kube-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    name: kube-{{ include "crossplane.fullname" . }}
+    description: kube-{{ include "crossplane.fullname" . }}
+    networkIdRef:
+      name: vpc-{{ include "crossplane.fullname" . }}
+    master:
+      - version: {{ .Values.clusterVersion | default "1.21" | quote }}
+        {{- if eq .Values.clusterType "zonal" }}
+        zonal:
+        - zone: {{ .Values.subnets.a.zone }}
+          subnetIdRef:
+            name: subnet-{{ include "crossplane.fullname" . }}-a
+        {{- else if eq .Values.clusterType "regional" }}
+        regional:
+          region: ru-central1
+          {{- range $key, $value := .Values.subnets }}
+          location: 
+            zone: {{ $value.zone }}
+            subnetIdRef: subnet-{{ include "crossplane.fullname" $ }}-{{ $key }}
+          {{- end }}
+        {{- end }}
+        publicIp: true
+        {{- if .Values.securityGroupsEnabled }}
+        securityGroupIdsRefs:
+        - name: kube-sg-all-{{ include "crossplane.fullname" . }}
+        {{- end }}
+        maintenancePolicy:
+        - autoUpgrade: true
+          maintenanceWindow:
+          - startTime: "18:00"
+            duration: "3h"
+    serviceAccountIdRef:
+      name: kube-cluster-sa-{{ include "crossplane.fullname" . }}
+    nodeServiceAccountIdRef:
+      name: kube-node-sa-{{ include "crossplane.fullname" . }}
+    releaseChannel: {{ .Values.clusterReleaseChannel | upper | default "RAPID" }}
+    networkPolicyProvider: CALICO
+    {{- if .Values.secretEncryptionEnabled }}
+    kmsProvider:
+    - keyIdRef:
+        name: kms-{{ include "crossplane.fullname" . }}
+    {{- end }}
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  writeConnectionSecretToRef:
+    name: kube-{{ include "crossplane.fullname" . }}
+    namespace: default
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}
