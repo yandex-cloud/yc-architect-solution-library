@@ -1,0 +1,32 @@
+# Default values for my-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+appVersion: 1.0.0
+appVersionOverride: ""
+
+replicaCount: 1
+
+image:
+  repository: "cr.yandex/crps8j3slip157u5k5ko/gitops/dynamic-infra/demo-python-service-one"
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "10e8063dc29f8f6b7b7e83575108794f10d7b411"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi

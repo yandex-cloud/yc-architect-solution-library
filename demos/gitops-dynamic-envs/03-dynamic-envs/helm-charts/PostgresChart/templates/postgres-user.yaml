@@ -1,0 +1,20 @@
+
+{{- range .Values.users }}
+---
+apiVersion: mdb.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: PostgresqlUser
+metadata:
+  name: {{ .name }}
+spec:
+  forProvider:
+    clusterIdRef:
+      name: {{ $.Release.Name }}
+    name: {{ .name }}
+    passwordSecretRef:
+      name: pass-{{ .name }} 
+      namespace: {{ $.Release.Namespace }}
+      key: password 
+    grants:
+      {{- toYaml .grants | nindent 6 }}
+---
+{{- end }} 

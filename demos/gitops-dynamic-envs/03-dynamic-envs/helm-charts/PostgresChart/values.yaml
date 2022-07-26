@@ -1,0 +1,21 @@
+folderID: ""
+
+networkId: ""
+subnetId: ""
+
+postgresZone: "ru-central1-b"
+
+resourcePresetId: "s2.small"
+
+diskSize: 15
+diskTypeId: "network-hdd"
+
+databases:
+  - dbname: base
+    owner: base
+
+users:
+  - name: base
+    grants:
+      - mdb_admin
+      - mdb_replication

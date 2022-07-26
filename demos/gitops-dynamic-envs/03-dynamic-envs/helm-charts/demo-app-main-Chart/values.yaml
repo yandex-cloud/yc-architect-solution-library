@@ -1,0 +1,55 @@
+# Default values for my-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+serviceOne: "demo-python-service-one"
+
+folderID: b1gusr16f8g0v4lcpl52
+
+databases:
+  - dbname: db2
+    owner: user2
+    dbport: 6432
+    transfer:
+      fromdb: base
+      user: base
+      fromcluster: base
+      fromnamespace: base
+      fromclusterFQDN: rc1a-fjk80a4iacvx40g2.mdb.yandexcloud.net
+
+users:
+  - name: user2
+    grants:
+      - mdb_admin
+      - mdb_replication
+
+replicaCount: 1
+
+image:
+  repository: "cr.yandex/crps8j3slip157u5k5ko/gitops/dynamic-infra/demo-python-main-service"
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag:
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  className: "nginx"
+  annotations: {}
+  host: demo-main-service.62.84.124.93.nip.io
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
