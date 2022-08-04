@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-flags
+  namespace: kubelet-flag-editor
+  labels:
+    name: kubelet-flag-editor
+data:
+  custom-flags: |
+      --image-gc-low-threshold=90 --image-gc-high-threshold=95 "
