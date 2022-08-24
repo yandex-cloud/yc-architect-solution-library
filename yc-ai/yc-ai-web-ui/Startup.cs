@@ -27,8 +27,7 @@ namespace yc.ai.webUI
         public void ConfigureServices(IServiceCollection services)
         {
 
-            // services.AddControllers().AddNewtonsoftJson(); 
-            services.AddControllers();
+            services.AddControllers();           
             services.AddRazorPages();           
             services.AddSignalR();
             services.AddCors();
@@ -87,7 +86,7 @@ namespace yc.ai.webUI
             {
                 endpoints.MapControllerRoute(
                      name: "default",
-                     pattern: "{controller=Home}/{action=Stt}/{id?}");
+                     pattern: "{controller=Tts}/{action=synt}/{id?}");
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
                 endpoints.MapHub<SpeechKitHub>("/asrhub");

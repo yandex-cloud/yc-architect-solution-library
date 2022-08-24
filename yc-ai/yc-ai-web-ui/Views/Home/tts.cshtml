@@ -43,6 +43,30 @@
 	    <div>
 		    <p>You can specify <a href="https://cloud.yandex.com/docs/speechkit/new-v3/api-ref/grpc/tts_service#Hints">hint for TTS engine</a> to specify 
                 synthesised audio characteristics.</p>
+
+             <label for="voice" class="col-form-label">Voice:</label>
+            <input type="text" class="form-control" id="voice" aria-describedby="voice-Help" placeholder="voice" />
+             <div>
+                    <small id="voice-Help" class="form-text text-muted">
+                        <a href="https://cloud.yandex.ru/docs/speechkit/tts/voices#premium" target="_blank">Name of speeker</a> to use or your Brand Voice Id
+                    </small>
+                </div>
+             
+             <label for="volume" class="col-form-label">Volume:</label>
+             <input type="text" class="form-control" id="volume" aria-describedby="volume-Help" placeholder="volume" />
+             <small id="volume-Help" class="form-text text-muted">
+
+                        <a href="https://cloud.yandex.ru/docs/speechkit/new-v3/api-ref/grpc/tts_service#Hints" target="_blank">Double value to</a> control regulate volume. 
+                        For LOUDNESS_NORMALIZATION_TYPE_UNSPECIFIED normalization will use MAX_PEAK, if volume in (0, 1], LUFS if volume in [-145, 0).
+            </small>
+
+             <label for="speed" class="col-form-label">Speed:</label>
+             <input type="text" class="form-control" id="speed" aria-describedby="voice-Help" placeholder="speed" />
+              <small id="speed-Help" class="form-text text-muted">
+
+                        <a href="https://cloud.yandex.ru/docs/speechkit/new-v3/api-ref/grpc/tts_service#Hints" target="_blank">Double value to</a> to change speed
+            </small>
+
 	    </div>
 	    <h3>Text template variables</h3>
 	    <div>

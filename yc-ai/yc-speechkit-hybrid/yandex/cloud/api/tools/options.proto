@@ -1,0 +1,62 @@
+﻿syntax = "proto3";
+
+package yandex.cloud.api.tools;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "tools";
+
+// NOTE(skipor): option extention names should have package scope unique names
+// and global unique ids per Options type from range 50000-99999 reserved for internal use.
+
+extend google.protobuf.FileOptions { FileOptions file = 67321;}
+extend google.protobuf.MessageOptions { MessageOptions message = 67321;}
+extend google.protobuf.FieldOptions { FieldOptions field = 67321;}
+extend google.protobuf.EnumOptions { EnumOptions enumeration = 67321;} // enum is reserved word :(
+extend google.protobuf.EnumValueOptions { EnumValueOptions value = 67321;}
+extend google.protobuf.ServiceOptions { ServiceOptions service = 67321;}
+extend google.protobuf.MethodOptions { MethodOptions method = 67321;}
+
+message FileOptions {
+  CommonLintSkip lint_skip = 1;
+}
+
+message MessageOptions {
+  CommonLintSkip lint_skip = 1;
+}
+
+message FieldOptions {
+  // Used to declare which schema may have protobuf.Struct field.
+  // TODO(skipor): if v1 and later apis use it move it to yandex.api package, and parse
+  // at lint stage, but not at options parse.
+  repeated string one_of = 1;
+  CommonLintSkip lint_skip = 2;
+}
+
+message EnumOptions {
+  EnumLintSkip lint_skip = 2;
+}
+
+message EnumLintSkip {
+  bool all = 1;
+  bool value_names_case = 2;
+  bool unspecified_value = 3;
+}
+
+message EnumValueOptions {
+  CommonLintSkip lint_skip = 1;
+}
+
+message ServiceOptions {
+  CommonLintSkip lint_skip = 1;
+  bool skip_generate = 2;
+}
+
+message MethodOptions {
+  CommonLintSkip lint_skip = 1;
+  bool skip_generate = 2;
+}
+
+message CommonLintSkip {
+  bool all = 1;
+}

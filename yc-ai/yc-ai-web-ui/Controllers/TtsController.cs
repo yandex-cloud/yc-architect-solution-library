@@ -1,44 +1,41 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
+
+using yc.ai.webUI.Models;
+using ai.adoptionpack.speechkit.hybrid.client;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace yc.ai.webUI.Controllers
 {
-    [Route("api/[controller]")]
+
     [ApiController]
     public class TtsController : ControllerBase
     {
-        // GET: api/<TtsController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+
+        private readonly ILogger<TtsController> _logger;
+
+        public TtsController(ILogger<TtsController> logger) : base()
         {
-            return new string[] { "value1", "value2" };
+            this._logger = logger;
         }
 
-        // GET api/<TtsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<TtsController>
+        [Route("api/tts/synth")]
         [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        // PUT api/<TtsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> TtsRequest(TtsRequestModel model)
         {
-        }
+            System.IO.MemoryStream ms = null;
 
-        // DELETE api/<TtsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            //SpeechKitTtsClient TtsClient = new SpeechKitTtsClient(model.serviceUri, null, null, logger);
+
+            return Ok(File(ms, "audio/mpeg"));
         }
     }
 }
