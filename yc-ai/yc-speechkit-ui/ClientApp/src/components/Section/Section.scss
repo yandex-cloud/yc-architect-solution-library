@@ -1,0 +1,37 @@
+﻿@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.Section {
+    margin-bottom: 70px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &__content {
+        max-width: $contentWidth;
+        margin: 0 auto;
+
+        & > h1,
+        & > h2,
+        & > h3,
+        & > h4,
+        & > h5,
+        & > h6 {
+            margin: 0 0 20px;
+        }
+
+        @media (min-width: $hdViewportWidth) {
+            max-width: $hdContentWidth;
+        }
+    }
+
+    .mobile & {
+        padding-left: $normalOffset;
+        padding-right: $normalOffset;
+
+        &__content {
+            margin: 0;
+        }
+    }
+}

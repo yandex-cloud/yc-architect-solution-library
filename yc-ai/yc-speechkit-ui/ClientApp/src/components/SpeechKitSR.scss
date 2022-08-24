@@ -1,5 +1,5 @@
-﻿/* @import 'variables';
-@import 'mixins'; */
+﻿@import '../styles/variables.scss';
+@import '../styles/mixins.scss';
 
 .SpeechKitSR {
     $root: &;
@@ -47,9 +47,9 @@
     }
 
 
-    /*&__text {
+    &__text {
         @include text-size(header-2);
-    }*/
+    }
 
     &__placeholder {
         opacity: 0.3;

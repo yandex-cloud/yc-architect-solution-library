@@ -1,0 +1,75 @@
+﻿@import '~@yandex-data-ui/page-constructor/styles/variables.scss';
+
+// Sizes
+$minViewportWidth: 1200px;
+$hdViewportWidth: 1600px;
+$tabletViewportMaxWidth: 767px;
+$mobileViewportMaxWidth: 639px;
+$mobileSmallViewportMaxWidth: 359px;
+$contentWidth: 850px;
+$hdContentWidth: 1000px;
+$normalOffset: 20px;
+$headerMenuHeight: 64px;
+$mobileMenuHeaderHeight: 60px;
+// We have changed scroll-padding-top (0 -> 64px). Therefore, we got an extra offset on anchor navigation.
+// In order to collapse this extra offset we have created a $counterAnchorOffset variable
+$counterAnchorOffset: 44px;
+$tocWidth: 280px;
+$coloredHeaderHeight: 328px;
+$sidebarWidth: 320px;
+$calculatorBreakpoint: 920px;
+$borderRadius: 24px;
+
+// New design sizes
+$newContentWidth: 1232px;
+$centerBlockWidth: 736px;
+
+//navigation
+$navigationIndent: 32px;
+
+//footer
+$footerWidthBreakpoint1: 436px;
+$footerWidthBreakpoint2: 834px;
+$footerLineHeight: 18px;
+
+// community
+$communityBgPoint1: #9acad0;
+$communityBgPoint2: #74abe3;
+$communityBgPoint3: #9eaadb;
+$communityBgAlphaOpacity: 0.2;
+
+$communityHeaderBg: linear-gradient( 300deg, $communityBgPoint1 0%, $communityBgPoint2 50%, $communityBgPoint3 100% );
+$communityHeaderBgAlpha: linear-gradient( 300deg, rgba($communityBgPoint1, $communityBgAlphaOpacity) 0%, rgba($communityBgPoint2, $communityBgAlphaOpacity) 50%, rgba($communityBgPoint3, $communityBgAlphaOpacity) 100% );
+
+//community - events
+$eventsHeaderBg: #2d2c33;
+$eventsPreviewBg: #1b1a30;
+$eventInfoWidth: 640px;
+
+$eventsImageDummyBgPoint1: #7adafa;
+$eventsImageDummyBgPoint2: #0080f3;
+
+$eventsNoimageBackground: linear-gradient( 34deg, $eventsImageDummyBgPoint1 20%, $eventsImageDummyBgPoint2 80% );
+
+$headerFontSize: 40px;
+$headerLineHeight: 44px;
+
+//cases
+$caseTagColorDark: rgba(0, 0, 0, 0.08);
+$caseTagColorLight: rgba(255, 255, 255, 0.16);
+
+$caseMarginXL: 64px;
+$caseMarginL: 48px;
+$caseMarginM: 32px;
+$caseMarginS: 20px;
+$caseMarginXS: 12px;
+$casePaddingM: 20px;
+$casePaddingS: 12px;
+
+$fileExtColors: ( 'pdf': var(--yc-color-promo-highlight-tomato), 'doc': var(--yc-color-promo-highlight-sky), 'xls': var(--yc-color-promo-highlight-mint), 'ppt': var(--yc-color-promo-highlight-copper), 'fig': var(--yc-color-promo-highlight-neon), 'zip': var(--yc-color-promo-highlight-asphalt), );
+
+$scrollbarWidth: var(--yc-scrollbar-width);
+
+$animationDuration: 300ms;
+
+$videoPlayButtonGrey: #eff2f8;

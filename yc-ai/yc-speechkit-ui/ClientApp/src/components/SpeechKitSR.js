@@ -2,9 +2,12 @@
 import PropTypes from 'prop-types';
 import block from 'bem-cn-lite';
 import _ from 'lodash';
+import { Button } from '@yandex-cloud/uikit';
 import { YCSelect } from '@yandex-data-ui/common';
 import Recorder from '@yandex-data-ui/audio-recorder';
+/*import { FormLayout } from '@yandex-data-ui/cloud-components';*/
 
+import Section from './Section/Section';
 import AudioWave from './AudioWave/AudioWave';
 import { secondsToMMSS } from './utils';
 
@@ -14,22 +17,12 @@ const b = block('SpeechKitSR');
 
 const MAX_SECONDS = 60;
 
-const getLangItems = _.memoize((i18nK) => [
-    { title: i18nK('lang-russian'), value: 'ru-RU' },
-    { title: i18nK('lang-english'), value: 'en-US' },
-    { title: i18nK('lang-turkey'), value: 'tr-TR' },
-]);
 
 export class SpeechKitSR extends React.Component {
-    static propTypes = {
-        locale: PropTypes.object.isRequired,
-        i18nK: PropTypes.func,
-        isConstructorVersion: PropTypes.bool,
-    };
-
+    
     constructor(props) {
         super(props);
-        const langItems = getLangItems(props.i18nK);
+       
 
         this.state = {
             isMounted: false,
@@ -38,8 +31,7 @@ export class SpeechKitSR extends React.Component {
             wsConnected: false,
             stream: null,
             seconds: 0,
-            langItems,
-            language: props.locale.lang === 'ru' ? langItems[0].value : langItems[1].value,
+            language: 'ru-RU',
             text: '',
             tempText: '',
             error: null,
@@ -167,8 +159,8 @@ export class SpeechKitSR extends React.Component {
         return (
             <div className={b('start')}>
                 <div className={b('wrap')}>
-                    <h4 className={b('title')}>{i18nK('sr-title')}</h4>
-                    <FormLayout.Row className={b('select')} title={i18nK('sr-form-language')}>
+                    <h4 className={b('title')}>Название</h4>
+                   
                         <YCSelect
                             size="n"
                             name="lang"
@@ -177,9 +169,9 @@ export class SpeechKitSR extends React.Component {
                             items={langItems}
                             showSearch={false}
                         />
-                    </FormLayout.Row>
+                    
                     <Button type="submit" size="l" view="action" onClick={this.initialize}>
-                        {i18nK('sr-button_start')}
+                        Название кнопки 
                     </Button>
                 </div>
             </div>
@@ -196,7 +188,7 @@ export class SpeechKitSR extends React.Component {
 
         if (text === '' && tempText === '') {
             return (
-                <div className={`${b('placeholder')} ${b('text')}`}>{i18nK('sr-lets_speak')}</div>
+                <div className={`${b('placeholder')} ${b('text')}`}>Говорите</div>
             );
         }
 
@@ -217,7 +209,7 @@ export class SpeechKitSR extends React.Component {
                         <div className={b('audio-analyser')}>
                             {stream ? <AudioWave audio={stream} /> : ''}
                             {!stream && error ? (
-                                <div className={b('error')}>{i18nK('sr-error')}</div>
+                                <div className={b('error')}>Произошла ошибка</div>
                             ) : (
                                 ''
                             )}
@@ -235,7 +227,7 @@ export class SpeechKitSR extends React.Component {
                                 className={b('button')}
                                 onClick={this.backToLanguage}
                             >
-                                {i18nK('sr-button_back')}
+                                "Назад"
                             </Button>
                         )}
                         <Button
@@ -245,7 +237,7 @@ export class SpeechKitSR extends React.Component {
                             className={b('button')}
                             onClick={isRecording ? this.stopRecording : this.initialize}
                         >
-                            {isRecording ? i18nK('sr-button_end') : i18nK('sr-button_again')}
+                            {isRecording ? "Завершить" : "Повторить"}
                         </Button>
                     </div>
                 </div>
@@ -269,4 +261,3 @@ export class SpeechKitSR extends React.Component {
     }
 }
 
-export default compose(withLocale, withTranslation('speechkit-demo'))(SpeechKitSR);
