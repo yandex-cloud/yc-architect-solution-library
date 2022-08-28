@@ -38,7 +38,7 @@ export class SpeechKitSR extends React.Component {
     }
 
     initializeWS = (config) => {
-        this.ws = new WebSocket(`wss://${window.location.host}/api/speechkit/recognition`);
+        this.ws = new WebSocket(`wss://${window.location.host}/ws`);
 
         this.ws.onmessage = ({ data: messageData }) => {
             const { type, data } = JSON.parse(messageData);
@@ -48,7 +48,7 @@ export class SpeechKitSR extends React.Component {
                     this.setState({ wsConnected: true });
                     break;
                 case 'data':
-                    this.processText(data);
+                    this.processText(JSON.parse(data));
                     break;
                 case 'error':
                     this.setState({ error: data });
@@ -71,12 +71,12 @@ export class SpeechKitSR extends React.Component {
     };
 
     processText = (data) => {
-        if (!data.chunks) {
+        if (!data.Chunks) {
             return;
         }
 
-        const tempText = data.chunks[0].alternatives[0].text;
-        const isFinal = data.chunks[0].final;
+        const tempText = data.Chunks[0].Alternatives[0].Text;
+        const isFinal = data.Chunks[0].final;
 
         if (isFinal) {
             this.setState(({ text }) => ({

@@ -21,6 +21,7 @@ namespace yc_scale_2022
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+
                 });
     }
 }

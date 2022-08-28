@@ -5,6 +5,19 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using yc_scale_2022.Hub;
+using System;
+using System.Net.WebSockets;
+using System.Net;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Threading;
+using NSwag;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using System.IO;
 
 namespace yc_scale_2022
 {
@@ -22,12 +35,37 @@ namespace yc_scale_2022
         {
 
             services.AddControllersWithViews();
+            services.AddRazorPages(); ;
+            services.AddCors();
+            services.AddOpenApiDocument();
+            services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/octet-stream" });
+            });
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            var builder = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json");
+
+            var config = builder.Build();
+
+            Log.Logger = new LoggerConfiguration()
+                           .ReadFrom.Configuration(config)
+                           .Enrich.FromLogContext()
+                            .MinimumLevel.Debug()
+                           .CreateLogger();
+
+            services.AddSingleton<ILoggerFactory, LoggerFactory>();
+
+            services.AddLogging();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,7 +85,12 @@ namespace yc_scale_2022
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+            var webSocketOptions = new WebSocketOptions
+            {
+                KeepAliveInterval = TimeSpan.FromMinutes(2)
+            };
 
+            app.UseWebSockets(webSocketOptions);
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
@@ -55,6 +98,7 @@ namespace yc_scale_2022
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
 
             app.UseSpa(spa =>
@@ -66,6 +110,24 @@ namespace yc_scale_2022
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
+
+            app.UseOpenApi(settings =>
+            {
+                settings.PostProcess = (document, request) =>
+                {
+                    document.Info.Version = "v1";
+                    document.Info.Title = "Sentiment Analysis demo. Yandex Scale 2022";
+
+                    document.Info.License = new OpenApiLicense
+                    {
+                        Name = "Use under MIT License",
+                        Url = "https://github.com/MaxKhlupnov/SpechKitSentiments"
+                    };
+                };
+            });
+
+
         }
+
     }
 }
