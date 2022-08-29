@@ -52,7 +52,7 @@ namespace yc_scale_2022
 
             var builder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json");
+                    .AddJsonFile("appsettings.json",optional: true, reloadOnChange: true);
 
             var config = builder.Build();
 

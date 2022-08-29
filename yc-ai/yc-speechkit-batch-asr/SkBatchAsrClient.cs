@@ -77,7 +77,16 @@ namespace SkBatchAsrClient
             SkTaskDb taskDb = new SkTaskDb(dbFile, Log.Logger);
 
             HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", cfg.iamToken);
+            if (!string.IsNullOrEmpty(cfg.iamToken))
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", cfg.iamToken);
+            else if(!string.IsNullOrEmpty(cfg.apiKey))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Api-Key", cfg.apiKey);
+            }
+            else
+            {
+                throw new ArgumentException("Both ApiKey and IamToken ar empty. Either IAM token or api-key param should pe specified");
+            }
 
             foreach (SkTaskModel task in taskDb.Tasks)
             {
@@ -130,7 +139,7 @@ namespace SkBatchAsrClient
             };
 
             SkRecognitionClient recognitionClient = new SkRecognitionClient(new Uri("https://stt.api.cloud.yandex.net:443"),
-                cfg.folderId, cfg.iamToken, rSpec, _loggerFactory, taskDb);
+                cfg, rSpec, _loggerFactory, taskDb);
 
             s3Client.ProcessBucket(cfg.bucket, recognitionClient);
 
@@ -207,8 +216,12 @@ namespace SkBatchAsrClient
             [Option("serviceURL", Required = false, Default = "https://storage.yandexcloud.net",  HelpText = "Yandex Object Storage serviceURL.")]
             public string serviceURL { get; set; }
 
-            [Option("iam-token", Required = true, HelpText = "Specify the received IAM token when accessing Yandex.Cloud SpeechKit via the API.")]
+            [Option("iam-token",  HelpText = "Specify the received IAM token when accessing Yandex.Cloud SpeechKit via the API. Either IAM token or api-key param should pe specified")]
             public string iamToken { get; set; }
+
+            [Option("api-key",  HelpText = "Specify the received api-key when accessing Yandex.Cloud SpeechKit via the API. Either IAM token or api-key param should pe specified")]
+            public string apiKey { get; set; }
+
 
             [Option("folder-id", Required = true, HelpText = "ID of the folder that you have access to.")]
             public String folderId { get; set; }

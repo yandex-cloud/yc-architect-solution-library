@@ -14,6 +14,7 @@ using YC.SpeechKit.Streaming.Asr;
 using yc_scale_2022.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 
 namespace yc_scale_2022.Controllers
 {
@@ -36,7 +37,7 @@ namespace yc_scale_2022.Controllers
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();               
                 await AudioStreaming(HttpContext, webSocket);
             }
             else
@@ -50,12 +51,10 @@ namespace yc_scale_2022.Controllers
             var buffer = new byte[1024 * 10];
             WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             String jsonString = Encoding.UTF8.GetString(buffer, 0, result.Count);
-
+            var initMessage = JsonSerializer.Deserialize<AudioStreamFormat>(jsonString);
+            AsrProcessor processor = new AsrProcessor(initMessage, this.configuration);
             try
             {
-                var initMessage = JsonSerializer.Deserialize<AudioStreamFormat>(jsonString);
-                AsrProcessor processor = new AsrProcessor( initMessage, this.configuration);
-                
                 var payload = new WssPayload { type = WssPayload.MSG_TYPE_CONNECT, data = "ok" };
                 string jsonReplay = JsonSerializer.Serialize(payload);
                 byte[] bytePayload = Encoding.UTF8.GetBytes(jsonReplay);
@@ -75,7 +74,6 @@ namespace yc_scale_2022.Controllers
                         AudioBinaryRecived?.Invoke(this, AudioDataEventArgs.FromByateArray(buffer, result.Count));
                     }
                 //             }
-                processor.Dispose();
             }
             catch(JsonException ex)
             {
@@ -87,6 +85,8 @@ namespace yc_scale_2022.Controllers
             }
             finally
             {
+                processor.Dispose();
+                processor = null;
                 await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
             }
         }

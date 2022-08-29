@@ -16,19 +16,20 @@ namespace SkBatchAsrClient
         private Uri endpointAddress;
         private string IamToken;
         private RecognitionConfig rConf;
+        private Configuration appConfig;
         private SttService.SttServiceClient speechKitRpctClient;
 
-        public SkRecognitionClient(Uri address, string folderId, string IamToken, RecognitionSpec rSpec, 
+        public SkRecognitionClient(Uri address, Configuration cfg, RecognitionSpec rSpec, 
             ILoggerFactory loggerFactory, ISkTaskDb taskDb)
         {
             this.log = loggerFactory.CreateLogger<SkRecognitionClient>();
             this.taskDb = taskDb;
             this.endpointAddress = address;
-            this.IamToken = IamToken;
+            this.appConfig = cfg;
 
             this.rConf = new RecognitionConfig()
             {
-                FolderId = folderId,
+                FolderId = cfg.folderId,
                 Specification = rSpec
             };
           
@@ -71,7 +72,17 @@ namespace SkBatchAsrClient
         private Metadata MakeMetadata()
         {
             Metadata serviceMetadata = new Metadata();
-            serviceMetadata.Add("authorization", $"Bearer {IamToken}");
+            if (!string.IsNullOrEmpty(appConfig.iamToken))
+            {
+                serviceMetadata.Add("authorization", $"Bearer {appConfig.iamToken}");
+            }else if (!string.IsNullOrEmpty(appConfig.apiKey))
+            {
+                serviceMetadata.Add("authorization", $"Api-Key {appConfig.apiKey}");
+            }
+            else
+            {
+
+            }
             serviceMetadata.Add("x-data-logging-enabled", "true"); // 
 
             String requestId = Guid.NewGuid().ToString();
