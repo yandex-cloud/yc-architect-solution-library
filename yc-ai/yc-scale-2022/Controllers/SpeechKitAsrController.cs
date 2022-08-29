@@ -87,7 +87,9 @@ namespace yc_scale_2022.Controllers
             {
                 processor.Dispose();
                 processor = null;
-                await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "compleated", CancellationToken.None);
+                webSocket.Dispose();
+                webSocket = null;
             }
         }
     }
