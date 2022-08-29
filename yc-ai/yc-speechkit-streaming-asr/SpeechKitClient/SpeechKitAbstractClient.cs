@@ -4,23 +4,40 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 
 namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
 {
-    abstract class SpeechKitAbstractClient
+    public abstract class SpeechKitAbstractClient
     {
 
         protected Serilog.ILogger log;
 
         protected Uri endpointAddress;
-        protected String IamToken;
+        protected String Token;
+        protected AuthTokenType tokenType;
 
 
-        protected SpeechKitAbstractClient(Uri address,  string IamToken)
+        protected String AuthrozationHeaderValue{
+            get
+            {
+                switch (this.tokenType) {
+                    case AuthTokenType.IAM:
+                         return $"Bearer {Token}";
+                    case AuthTokenType.APIKey:
+                         return $"Api-Key {Token}";
+                    default:
+                        throw new ArgumentException($"Speechkit Auth tokenType value illegal or empty");
+                }
+            }
+        }
+
+        protected SpeechKitAbstractClient(Uri address,  AuthTokenType tokenType, string Token)
         {
             this.log = Log.Logger;
             this.endpointAddress = address;
-            this.IamToken = IamToken;
+            this.Token = Token;
+            this.tokenType = tokenType;
         }
 
 
@@ -35,7 +52,7 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
         protected Metadata MakeMetadata()
         {
             Metadata serviceMetadata = new Metadata();
-            serviceMetadata.Add("authorization", $"Bearer {IamToken}");
+            serviceMetadata.Add("authorization", AuthrozationHeaderValue);
             serviceMetadata.Add("x-data-logging-enabled", "true"); // 
 
             String requestId = Guid.NewGuid().ToString();

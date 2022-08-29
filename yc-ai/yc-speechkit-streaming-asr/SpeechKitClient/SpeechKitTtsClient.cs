@@ -26,7 +26,8 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
 
         private String FolderId;
 
-        public SpeechKitTtsClient(Uri address, string folderId, string IamToken, ILoggerFactory loggerFactory) : base(address, IamToken)
+        public SpeechKitTtsClient(Uri address, string folderId, AuthTokenType tokenType, string Token, ILoggerFactory loggerFactory) 
+                                        : base(address, tokenType, Token)
         {
             this.endpointAddress = address;
             this.FolderId = folderId;
@@ -40,18 +41,7 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
             
 
             SynthesizeTxtLine(File.ReadAllText(inputFilePath), model);
-            /*
-            var lines = File.ReadAllLines(inputFilePath);
 
-            foreach (String line in lines)
-            {
-                if (!string.IsNullOrWhiteSpace(line))
-                {
-                    SynthesizeTxtLine(line, model);
-                }
-
-                
-            }*/
         }
 
         private void SynthesizeTxtLine(string text, string model)
@@ -135,20 +125,6 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
                         if (respEnum != null)
                             await respEnum.DisposeAsync();
                  
-                    /* IAsyncEnumerator<UtteranceSynthesisResponse> respEnum = respEnumerable.GetAsyncEnumerator();
-
-                     while (!respEnum.MoveNextAsync().GetAwaiter().IsCompleted)
-                     {
-                         Thread.Sleep(200);
-                     }
-
-                     byte[] data = respEnum.Current.AudioChunk.Data.ToByteArray();
-                     TextToSpeachResultsRecieved?.Invoke(this, AudioDataEventArgs.FromByateArray(data,
-                        data.Length));
-
-                     await respEnum.DisposeAsync();
-                     call.Dispose();*/
-
                 }
                 
             
@@ -162,18 +138,13 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
                 Text = text,
                 OutputAudioSpec = new AudioFormatOptions
                 {
-                   /* RawAudio = new RawAudio
-                    {                        
-                         AudioEncoding = RawAudio.Types.AudioEncoding.Linear16Pcm,
-                          SampleRateHertz = 22050
-                    }*/
                     ContainerAudio = new ContainerAudio
                     {
                         ContainerAudioType = ContainerAudio.Types.ContainerAudioType.Wav
                     }
                }
             };
-
+           // utteranceRequest.Hints.Add(new Hints() { Voice = "id_моей модели" });
             return utteranceRequest;
         }
 

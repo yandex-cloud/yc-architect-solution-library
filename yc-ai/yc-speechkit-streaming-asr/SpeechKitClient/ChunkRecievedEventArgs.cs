@@ -21,12 +21,12 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
         }
 
    
-        public string AsJson()
+        public string AsJson(bool WriteIndented)
         {
             var options = new JsonSerializerOptions
             {
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All),
-                WriteIndented = true
+                WriteIndented = WriteIndented
             };
             byte[] jsonUtf8Bytes;
             jsonUtf8Bytes = JsonSerializer.SerializeToUtf8Bytes(this.SpeechToTextChunk, options);

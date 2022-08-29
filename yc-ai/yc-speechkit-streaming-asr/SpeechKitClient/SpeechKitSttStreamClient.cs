@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
 {
-    class SpeechKitSttStreamClient : SpeechKitAbstractClient, IDisposable
+    public class SpeechKitSttStreamClient : SpeechKitAbstractClient, IDisposable
     {
 
         public event EventHandler<ChunkRecievedEventArgs> SpeechToTextResultsRecived;
@@ -96,8 +96,8 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
             SpeechToTextResultsRecived?.Invoke(sender,e);
         }
 
-        public SpeechKitSttStreamClient(Uri address, string folderId, string IamToken, 
-            RecognitionSpec rSpec, ILoggerFactory loggerFactory) : base(address,IamToken) {
+        public SpeechKitSttStreamClient(Uri address, string folderId, AuthTokenType tokenType, string Token, 
+            RecognitionSpec rSpec, ILoggerFactory loggerFactory) : base(address, tokenType, Token) {
 
             this.rConf = new RecognitionConfig()
             {
@@ -111,7 +111,7 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
 
         
 
-       internal void Listener_SpeechKitSend(object sender, AudioDataEventArgs e)
+       public void Listener_SpeechKitSend(object sender, AudioDataEventArgs e)
         {
                 bool locked = callMutex.WaitOne(5 * 1000); // Всеравно тайм аут наступет через 5 сек. после прекращения записи на сервисе
                 if (locked)

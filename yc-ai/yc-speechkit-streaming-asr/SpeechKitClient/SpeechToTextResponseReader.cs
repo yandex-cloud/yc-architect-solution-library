@@ -11,9 +11,9 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
 {
     public class SpeechToTextResponseReader     {
 
-        static internal event EventHandler<ChunkRecievedEventArgs> ChunkRecived;
+        public static event EventHandler<ChunkRecievedEventArgs> ChunkRecived;
 
-        internal static Task ReadResponseStream(AsyncDuplexStreamingCall<StreamingRecognitionRequest, StreamingRecognitionResponse> grpcCall)
+        public static Task ReadResponseStream(AsyncDuplexStreamingCall<StreamingRecognitionRequest, StreamingRecognitionResponse> grpcCall)
         {
             return Task.Factory.StartNew(async () =>
             {
