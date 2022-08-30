@@ -2,14 +2,19 @@
 import block from 'bem-cn-lite';
 import _ from 'lodash';
 
-import Recorder from '@yandex-data-ui/audio-recorder';
+import Recorder from './audio-recorder/index';
 import AudioWave from './AudioWave/AudioWave';
+import { Button } from '@yandex-cloud/uikit';
 import { secondsToMMSS } from './utils';
-
+import { configure } from '@yandex-cloud/uikit';
 import './SpeechKitSR.scss';
 
-const b = block('SpeechKitSR');
 
+configure({
+    lang: 'ru',
+});
+
+const b = block('SpeechKitSR');
 const MAX_SECONDS = 60;
 
 
@@ -186,18 +191,10 @@ export class SpeechKitSR extends React.Component {
                         </div>
                         {this.renderText()}
                     </div>
-                    <div className={b('bottom')}>
-                        {isRecording ? (
-                            ''
-                        ) : (
-                            <button onClick={this.backToLanguage}
-                            >
-                                "Назад"
-                            </button>
-                        )}
-                        <button onClick={isRecording ? this.stopRecording : this.initialize}>
+                    <div className={b('bottom')}>                       
+                        <Button onClick={isRecording ? this.stopRecording : this.initialize}>
                             {isRecording ? "Завершить" : "Повторить"}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

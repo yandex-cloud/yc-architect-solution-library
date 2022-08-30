@@ -17,8 +17,9 @@
     "react-router-dom": "~5.3.0",
     "reactstrap": "~8.10.1",
     "rimraf": "^3.0.2",
+    "@yandex-cloud/uikit": "2.13.4",
+    "@yandex-cloud/i18n": "0.4.0"
 
-    "@yandex-data-ui/audio-recorder": "^1.2.1"
   },
   "devDependencies": {
     "ajv": "^6.12.6",

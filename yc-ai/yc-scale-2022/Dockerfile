@@ -25,7 +25,6 @@ WORKDIR "/src/yc-scale-2022"
 RUN dotnet build "yc-scale-2022.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN npm config set @yandex-data-ui:registry=https://npm.yandex-team.ru/@yandex-data-ui
 RUN dotnet publish "yc-scale-2022.csproj" -c Release -o /app/publish
 
 FROM base AS final
