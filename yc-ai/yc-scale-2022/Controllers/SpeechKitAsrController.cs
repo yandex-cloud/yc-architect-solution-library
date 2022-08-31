@@ -15,6 +15,7 @@ using yc_scale_2022.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
+using YC.SpeechKit.Streaming.Asr.SpeechKitClient;
 
 namespace yc_scale_2022.Controllers
 {
@@ -53,6 +54,8 @@ namespace yc_scale_2022.Controllers
             String jsonString = Encoding.UTF8.GetString(buffer, 0, result.Count);
             var initMessage = JsonSerializer.Deserialize<AudioStreamFormat>(jsonString);
             AsrProcessor processor = new AsrProcessor(initMessage, this.configuration);
+            SpeechKitSttStreamClient asrController = null;
+
             try
             {
                 var payload = new WssPayload { type = WssPayload.MSG_TYPE_CONNECT, data = "ok" };
@@ -63,17 +66,18 @@ namespace yc_scale_2022.Controllers
                 await webSocket.SendAsync(new ArraySegment<byte>(bytePayload, 0, bytePayload.Length),
                                 WebSocketMessageType.Text, true, CancellationToken.None);
 
+                asrController = processor.Init(context, webSocket);
 
-                 processor.Init(this, webSocket);
-  //              using (FileStream fs = System.IO.File.Open("C:\\\\tmp\\wss_out.wav", FileMode.Create, FileAccess.Write ))
-  //              {
-                    while (!result.CloseStatus.HasValue)
+                 this.AudioBinaryRecived += asrController.Listener_SpeechKitSend;
+
+
+                while (!result.CloseStatus.HasValue)
                     {                      
                         result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                        //fs.Write(buffer, 0, result.Count);
+
                         AudioBinaryRecived?.Invoke(this, AudioDataEventArgs.FromByateArray(buffer, result.Count));
                     }
-                //             }
+
             }
             catch(JsonException ex)
             {
@@ -85,6 +89,10 @@ namespace yc_scale_2022.Controllers
             }
             finally
             {
+                // remove event handler
+                if (asrController != null)
+                    this.AudioBinaryRecived -= asrController.Listener_SpeechKitSend;
+
                 processor.Dispose();
                 processor = null;
                 await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "compleated", CancellationToken.None);

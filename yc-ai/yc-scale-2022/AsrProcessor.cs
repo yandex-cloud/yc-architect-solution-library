@@ -8,6 +8,7 @@ using yc_scale_2022.Models;
 using Yandex.Cloud.Ai.Stt.V2;
 using System.Text;
 using System.Net.WebSockets;
+using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using yc_scale_2022.Controllers;
@@ -18,6 +19,8 @@ using System.Net.Http;
 using System.Security.Policy;
 using YamlDotNet.Core.Tokens;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace yc_scale_2022
 {
@@ -28,7 +31,7 @@ namespace yc_scale_2022
         private const int MAX_BYTES_SENT = 10 * 1024 * 1024; // check https://cloud.yandex.com/docs/speechkit/stt/streaming#session-restrictions for limitation details
 
 
-        private Guid AsrSessionId = Guid.NewGuid();
+        private AsrSession asrSession = new AsrSession();
 
         private RecognitionSpec rSpeс;
         private ILogger logger;
@@ -37,10 +40,15 @@ namespace yc_scale_2022
         private WebSocket webSocket;
         SpeechKitSttStreamClient speechKitClient;
         SpeechKitAsrController controller;
+        ApplicationDbContext dbConn;
+
+        Object db_changes_locker = 0;
 
         public AsrProcessor(AudioStreamFormat format, IConfiguration configuration)
         {
-           
+            
+
+
             ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.AddConsole();
@@ -64,11 +72,19 @@ namespace yc_scale_2022
 
 
 
-        public void Init(SpeechKitAsrController controller, WebSocket webSocket)
+        public SpeechKitSttStreamClient Init(HttpContext context, WebSocket webSocket)
         {
 
             this.webSocket = webSocket;
-            this.controller = controller;
+
+            this.dbConn = new ApplicationDbContext(this.configuration);
+
+            this.asrSession.TraceIdentifier = context.TraceIdentifier;
+            this.asrSession.UserAgent = context.Request.Headers["User-Agent"];
+            this.asrSession.RemoteIpAddress = context.Connection.RemoteIpAddress.ToString();
+            this.dbConn.AsrSessions.Add(this.asrSession);
+                        
+
             speechKitClient =  new SpeechKitSttStreamClient(new Uri("https://stt.api.cloud.yandex.net:443"),
                                                     
                                                     this.configuration["FolderId"],
@@ -77,28 +93,27 @@ namespace yc_scale_2022
                                                 this.rSpeс, this._loggerFactory);//
                                                                        // Subscribe for speech to text events comming from SpeechKit
             SpeechToTextResponseReader.ChunkRecived += this.SpeechToTextResponseReader_ChunksRecived;
-
-            controller.AudioBinaryRecived += speechKitClient.Listener_SpeechKitSend;
-            logger.LogInformation($"session {AsrSessionId} started.");
+            
+            logger.LogInformation($"session {asrSession.AsrSessionId} started.");
+            return speechKitClient;
         }
 
-        private  void SpeechToTextResponseReader_ChunksRecived(object sender, ChunkRecievedEventArgs e)
+        private  async void SpeechToTextResponseReader_ChunksRecived(object sender, ChunkRecievedEventArgs e)
         {
             if (webSocket.State == WebSocketState.Closed)
                 return; //Don't preocess events from closed sessions
 
             String jSonRes = e.AsJson(false);
-            new Task(async () =>
-            {
-                // Web Socket response
-                await this.ResponseToBrowser(jSonRes);
-            }).Start();
+            
+            await this.ResponseToBrowser(jSonRes);
+            
+            await this.SentimentAnalysis(jSonRes);
 
-            new Task(async () =>
-            {
-                await this.SentimentAnalysis(jSonRes);
-            }).Start();
-
+            lock  (db_changes_locker)
+            {             
+                // Attempt to save changes to the database
+                this.dbConn.SaveChangesAsync();
+            }
         }
 
         private async Task<byte> ResponseToBrowser(String asrJson)
@@ -117,7 +132,7 @@ namespace yc_scale_2022
             }
             else
             {
-                logger.LogWarning($"session {AsrSessionId} websocket {webSocket.State}.");
+                logger.LogWarning($"session {asrSession.AsrSessionId} websocket {webSocket.State}.");
                 return 0;
             }
             
@@ -126,14 +141,27 @@ namespace yc_scale_2022
         private async Task<byte> SentimentAnalysis(String asrJson)
         {
             SpeechKitResponseModel responseModel = JsonSerializer.Deserialize<SpeechKitResponseModel>(asrJson);
+            responseModel.SessionId = this.asrSession.AsrSessionId;
+
+            /* Store response into database */
+            // Set identity cascade
+            foreach (Alternative alt in responseModel.Alternatives)
+            {
+                alt.RecognitionId = responseModel.RecognitionId;
+                foreach (RecognizedWord w in alt.Words)
+                    w.AlternativeId = alt.AlternativeId;
+            }
+            this.dbConn.AsrResponse.Add(responseModel);
+           
             
+                       
 
             if (responseModel.Final && responseModel.Alternatives != null && responseModel.Alternatives.Count > 0)
             {
                     HttpClient _httpClient = new HttpClient();
                     StringBuilder sb = new StringBuilder(); 
                     foreach (Alternative alt in responseModel.Alternatives){
-                        sb.AppendLine(alt.Text);
+                       sb.AppendLine(alt.Text);
                     }
                     MlInputTextPayload mlInTextPayload = new MlInputTextPayload() { text = sb.ToString() };
                     string mlInJsonPayload = JsonSerializer.Serialize(mlInTextPayload);
@@ -192,13 +220,17 @@ namespace yc_scale_2022
             // TODO: Wait tasks to compleate
             if (this.speechKitClient != null)            
             {
-                logger.LogInformation($"Shutting down session {AsrSessionId} resources.");
-                // remove event handler
-                this.controller.AudioBinaryRecived -= speechKitClient.Listener_SpeechKitSend;
+                logger.LogInformation($"Shutting down session {asrSession.AsrSessionId} resources.");
+                if (this.dbConn != null)
+                {
+                    this.dbConn.Dispose();
+                    this.dbConn = null;
+                    logger.LogInformation($"session DbConnection {asrSession.AsrSessionId} closed.");
+                }
                 // dispose speechkit client
                 this.speechKitClient.Dispose();
                 this.speechKitClient = null;
-                logger.LogInformation($"session {AsrSessionId} closed.");
+                logger.LogInformation($"session {asrSession.AsrSessionId} closed.");
             }
             
         }

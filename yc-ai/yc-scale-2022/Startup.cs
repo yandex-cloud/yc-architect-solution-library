@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using yc_scale_2022.Hub;
+using yc_scale_2022.Models;
 using System;
 using System.Net.WebSockets;
 using System.Net;
@@ -18,6 +18,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System.IO;
+using Microsoft.EntityFrameworkCore;
 
 namespace yc_scale_2022
 {
@@ -65,6 +66,8 @@ namespace yc_scale_2022
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
 
             services.AddLogging();
+
+            services.AddDbContext<ApplicationDbContext>();
 
         }
 
