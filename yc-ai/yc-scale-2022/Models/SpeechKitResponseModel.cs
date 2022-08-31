@@ -13,6 +13,9 @@ namespace yc_scale_2022.Models
         [Key]
         public Guid RecognitionId { get; set; }
         public Guid SessionId { get; set; }
+        public DateTime RecognitionDateTime { get; set; }
+        
+        [ForeignKey("AlternativeId")]
         public List<Alternative> Alternatives { get; set; }
         public bool Final { get; set; }
         public bool EndOfUtterance { get; set; }
@@ -20,16 +23,18 @@ namespace yc_scale_2022.Models
         public SpeechKitResponseModel()
         {
             this.RecognitionId = Guid.NewGuid();
+            this.RecognitionDateTime = DateTime.UtcNow; ;
         }
     }
     [Table("asr_aternative")]
     public class Alternative
     {
-        [Key]
         public Guid AlternativeId { get; set; }
         public Guid RecognitionId { get; set; }        
         public string Text { get; set; }
         public int Confidence { get; set; }
+
+        [ForeignKey("AlternativeId")]
         public List<RecognizedWord> Words { get; set; }
 
         public Alternative()
