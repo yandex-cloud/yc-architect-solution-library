@@ -44,7 +44,7 @@ namespace yc_scale_2022.Migrations
                 {
                     InferenceId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RecognitionId = table.Column<string>(nullable: true),
+                    RecognitionId = table.Column<Guid>(nullable: false),
                     NoEmotion = table.Column<double>(nullable: false),
                     Joy = table.Column<double>(nullable: false),
                     Sadness = table.Column<double>(nullable: false),

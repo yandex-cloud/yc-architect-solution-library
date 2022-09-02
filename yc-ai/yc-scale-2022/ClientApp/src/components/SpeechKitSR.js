@@ -193,7 +193,7 @@ export class SpeechKitSR extends React.Component {
                     </div>
                     <div className={b('bottom')}>                       
                         <Button onClick={isRecording ? this.stopRecording : this.initialize}>
-                            {isRecording ? "Завершить" : "Повторить"}
+                            {isRecording ? "Завершить" : "Распознать"}
                         </Button>
                     </div>
                 </div>

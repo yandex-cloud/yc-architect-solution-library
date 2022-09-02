@@ -39,17 +39,17 @@ namespace yc_scale_2022
         private IConfiguration configuration;
         private WebSocket webSocket;
         SpeechKitSttStreamClient speechKitClient;
-        SpeechKitAsrController controller;
         ApplicationDbContext dbConn;
 
         Object db_changes_locker = 0;
+        bool request_in_progress = false;
 
         public AsrProcessor(AudioStreamFormat format, IConfiguration configuration)
         {
             
 
 
-            ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
+            this._loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.AddConsole();
                 builder.AddDebug();
@@ -91,7 +91,7 @@ namespace yc_scale_2022
                                                     (AuthTokenType) Enum.Parse(typeof(AuthTokenType), this.configuration["AuthTokenType"]),
                                                     this.configuration["Token"],
                                                 this.rSpeс, this._loggerFactory);//
-                                                                       // Subscribe for speech to text events comming from SpeechKit
+                // Subscribe for speech to text events comming from SpeechKit
             SpeechToTextResponseReader.ChunkRecived += this.SpeechToTextResponseReader_ChunksRecived;
             
             logger.LogInformation($"session {asrSession.AsrSessionId} started.");
@@ -100,19 +100,31 @@ namespace yc_scale_2022
 
         private  async void SpeechToTextResponseReader_ChunksRecived(object sender, ChunkRecievedEventArgs e)
         {
-            if (webSocket.State == WebSocketState.Closed)
-                return; //Don't preocess events from closed sessions
+            try
+            {
+                request_in_progress = true;
+                if (webSocket.State == WebSocketState.Closed)
+                    return; //Don't preocess events from closed sessions
 
-            String jSonRes = e.AsJson(false);
-            
-            await this.ResponseToBrowser(jSonRes);
-            
-            await this.SentimentAnalysis(jSonRes);
+                String jSonRes = e.AsJson(false);
 
-            lock  (db_changes_locker)
-            {             
-                // Attempt to save changes to the database
-                this.dbConn.SaveChangesAsync();
+                await this.ResponseToBrowser(jSonRes);
+
+                await this.SentimentAnalysis(jSonRes);
+
+                lock (db_changes_locker)
+                {
+                    // Attempt to save changes to the database
+                    this.dbConn.SaveChangesAsync();
+                    logger.LogInformation($"database updated from session {asrSession.AsrSessionId}");
+                }
+            }catch(Exception ex)
+            {
+                logger.LogError($"Error {ex.Message} \n {ex.StackTrace} \n processing database updated from session {asrSession.AsrSessionId}");
+            }
+            finally
+            {
+                request_in_progress = false;
             }
         }
 
@@ -128,6 +140,7 @@ namespace yc_scale_2022
                 byte[] bytePayload = Encoding.UTF8.GetBytes(jsonReplay);
                 await webSocket.SendAsync(new ArraySegment<byte>(bytePayload, 0, bytePayload.Length),
                                 WebSocketMessageType.Text, true, CancellationToken.None);
+                logger.LogInformation($"session {asrSession.AsrSessionId} successfullty sent to websocket.");
                 return 1;
             }
             else
@@ -151,7 +164,7 @@ namespace yc_scale_2022
                 foreach (RecognizedWord w in alt.Words)
                     w.AlternativeId = alt.AlternativeId;
             }
-            this.dbConn.AsrResponse.Add(responseModel);
+            this.dbConn.AsrResponses.Add(responseModel);
            
             
                        
@@ -191,8 +204,14 @@ namespace yc_scale_2022
 
                         try
                         {
-                            MlResponsePayload emotions = JsonSerializer.Deserialize<MlResponsePayload>(respJsonPayLoad);
-                        }catch(Exception e)
+                            Root mlOutput = JsonSerializer.Deserialize<Root>(respJsonPayLoad);
+
+                            mlOutput.output.voice_stat.emotions_list.recognition_id = responseModel.RecognitionId;
+                            this.dbConn.MlInferences.Add(mlOutput.output.voice_stat.emotions_list);
+                            logger.LogInformation($"session {asrSession.AsrSessionId} model inference recieved.");
+
+                        }
+                        catch(Exception e)
                         {
                             logger.LogError($"Error parsing rest {url} response {e}.");
                             return 0;
@@ -203,13 +222,13 @@ namespace yc_scale_2022
                         logger.LogError($"Http error {httpResponse.StatusCode} calling {url}.");
                         return 0;
                     }
-
+               
 
                 return 1;
             }
             else
             {
-                logger.LogTrace( $"Skip partial results^ {asrJson}");
+                logger.LogTrace( $"Skip partial results {asrJson}");
                 return 0;
             }
         }
@@ -221,6 +240,13 @@ namespace yc_scale_2022
             if (this.speechKitClient != null)            
             {
                 logger.LogInformation($"Shutting down session {asrSession.AsrSessionId} resources.");
+                while (request_in_progress)
+                {
+                    logger.LogInformation($"Waiting 500ms current thread to compleate.");
+                    Thread.Sleep(500);
+                }
+
+                
                 if (this.dbConn != null)
                 {
                     this.dbConn.Dispose();

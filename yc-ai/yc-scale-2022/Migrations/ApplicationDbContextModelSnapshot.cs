@@ -61,7 +61,7 @@ namespace yc_scale_2022.Migrations
                     b.ToTable("asr_sessions");
                 });
 
-            modelBuilder.Entity("yc_scale_2022.Models.EmotionsList", b =>
+            modelBuilder.Entity("yc_scale_2022.Models.Inference", b =>
                 {
                     b.Property<int>("inference_id")
                         .ValueGeneratedOnAdd()
@@ -85,9 +85,9 @@ namespace yc_scale_2022.Migrations
                         .HasColumnName("NoEmotion")
                         .HasColumnType("double precision");
 
-                    b.Property<string>("recognition_id")
+                    b.Property<Guid>("recognition_id")
                         .HasColumnName("RecognitionId")
-                        .HasColumnType("text");
+                        .HasColumnType("uuid");
 
                     b.Property<double>("sadness")
                         .HasColumnName("Sadness")

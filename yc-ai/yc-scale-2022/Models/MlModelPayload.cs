@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace yc_scale_2022.Models
@@ -15,7 +16,7 @@ namespace yc_scale_2022.Models
     }
 
     [Table("ml_inference")]
-    public class EmotionsList
+    public class Inference
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("InferenceId")]
@@ -23,7 +24,7 @@ namespace yc_scale_2022.Models
         public int inference_id { get; set; }
         
         [Column("RecognitionId")]
-        public string recognition_id { get; set; }
+        public Guid recognition_id { get; set; }
         
         [Column("NoEmotion")]
         public double no_emotion { get; set; }
@@ -42,12 +43,22 @@ namespace yc_scale_2022.Models
         public double anger { get; set; }
     }
 
-    public class MlResponsePayload
-    {        
+    public class Output
+    {
+        public VoiceStat voice_stat { get; set; }
+    }
+
+    public class Root
+    {
+        public Output output { get; set; }
+    }
+
+    public class VoiceStat
+    {
         public string text { get; set; }
-        public EmotionsList emotions_list { get; set; }
-        public int words_count { get; set; }
         public string time { get; set; }
+        public int words_count { get; set; }
+        public Inference emotions_list { get; set; }
         public object name { get; set; }
     }
 }

@@ -20,8 +20,8 @@
         }
 
         public DbSet<AsrSession> AsrSessions { get; set; }
-        public DbSet<SpeechKitResponseModel> AsrResponse { get; set; }
-        public DbSet<EmotionsList> EmotionsLists { get; set; }
+        public DbSet<SpeechKitResponseModel> AsrResponses { get; set; }
+        public DbSet<Inference> MlInferences { get; set; }
     }
 }
 
