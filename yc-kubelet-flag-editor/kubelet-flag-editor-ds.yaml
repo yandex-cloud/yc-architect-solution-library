@@ -1,0 +1,66 @@
+apiVersion: "apps/v1"
+kind: DaemonSet
+metadata:
+  name: kubelet-flag-editor
+  namespace: kubelet-flag-editor
+  labels:
+    k8s-app: kubelet-flag-editor
+    version: 1v
+spec:
+  selector:
+    matchLabels:
+      k8s-app: kubelet-flag-editor
+  template:
+    metadata:
+      labels:
+        k8s-app: kubelet-flag-editor
+    spec:
+      hostPID: true
+      hostIPC: true
+      containers:
+      - name: kubelet-flag-editor
+        image: cr.yandex/crpjfmfou6gflobbfvfv/ubuntu-openssl:stable
+        command:
+          - sh
+          - -c
+          - |
+            while true; do
+              grep -f /mnt/user-flag-path/custom-flags /mnt/default/kubelet_secondary_env
+              if [ $? -ne 0 ];
+                then
+                    echo "Removing last character of kubelet_secondary_env and adding spaces"
+                    truncate -s -2 /mnt/default/kubelet_secondary_env
+                    sed -i 's/$/  /' /mnt/default/kubelet_secondary_env
+                    echo "Adding new flags"
+                    cat /mnt/user-flag-path/custom-flags >> /mnt/default/kubelet_secondary_env
+                    echo "Restarting Kubelet"
+                    KUBELET_PID=$(ps aux | grep '/home/kubernetes/bin/kubelet --bootstrap-kubeconfig' | grep -v grep | head -1 | awk '{print $2}')
+                    kill $KUBELET_PID
+                    #systemd will get it back less than a minute
+                else
+                  echo "Doing Nothing as no flags has not been changned"
+                fi             
+              sleep 30
+            done
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        resources:
+          limits:
+            memory: 100Mi
+          requests:
+            cpu: 50m
+            memory: 100Mi
+        volumeMounts:
+        - name: flags
+          mountPath: /mnt/user-flag-path
+        - name: kubelet-env
+          mountPath: /mnt/default
+      volumes:
+      - name: flags
+        configMap:
+          name: custom-flags
+      - name: kubelet-env
+        hostPath:
+          path: /etc/default/
+          type: Directory
