@@ -72,11 +72,11 @@ namespace yc_scale_2022.Controllers
 
 
                 while (!result.CloseStatus.HasValue)
-                    {                      
-                        result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                {                      
+                    result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-                        AudioBinaryRecived?.Invoke(this, AudioDataEventArgs.FromByateArray(buffer, result.Count));
-                    }
+                    AudioBinaryRecived?.Invoke(this, AudioDataEventArgs.FromByateArray(buffer, result.Count));
+                }
 
             }
             catch(JsonException ex)
@@ -92,6 +92,7 @@ namespace yc_scale_2022.Controllers
                 // remove event handler
                 if (asrController != null)
                     this.AudioBinaryRecived -= asrController.Listener_SpeechKitSend;
+                await processor.SafePartialResults();
 
                 processor.Dispose();
                 processor = null;

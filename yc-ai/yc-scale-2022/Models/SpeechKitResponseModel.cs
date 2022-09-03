@@ -26,7 +26,7 @@ namespace yc_scale_2022.Models
             this.RecognitionDateTime = DateTime.UtcNow; ;
         }
     }
-    [Table("asr_aternative")]
+    [Table("asr_aternative")] //TODO: asr_aternative
     public class Alternative
     {
         public Guid AlternativeId { get; set; }

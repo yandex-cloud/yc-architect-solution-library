@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Button } from '@yandex-cloud/uikit';
 
 export class FetchData extends Component {
   static displayName = FetchData.name;
@@ -13,7 +14,9 @@ export class FetchData extends Component {
   }
 
   static renderForecastsTable(forecasts) {
-    return (
+      return (
+          <div>
+         <Button>Test</Button>
       <table className='table table-striped' aria-labelledby="tabelLabel">
         <thead>
           <tr>
@@ -33,7 +36,8 @@ export class FetchData extends Component {
             </tr>
           )}
         </tbody>
-      </table>
+              </table>
+          </div>
     );
   }
 

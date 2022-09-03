@@ -23,7 +23,7 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
                 {                  
                     await foreach (var response in grpcCall.ResponseStream.ReadAllAsync())
                      {
-                        log.Information($"s2t chunk of {response.CalculateSize()} bytes recieved ");
+                        log.Verbose($"s2t chunk of {response.CalculateSize()} bytes recieved ");
                         foreach (SpeechRecognitionChunk chunk in response.Chunks)
                         {
                             ChunkRecievedEventArgs evt = new ChunkRecievedEventArgs(chunk);

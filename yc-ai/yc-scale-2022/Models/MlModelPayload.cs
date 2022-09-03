@@ -4,11 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace yc_scale_2022.Models
 {
-    public class MlModelPayload
+
+    public class MlInputModelPayload
     {
         public string folder_id { get; set; }
-        public string node_id { get; set; }
-        public string data { get; set; }
+        public MlInput input { get; set; }
+    }
+
+    public class MlInput
+    {
+        public MlInputTextPayload input_data { get; set; }
     }
 
     public class MlInputTextPayload{
@@ -48,7 +53,7 @@ namespace yc_scale_2022.Models
         public VoiceStat voice_stat { get; set; }
     }
 
-    public class Root
+    public class InferenceRoot
     {
         public Output output { get; set; }
     }

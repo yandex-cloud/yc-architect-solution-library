@@ -70,13 +70,7 @@
     <None Update="ClientApp\src\components\AudioWave\AudioWave.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ClientApp\src\components\Counter.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="ClientApp\src\components\FetchData.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ClientApp\src\components\Home.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="ClientApp\src\components\Layout.js">
