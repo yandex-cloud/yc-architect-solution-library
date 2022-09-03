@@ -6,33 +6,40 @@ export class FetchData extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { forecasts: [], loading: true };
+    this.state = { sentiments: [], loading: true };
   }
 
   componentDidMount() {
-    this.populateWeatherData();
+    this.populateSentimentsData();
   }
 
-  static renderForecastsTable(forecasts) {
+  static renderSentimentsTable(sentiments) {
       return (
           <div>
-         <Button>Test</Button>
       <table className='table table-striped' aria-labelledby="tabelLabel">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
+            <th >Time</th>
+            <th>NoEmotion</th>
+            <th>Joy</th>
+            <th>Sadness</th>
+            <th>Surprise</th>
+            <th>Fear</th>
+            <th>Anger</th>
+            <th>Text</th>
           </tr>
         </thead>
         <tbody>
-          {forecasts.map(forecast =>
-            <tr key={forecast.date}>
-              <td>{forecast.date}</td>
-              <td>{forecast.temperatureC}</td>
-              <td>{forecast.temperatureF}</td>
-              <td>{forecast.summary}</td>
+            {sentiments.map(sentiments =>
+                <tr key={sentiments.recognitionId}>
+                    <td>{(new Date(sentiments.startDate)).toLocaleTimeString()}</td>
+                    <td>{sentiments.noEmotion.toFixed(2)}</td>
+                    <td>{sentiments.joy.toFixed(2)}</td>
+                    <td>{sentiments.sadness.toFixed(2)}</td>
+                    <td>{sentiments.surprise.toFixed(2)}</td>
+                    <td>{sentiments.fear.toFixed(2)}</td>
+                    <td>{sentiments.anger.toFixed(2)}</td>
+                    <td>{sentiments.text}</td>
             </tr>
           )}
         </tbody>
@@ -44,20 +51,20 @@ export class FetchData extends Component {
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
-      : FetchData.renderForecastsTable(this.state.forecasts);
+      : FetchData.renderSentimentsTable(this.state.sentiments);
 
     return (
       <div>
-        <h1 id="tabelLabel" >Weather forecast</h1>
-        <p>This component demonstrates fetching data from the server.</p>
+        <h1 id="tabelLabel" >Sentiment analysid result</h1>
+        <p>Analysis requests history.</p>
         {contents}
       </div>
     );
   }
 
-  async populateWeatherData() {
-    const response = await fetch('weatherforecast');
+  async populateSentimentsData() {
+    const response = await fetch('sentimentsgrid');
     const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
+    this.setState({ sentiments: data, loading: false });
   }
 }

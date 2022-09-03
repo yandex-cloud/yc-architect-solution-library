@@ -109,7 +109,7 @@
 }
 
 @mixin back-link {
-    @include link();
+    //@include link();
     position: relative;
     left: -18px;
 
@@ -189,10 +189,10 @@
         box-shadow: 0 0 0px 1000px var(--yc-color-base-generic) inset !important;
     }
 
-    input:-moz-autofill {
+  /*   input:-moz-autofill {
         box-shadow: 0 0 0px 1000px var(--yc-color-base-generic) inset !important;
     }
-    /* stylelint-enable declaration-no-important */
+    stylelint-enable declaration-no-important */
 }
 
 @mixin calculator-card {

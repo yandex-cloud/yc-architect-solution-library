@@ -14,6 +14,8 @@ namespace yc_scale_2022.Models
         public Guid RecognitionId { get; set; }
         public Guid SessionId { get; set; }
         public DateTime RecognitionDateTime { get; set; }
+
+        public double? AudioLen { get; set; }
         
         [ForeignKey("AlternativeId")]
         public List<Alternative> Alternatives { get; set; }
@@ -26,7 +28,7 @@ namespace yc_scale_2022.Models
             this.RecognitionDateTime = DateTime.UtcNow; ;
         }
     }
-    [Table("asr_aternative")] //TODO: asr_aternative
+    [Table("asr_alternative")] 
     public class Alternative
     {
         public Guid AlternativeId { get; set; }

@@ -76,6 +76,7 @@ namespace yc_scale_2022.Controllers
                     result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
                     AudioBinaryRecived?.Invoke(this, AudioDataEventArgs.FromByateArray(buffer, result.Count));
+                  //  await Task.Run(() =>  processor.checkFinalTimeout());
                 }
 
             }

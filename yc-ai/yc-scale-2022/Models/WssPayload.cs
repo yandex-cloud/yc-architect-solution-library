@@ -6,7 +6,9 @@
 
         public const string MSG_TYPE_DATA = "data";
 
-        public const string MSG_TYPE_ERROR = "error"; 
+        public const string MSG_TYPE_ERROR = "error";
+
+        public const string MSG_TYPE_ML = "ml";
         public string type { get; set; }
         public string data { get; set; }
     }

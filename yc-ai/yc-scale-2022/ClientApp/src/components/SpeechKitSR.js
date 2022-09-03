@@ -34,6 +34,8 @@ export class SpeechKitSR extends React.Component {
             language: 'ru-RU',
             text: '',
             tempText: '',
+            emotions: null,
+            sessionId: '',
             error: null,
         };
     }
@@ -54,6 +56,10 @@ export class SpeechKitSR extends React.Component {
                     break;
                 case 'data':
                     this.processText(JSON.parse(data));
+                    break;
+                case 'ml':
+                   // this.processML(JSON.parse(data));
+                    this.setState({ emotions: JSON.parse(data) })
                     break;
                 case 'error':
                     this.setState({ error: data });
@@ -76,12 +82,12 @@ export class SpeechKitSR extends React.Component {
     };
 
     processText = (data) => {
-        if (!data.Chunks) {
+        if (!data.Alternatives) {
             return;
         }
-
-        const tempText = data.Chunks[0].Alternatives[0].Text;
-        const isFinal = data.Chunks[0].final;
+        this.setState({ sessionId: data.SessionId })
+        const tempText = data.Alternatives[0].Text;
+        const isFinal = data.Final;
 
         if (isFinal) {
             this.setState(({ text }) => ({
@@ -118,7 +124,7 @@ export class SpeechKitSR extends React.Component {
         this.setState({ text: '', tempText: '', seconds: 0, error: null });
 
         await this.initializeAudio(({ format, sampleRate }) => {
-            this.setState({ isRecording: true, showRecording: true });
+            this.setState({ isRecording: true, showRecording: true, emotions: null });
 
             this.timer = setInterval(this.timerTick, 1000);
 
@@ -136,11 +142,24 @@ export class SpeechKitSR extends React.Component {
         }
     };
 
+    async populateSentimentsData() {
+        const response = await fetch('sentimentsgrid/' + this.state.sessionId);
+        const data = await response.json();
+        this.setState(this.setState({ emotions: data }));
+    }
+
     stopRecording = () => {
-        this.recorder.stop(() => {
+        this.recorder.stop(() => {           
             this.ws.close();
             clearInterval(this.timer);
             this.setState({ isRecording: false, wsConnected: false, stream: null });
+
+           setTimeout(function () { //Start the timer
+                    this.populateSentimentsData(); //After 1 second, set render to true
+           }.bind(this), 1000)
+            
+            
+
         });
     };
 
@@ -167,8 +186,51 @@ export class SpeechKitSR extends React.Component {
             );
         }
 
-        return <div className={b('text')}>{`${text} ${tempText}`}</div>;
+        return (
+            <div className={b('text-placeholder')}>
+                <div className={b('text')}>{text} </div>
+                <div className={b('text')}>{tempText}</div>
+            </div>
+        )
     }
+
+    renderSentimentAnalyzis() {
+        const { emotions, error } = this.state;
+
+        if (error) {
+            return null;
+        }
+        if (emotions) {
+            return (
+                <table className="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th>Emotions</th>
+                            <th>joy</th>
+                            <th>surprise</th>
+                            <th>sadness</th>                    
+                            <th>fear</th>
+                            <th>anger</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td>{emotions.joy.toFixed(2)}</td>
+                            <td>{emotions.surprise.toFixed(2)}</td>
+                            <td>{emotions.sadness.toFixed(2)}</td>
+                            <td>{emotions.fear.toFixed(2)}</td>
+                            <td>{emotions.anger.toFixed(2)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                )
+        } else {
+            return null;
+        }
+    }
+
+    
 
     renderRecordings() {
         // const { i18nK } = this.props;
@@ -190,6 +252,7 @@ export class SpeechKitSR extends React.Component {
                             )}
                         </div>
                         {this.renderText()}
+                        {this.renderSentimentAnalyzis() }
                     </div>
                     <div className={b('bottom')}>                       
                         <Button onClick={isRecording ? this.stopRecording : this.initialize}>

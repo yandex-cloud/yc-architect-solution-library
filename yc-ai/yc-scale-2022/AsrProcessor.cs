@@ -28,7 +28,7 @@ namespace yc_scale_2022
     public class AsrProcessor : IDisposable
     {
         private Mutex callMutex = new Mutex(false, "callLock");
-        private int bytesSent = 0;
+        
         private const int MAX_BYTES_SENT = 10 * 1024 * 1024; // check https://cloud.yandex.com/docs/speechkit/stt/streaming#session-restrictions for limitation details
 
 
@@ -38,9 +38,15 @@ namespace yc_scale_2022
         private ILogger logger;
         private ILoggerFactory _loggerFactory;
         private IConfiguration configuration;
+
         private WebSocket webSocket;
         SpeechKitSttStreamClient speechKitClient;
+
         ApplicationDbContext dbConn;
+
+  
+        // audio recording start moment
+        private DateTime audioStartMoment;
         
         Object db_changes_locker = 0;
         bool request_in_progress = false;
@@ -50,8 +56,6 @@ namespace yc_scale_2022
 
         public AsrProcessor(AudioStreamFormat format, IConfiguration configuration)
         {
-            
-
 
             this._loggerFactory = LoggerFactory.Create(builder =>
             {
@@ -80,6 +84,7 @@ namespace yc_scale_2022
         {
 
             this.webSocket = webSocket;
+            this.audioStartMoment = DateTime.Now;
 
             this.dbConn = new ApplicationDbContext(this.configuration);
 
@@ -96,39 +101,50 @@ namespace yc_scale_2022
                                                     this.configuration["Token"],
                                                 this.rSpeс, this._loggerFactory);//
                 // Subscribe for speech to text events comming from SpeechKit
-            SpeechToTextResponseReader.ChunkRecived += this.SpeechToTextResponseReader_ChunksRecived;
-            lock (db_changes_locker)
-            {
+            SpeechToTextResponseReader.ChunkRecived += this.SpeechToTextResponseReader_AsrRecived;
                 this.dbConn.AsrSessions.Add(this.asrSession);
-                this.dbConn.SaveChanges();
-            }
+
             logger.LogInformation($"session {asrSession.AsrSessionId} started.");
+
             return speechKitClient;
         }
-
-        private  async void SpeechToTextResponseReader_ChunksRecived(object sender, ChunkRecievedEventArgs e)
+/*
+        public async void checkFinalTimeout()
+        {
+            Thread.Sleep(MaxAsrSilenceTime);
+            double asrDataDelay = DateTime.Now.Subtract(this.lastPartialTime).TotalSeconds;
+            if (asrDataDelay >= MaxAsrSilenceTime)
+            {
+                logger.LogTrace($"Asr silence for {asrDataDelay} sec. >  {MaxAsrSilenceTime} timeout. Finalize");
+                await SafePartialResults();
+            }
+              
+        }
+*/
+        private  async void SpeechToTextResponseReader_AsrRecived(object sender, ChunkRecievedEventArgs e)
         {
             try
             {
+                if (this.dbConn == null)
+                    return;
+
                 request_in_progress = true;
-                if (webSocket.State == WebSocketState.Closed)
-                    return; //Don't preocess events from closed sessions
-
+               
                 String jSonRes = e.AsJson(false);
-
-                // Send response to WebSocket
-                await this.ResponseToBrowser(jSonRes);
-
-
                 SpeechKitResponseModel responseModel = mapResponseJson(jSonRes);
 
                 this.dbConn.AsrResponses.Add(responseModel);
 
+                // Send response to WebSocket
+                if (webSocket.State == WebSocketState.Open)                   
+                    await Task.Run(() =>  this.ResponseToBrowser(responseModel));
+
+                
 
                 if (responseModel.Final) { 
                     // apply sentiment detection
                     await this.SentimentAnalysis(responseModel);
-                    
+                    this.audioStartMoment = DateTime.Now;
                     this.lastPartialResponseId = Guid.Empty;
                 }
                 else
@@ -137,6 +153,7 @@ namespace yc_scale_2022
                     logger.LogTrace($"Skip partial results {responseModel.RecognitionId}");
                 }
 
+               
                 
             }catch(Exception ex)
             {
@@ -153,7 +170,7 @@ namespace yc_scale_2022
             // Map response data 
             SpeechKitResponseModel responseModel = JsonSerializer.Deserialize<SpeechKitResponseModel>(asrJson);
             responseModel.SessionId = this.asrSession.AsrSessionId;
-
+            responseModel.AudioLen = DateTime.Now.Subtract(this.audioStartMoment).TotalSeconds;
             /* Store response into database */
             foreach (Alternative alt in responseModel.Alternatives)
             {
@@ -165,27 +182,28 @@ namespace yc_scale_2022
             return responseModel;
         }
 
-        private async Task<byte> ResponseToBrowser(String asrJson)
+        private async void  ResponseToBrowser(SpeechKitResponseModel responseModel)
+        {                               
+                WssPayload wpl = new WssPayload() { type = WssPayload.MSG_TYPE_DATA, 
+                                                        data = JsonSerializer.Serialize(responseModel)};
+                await Task.Run( ()=> SendToWebsocket(wpl));
+ 
+        }
+
+        private async void SendToWebsocket(WssPayload wpl)
         {
             if (webSocket.State == WebSocketState.Open)
             {
-           
-                asrJson = "{ \"Chunks\": [" + asrJson + "]}";
-                
-                WssPayload wpl = new WssPayload() { type = WssPayload.MSG_TYPE_DATA, data = asrJson };
                 string jsonReplay = JsonSerializer.Serialize(wpl);
                 byte[] bytePayload = Encoding.UTF8.GetBytes(jsonReplay);
                 await webSocket.SendAsync(new ArraySegment<byte>(bytePayload, 0, bytePayload.Length),
                                 WebSocketMessageType.Text, true, CancellationToken.None);
-                logger.LogTrace($"session {asrSession.AsrSessionId} successfullty sent to websocket.");
-                return 1;
+                logger.LogTrace($"session {asrSession.AsrSessionId} websocket: {wpl.type} successfullty sent.");
             }
             else
             {
-                logger.LogWarning($"session {asrSession.AsrSessionId} websocket {webSocket.State}.");
-                return 0;
+                logger.LogWarning($"session {asrSession.AsrSessionId} websocket {webSocket.State}.");               
             }
-            
         }
 
         private async Task<SpeechKitResponseModel> SentimentAnalysis(SpeechKitResponseModel responseModel)
@@ -230,7 +248,13 @@ namespace yc_scale_2022
 
                             mlOutput.output.voice_stat.emotions_list.recognition_id = responseModel.RecognitionId;
                             this.dbConn.MlInferences.Add(mlOutput.output.voice_stat.emotions_list);
-                            logger.LogInformation($"session {asrSession.AsrSessionId}  model inference recieved for asr response {responseModel.RecognitionId}..");
+                            
+                            //send to websocket
+                            WssPayload wpl = new WssPayload() { type = WssPayload.MSG_TYPE_ML, 
+                                data = JsonSerializer.Serialize(mlOutput.output.voice_stat.emotions_list) };
+                            await Task.Run(() => SendToWebsocket(wpl));
+
+                        logger.LogInformation($"session {asrSession.AsrSessionId}  model inference recieved for asr response {responseModel.RecognitionId}..");
 
                         }
                         catch(Exception e)
@@ -246,11 +270,14 @@ namespace yc_scale_2022
             }
 
             // Attempt saving changes into to the database
-            lock (db_changes_locker)
-            {                
-                int savedEntitiesCount = this.dbConn.SaveChanges();
-                logger.LogInformation($"db updated with {savedEntitiesCount} entities for {responseModel.RecognitionId} session {asrSession.AsrSessionId}");
+            if (this.dbConn != null)
+            {
+                lock (db_changes_locker)
+                {
+                    int savedEntitiesCount = this.dbConn.SaveChanges();
+                    logger.LogInformation($"db updated with {savedEntitiesCount} entities for {responseModel.RecognitionId} session {asrSession.AsrSessionId}");
 
+                }
             }
             return responseModel;
         }
@@ -258,6 +285,7 @@ namespace yc_scale_2022
         /* Handle last partial results as final before close */
         internal async Task<SpeechKitResponseModel> SafePartialResults()
         {
+
                 SpeechKitResponseModel responseModel = this.dbConn.AsrResponses.Find(this.lastPartialResponseId);
             if (responseModel != null)
             {

@@ -21,6 +21,7 @@
 
         public DbSet<AsrSession> AsrSessions { get; set; }
         public DbSet<SpeechKitResponseModel> AsrResponses { get; set; }
+        public DbSet<Alternative> AsrAletrnative { get; set; }
         public DbSet<Inference> MlInferences { get; set; }
     }
 }
