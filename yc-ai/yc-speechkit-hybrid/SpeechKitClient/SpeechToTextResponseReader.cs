@@ -11,7 +11,7 @@ namespace ai.adoptionpack.speechkit.hybrid.client
 {
     public class SpeechToTextResponseReader     {
 
-        static internal event EventHandler<ChunkRecievedEventArgs> ChunkRecived;
+        public static event EventHandler<ChunkRecievedEventArgs> ChunkRecived;
 
         internal static Task ReadResponseStream(AsyncDuplexStreamingCall<StreamingRequest, StreamingResponse> grpcCall)
         {
@@ -24,17 +24,19 @@ namespace ai.adoptionpack.speechkit.hybrid.client
                   //  grpcCall.ResponseStream.MoveNext().Wait();
                     await foreach (var response in grpcCall.ResponseStream.ReadAllAsync())
                     {
-                        ChunkRecievedEventArgs evt = new ChunkRecievedEventArgs(response);
-                        ChunkRecived?.Invoke(null, evt);
+                        log.Verbose($"{response.EventCase} chunk of {response.CalculateSize()} bytes recieved in {response.ResponseWallTimeMs}");
+                        if (response.EventCase != StreamingResponse.EventOneofCase.StatusCode)
+                        {
+                            ChunkRecievedEventArgs evt = new ChunkRecievedEventArgs(response);
+                            ChunkRecived?.Invoke(null, evt);                            
 
-                        log.Information($"{response.EventCase} chunk of {response.CalculateSize()} bytes recieved in {response.ResponseWallTimeMs}");
-
-                        if (response.EventCase == StreamingResponse.EventOneofCase.StatusCode && response.StatusCode.CodeType == CodeType.Closed)
-                        {                         
-                            log.Information($"Call compleated");
-                            Client.cancelSource.Cancel();
-                            return;
-                        }                      
+                            if (response.EventCase == StreamingResponse.EventOneofCase.StatusCode && response.StatusCode.CodeType == CodeType.Closed)
+                            {
+                                log.Information($"Call compleated");
+                                SpeechKitClient.cancelSource.Cancel();
+                                return;
+                            }
+                        }
                     }
                     
                 }

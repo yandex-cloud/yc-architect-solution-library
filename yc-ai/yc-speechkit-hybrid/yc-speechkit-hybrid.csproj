@@ -3,10 +3,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <StartupObject>ai.adoptionpack.speechkit.hybrid.Client</StartupObject>
+    <StartupObject>ai.adoptionpack.speechkit.hybrid.SpeechKitClient</StartupObject>
+	  <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <None Remove="google\api\annotations.proto" />
     <None Remove="google\api\http.proto" />
     <None Remove="google\rpc\code.proto" />
@@ -20,9 +21,22 @@
     <None Remove="yandex\cloud\ai\tts\v3\tts_service.proto" />
     <None Remove="yandex\cloud\api\operation.proto" />
     <None Remove="yandex\cloud\operation\operation.proto" />
-    <None Remove="yandex\cloud\operation\operation_service.proto" />
     <None Remove="yandex\cloud\validation.proto" />
   </ItemGroup>
+
+	<ItemGroup>
+	  <Compile Include="AudioDataEventArgs.cs" />
+	  <Compile Include="FileStreamReader.cs" />
+	  <Compile Include="Helpers.cs" />
+	  <Compile Include="SpeechKitClient.cs" />
+	  <Compile Include="SpeechKitClient\AuthTokenType.cs" />
+	  <Compile Include="SpeechKitClient\ChunkRecievedEventArgs.cs" />
+	  <Compile Include="SpeechKitClient\SpeechKitAbstractClient.cs" />
+	  <Compile Include="SpeechKitClient\SpeechKitSttStreamClient.cs" />
+	  <Compile Include="SpeechKitClient\SpeechKitTtsClient.cs" />
+	  <Compile Include="SpeechKitClient\SpeechToTextResponseReader.cs" />
+      <Coompile Include="AuthTokenType.cs" />
+	</ItemGroup>
 
   <ItemGroup>
     <Protobuf Include="google\api\annotations.proto" />
@@ -38,7 +52,6 @@
     <Protobuf Include="yandex\cloud\ai\tts\v3\tts_service.proto" />
     <Protobuf Include="yandex\cloud\api\operation.proto" />
     <Protobuf Include="yandex\cloud\operation\operation.proto" />
-    <Protobuf Include="yandex\cloud\operation\operation_service.proto" />
     <Protobuf Include="yandex\cloud\validation.proto" />
   </ItemGroup>
   

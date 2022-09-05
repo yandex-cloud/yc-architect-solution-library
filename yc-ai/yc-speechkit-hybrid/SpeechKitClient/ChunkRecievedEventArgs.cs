@@ -24,12 +24,12 @@ namespace ai.adoptionpack.speechkit.hybrid.client
         }
 
 
-        public string AsJson()
+        public string AsJson(bool writeIndented)
         {
             var options = new JsonSerializerOptions
             {
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All),
-                WriteIndented = true
+                WriteIndented = writeIndented
             };
             byte[] jsonUtf8Bytes;
             jsonUtf8Bytes = JsonSerializer.SerializeToUtf8Bytes(this.SpeechToTextChunk, options);

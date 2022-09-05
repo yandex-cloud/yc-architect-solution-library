@@ -10,10 +10,11 @@ using Microsoft.Extensions.Logging;
 using Speechkit.Tts.V3;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json.Linq;
 
 namespace ai.adoptionpack.speechkit.hybrid.client
 {
-    class SpeechKitTtsClient : SpeechKitAbstractClient, IDisposable
+    public class SpeechKitTtsClient : SpeechKitAbstractClient, IDisposable
     {
 
         private const int MAX_LINE_LENGTH = 160;  //Ограничение на длину строки: 160 символов. https://cloud.yandex.ru/docs/speechkit/tts/request
@@ -23,10 +24,9 @@ namespace ai.adoptionpack.speechkit.hybrid.client
         public event EventHandler<AudioDataEventArgs> TextToSpeachResultsRecieved;
 
         private UtteranceSynthesisRequest ActiveRequest { get; set; }
-
         private String FolderId;
 
-        public SpeechKitTtsClient(Uri address, string folderId, string IamToken, ILoggerFactory loggerFactory) : base(address)
+        public SpeechKitTtsClient(Uri address, AuthTokenType tokenType, string Token, string folderId, ILoggerFactory loggerFactory) : base(address, tokenType, Token)
         {
             this.endpointAddress = address;
             this.FolderId = folderId;
@@ -36,22 +36,8 @@ namespace ai.adoptionpack.speechkit.hybrid.client
 
 
         public void SynthesizeTxtFile(string inputFilePath, string model)
-        {
-            
-
+        {          
             SynthesizeTxtLine(File.ReadAllText(inputFilePath), model);
-            /*
-            var lines = File.ReadAllLines(inputFilePath);
-
-            foreach (String line in lines)
-            {
-                if (!string.IsNullOrWhiteSpace(line))
-                {
-                    SynthesizeTxtLine(line, model);
-                }
-
-                
-            }*/
         }
 
         private void SynthesizeTxtLine(string text, string model)
@@ -87,7 +73,7 @@ namespace ai.adoptionpack.speechkit.hybrid.client
                 UtteranceSynthesisRequest request = MakeRequest(text, model);
               //   request.Hints.Add(new Hints() { Voice = "kuznetsov_male" });
 
-            Metadata callHeaders = this.MakeMetadata();
+                Metadata callHeaders = this.MakeMetadata();
                 callHeaders.Add("x-folder-id", this.FolderId);
 
 
@@ -133,22 +119,7 @@ namespace ai.adoptionpack.speechkit.hybrid.client
                     finally
                     {
                         if (respEnum != null)
-                            await respEnum.DisposeAsync();
-                 
-                    /* IAsyncEnumerator<UtteranceSynthesisResponse> respEnum = respEnumerable.GetAsyncEnumerator();
-
-                     while (!respEnum.MoveNextAsync().GetAwaiter().IsCompleted)
-                     {
-                         Thread.Sleep(200);
-                     }
-
-                     byte[] data = respEnum.Current.AudioChunk.Data.ToByteArray();
-                     TextToSpeachResultsRecieved?.Invoke(this, AudioDataEventArgs.FromByateArray(data,
-                        data.Length));
-
-                     await respEnum.DisposeAsync();
-                     call.Dispose();*/
-
+                            await respEnum.DisposeAsync();                
                 }
                 
             

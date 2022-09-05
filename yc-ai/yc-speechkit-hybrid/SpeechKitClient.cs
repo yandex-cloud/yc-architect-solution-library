@@ -15,7 +15,7 @@ using Speechkit.Stt.V3;
 namespace ai.adoptionpack.speechkit.hybrid
 {
 
-    class Client
+    public class SpeechKitClient
     {
         public static IServiceProvider serviceProvider = ConfigureServices(new ServiceCollection());
 
@@ -46,10 +46,10 @@ namespace ai.adoptionpack.speechkit.hybrid
 
         static void RunOptions(Options args)
         {
-            ILoggerFactory _loggerFactory = Client.serviceProvider.GetService<ILoggerFactory>();
+            ILoggerFactory _loggerFactory = SpeechKitClient.serviceProvider.GetService<ILoggerFactory>();
             _loggerFactory.AddSerilog();
             var logger = Log.Logger;
-            Client.args = args;
+            SpeechKitClient.args = args;
 
 
             try
@@ -87,7 +87,7 @@ namespace ai.adoptionpack.speechkit.hybrid
         }
 
         /**
-         * Синтез текста
+         * Режим потокового синтез аудио
          */
         static void DoTts(ILoggerFactory _loggerFactory)
         {
@@ -103,28 +103,20 @@ namespace ai.adoptionpack.speechkit.hybrid
         {
                        
             SpeechKitSttStreamClient speechKitClient =
-                    new SpeechKitSttStreamClient(new Uri(args.serviceUri), args, _loggerFactory);//https://stt.api.cloud.yandex.net:443
+                    new SpeechKitSttStreamClient(new Uri(args.serviceUri), args, _loggerFactory);
 
             SpeechToTextResponseReader.ChunkRecived += SpeechToTextResponseReader_ChunksRecived;
 
 
+            FileStreamReader filereader = new FileStreamReader(args.inputFilePath);
+            // Subscribe SpeechKitClient for next portion of audio data
+            filereader.AudioBinaryRecived += speechKitClient.Listener_SpeechKitSend;
+            filereader.ReadAudioFile().Wait();
 
+            Log.Information("Shutting down SpeechKitStreamClient gRPC connections.");
+            Thread.Sleep(15000);
+            speechKitClient.Dispose();
 
-            CancellationToken cancelToken = cancelSource.Token;
-            speechKitClient.SendAsrData(File.ReadAllBytes(args.inputFilePath), cancelToken);
-
-
-            while (true)
-            {
-                Thread.Sleep(200);
-                if (cancelToken.IsCancellationRequested)
-                {
-                    Log.Information("Shutting down SpeechKitStreamClient gRPC connections.");
-                    speechKitClient.Dispose();
-                    return;
-                }
-            }
-           
             Log.Information($"Final results output file: {FinalTextResultsOutFile}");
             Log.Information($"Partial results output file: {PartialTextResultsOutFile}");
             Log.Information($"Trace service output file: {TraceResultsOutFile}");
@@ -139,7 +131,7 @@ namespace ai.adoptionpack.speechkit.hybrid
 
         private static void SpeechToTextResponseReader_ChunksRecived(object sender, ChunkRecievedEventArgs e)
         {
-            String eventPayload = e.AsJson();
+            String eventPayload = e.AsJson(true);
             Log.Information(eventPayload); // Log partial results
            
            File.AppendAllText(TraceResultsOutFile, eventPayload);//Write final results into file     
@@ -200,7 +192,13 @@ namespace ai.adoptionpack.speechkit.hybrid
         [Option("service-uri", Required = true, HelpText = "uri of the service: http:////ip-or_host:port_")]
         public string serviceUri { get; set; }
 
-          [Option("in-file", Required = true, HelpText = "Path of the audio file for recognition. Path to text file for tts synthezis")]
+        [Option("token-type", Required = true, HelpText = "Specify token type. Can be  APIKey or IAM.")]
+        public AuthTokenType TokenType { get; set; }
+
+        [Option("token", Required = true, HelpText = "Specify the received IAM or ApiKey token when accessing Yandex.Cloud SpeechKit via the API.")]
+        public string Token { get; set; }
+
+        [Option("in-file", Required = true, HelpText = "Path of the audio file for recognition. Path to text file for tts synthezis")]
         public string inputFilePath { get; set; }
 
         [Option("model", Required = false, Default = "general", HelpText = "S2T model: deferred-general/ hqa/ general:rc/ general:deprecated")]
