@@ -24,7 +24,7 @@ namespace ai.adoptionpack.speechkit.hybrid.client
         private Recognizer.RecognizerClient speechKitRpcClient;
         private int bytesSent = 0;
         private const int MAX_BYTES_SENT = 10 * 1024 * 1024; // check https://cloud.yandex.com/docs/speechkit/stt/streaming#session-restrictions for limitation details
-
+        private Mutex callMutex = new Mutex(false, "callLock");
 
         private void _readTask_SpeechToTextResultsRecived(object sender, ChunkRecievedEventArgs e)
         {
@@ -33,7 +33,7 @@ namespace ai.adoptionpack.speechkit.hybrid.client
 
         private AsyncDuplexStreamingCall<StreamingRequest, StreamingResponse> _call;
 
-        private async Task<AsyncDuplexStreamingCall<StreamingRequest, StreamingResponse>> ActiveCall()
+        private  AsyncDuplexStreamingCall<StreamingRequest, StreamingResponse> ActiveCall()
         {
 
                 if (this._call != null)
@@ -56,7 +56,7 @@ namespace ai.adoptionpack.speechkit.hybrid.client
                         SessionOptions = this.sessionConf
                     };
 
-                    await this._call.RequestStream.WriteAsync(rR);
+                    this._call.RequestStream.WriteAsync(rR).Wait();
 
                     // Start reading task for call                    
                     this._readTask = SpeechToTextResponseReader.ReadResponseStream(this._call);
@@ -106,7 +106,7 @@ namespace ai.adoptionpack.speechkit.hybrid.client
         }
 
 
-        public async void Listener_SpeechKitSend(object sender, AudioDataEventArgs e)
+        public void Listener_SpeechKitSend(object sender, AudioDataEventArgs e)
         {
 
 
@@ -114,33 +114,47 @@ namespace ai.adoptionpack.speechkit.hybrid.client
                 this.bytesSent += e.AudioData.Length;
                 if (this.bytesSent >= MAX_BYTES_SENT)
                     this._call = null;
-                try
+
+                bool locked = callMutex.WaitOne(5 * 1000); // Всеравно тайм аут наступет через 5 сек. после прекращения записи на сервисе
+                if (locked)
                 {
-                    await Task.Run(() => WriteAudio(e.AudioData));
+
+                    try
+                    {
+                        WriteAudio(e.AudioData);
+                    }
+                    catch (Exception ex) //when (ex.StatusCode == StatusCode.DeadlineExceeded)
+                    {
+                        Log.Error($"Error writing data: {ex.Message}\n Retrying... ");
+                        this._call = null;
+                        WriteAudio(e.AudioData);
+
+                    }
+                    finally
+                    {
+                        if (locked)
+                        {
+                            callMutex.ReleaseMutex();
+                        }
+                        locked = false;
+                    }
                 }
-                catch (Exception ex) //when (ex.StatusCode == StatusCode.DeadlineExceeded)
-                {
-                    Log.Error($"Error writing data: {ex.Message}\n Retrying... ");
-                    this._call = null;
-                    WriteAudio(e.AudioData);
 
-                }            
-            
-        }
+            }
 
 
-        private async void WriteAudio(byte[] audioData)
+        private  void WriteAudio(byte[] audioData)
         {
             try
             {
                 //DEBUG
                 //debugStream.Write(audioData, 0, audioData.Length);
+               
+                        AsyncDuplexStreamingCall<StreamingRequest, StreamingResponse> call =  this.ActiveCall();
+                        StreamingRequest rR = new StreamingRequest();
+                        rR.Chunk = new AudioChunk() { Data = Google.Protobuf.ByteString.CopyFrom(audioData) };
 
-                AsyncDuplexStreamingCall<StreamingRequest, StreamingResponse> call =  await this.ActiveCall();
-                StreamingRequest rR = new StreamingRequest();
-                rR.Chunk = new AudioChunk(){Data = Google.Protobuf.ByteString.CopyFrom(audioData)};
-                    
-                 await call.RequestStream.WriteAsync(rR);
+                        call.RequestStream.WriteAsync(rR).Wait();
             }
             catch (RpcException ex) //when (ex.StatusCode == StatusCode.DeadlineExceeded)
             {

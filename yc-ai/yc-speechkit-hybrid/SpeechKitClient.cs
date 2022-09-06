@@ -137,18 +137,25 @@ namespace ai.adoptionpack.speechkit.hybrid
            File.AppendAllText(TraceResultsOutFile, eventPayload);//Write final results into file     
 
            if (e.EventCase == StreamingResponse.EventOneofCase.Final)
-           {         
-             
-                File.AppendAllText(FinalTextResultsOutFile, Helpers.extractText(eventPayload, "Final.Alternatives[*].Text"));//Write final results into file    
+           {
 
-                
+                File.AppendAllText(FinalTextResultsOutFile, eventPayload);
+                // File.AppendAllText(FinalTextResultsOutFile, Helpers.extractText(eventPayload, "Final.Alternatives[*].Text"));//Write final results into file    
+
+
             }
             else if (e.EventCase == StreamingResponse.EventOneofCase.Partial)
             {
                 string PartialTextResultsTxtFile = args.inputFilePath + ".partial.txt";
-                File.AppendAllText(PartialTextResultsTxtFile, Helpers.extractText(eventPayload, "Partial.Alternatives[*].Text"));//Write partial results into file    
+                // File.AppendAllText(PartialTextResultsTxtFile, Helpers.extractText(eventPayload, "Partial.Alternatives[*].Text"));//Write partial results into file
+                File.AppendAllText(PartialTextResultsTxtFile, eventPayload);
 
                 Log.Information($"Results output file: {PartialTextResultsTxtFile}");
+            }else if (e.EventCase == StreamingResponse.EventOneofCase.FinalRefinement)
+            {
+                string FinalRefinementTextResultsFile = args.inputFilePath + ".FinalRefinement.txt";
+                File.AppendAllText(FinalRefinementTextResultsFile, eventPayload);
+                //File.AppendAllText(FinalRefinementTextResultsFile, Helpers.extractText(eventPayload, "FinalRefinement.Alternatives[*].Text"));//Write partial results into file    
             }
 
         }
