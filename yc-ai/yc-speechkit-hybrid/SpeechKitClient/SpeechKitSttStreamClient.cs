@@ -78,12 +78,12 @@ namespace ai.adoptionpack.speechkit.hybrid.client
             this.sessionConf = new StreamingOptions()
             {
                 RecognitionModel = new RecognitionModelOptions() {
-                     AudioFormat = new AudioFormatOptions() {
-                         RawAudio = new RawAudio() {
-                             AudioEncoding = RawAudio.Types.AudioEncoding.Linear16Pcm,
-                             SampleRateHertz = rSpec.sampleRate,
-                             AudioChannelCount = 1
-                         }
+                    AudioFormat = new AudioFormatOptions() {
+                        RawAudio = new RawAudio() {
+                            AudioEncoding = RawAudio.Types.AudioEncoding.Linear16Pcm,
+                            SampleRateHertz = rSpec.sampleRate,
+                            AudioChannelCount = 1
+                        }
                         /* ContainerAudio = new ContainerAudio()
                          {
                               ContainerAudioType = ContainerAudio.Types.ContainerAudioType.Wav
@@ -95,8 +95,15 @@ namespace ai.adoptionpack.speechkit.hybrid.client
                         ProfanityFilter = false,
                         LiteratureText = true
                     },
-                    AudioProcessingType =  RecognitionModelOptions.Types.AudioProcessingType.RealTime
-                }
+                    AudioProcessingType = RecognitionModelOptions.Types.AudioProcessingType.RealTime
+                },
+                EouClassifier = new EouClassifierOptions()
+                {
+                    DefaultClassifier = new DefaultEouClassifier()
+                    {
+                        MaxPauseBetweenWordsHintMs = 500
+                    }
+                }                 
             };
             speechKitRpcClient = new Recognizer.RecognizerClient(MakeChannel(loggerFactory));
 
@@ -166,32 +173,34 @@ namespace ai.adoptionpack.speechkit.hybrid.client
 
         public void Dispose()
         {
-           
+            bool locked = callMutex.WaitOne(5 * 1000); // Всеравно тайм аут наступет через 5 сек. после прекращения записи на сервисе
+            if (locked)
+            {
                 try
                 {
-                    if (this._readTask != null)
-                    {
-                        log.Information($"Disposing reading tasks");
-                        this._readTask.Dispose(); // Close read task
-                    }
-                    this._readTask = null;
 
                     if (this._call != null)
                     {
                         //Status status = this._call.GetStatus();  throw exception if not done
                         log.Information("Shutting down SpeechKit grpc connection.");
                         this._call.RequestStream.CompleteAsync();
-                        
+
                         this._call.Dispose();
                         this._call = null;
                     }
-                    
-                }
+
+                }              
                 catch (Exception ex)
                 {
                     log.Information($"Waiting call for compleation. ${ex.Message}");
                     Thread.Sleep(1000);
                 }
+                finally
+                {
+                    callMutex.ReleaseMutex();
+                    locked = false;
+                }
+            }
         }
 
     }

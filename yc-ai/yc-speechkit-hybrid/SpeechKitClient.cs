@@ -114,8 +114,6 @@ namespace ai.adoptionpack.speechkit.hybrid
             filereader.ReadAudioFile().Wait();
 
             Log.Information("Shutting down SpeechKitStreamClient gRPC connections.");
-            Thread.Sleep(15000);
-            speechKitClient.Dispose();
 
             Log.Information($"Final results output file: {FinalTextResultsOutFile}");
             Log.Information($"Partial results output file: {PartialTextResultsOutFile}");
