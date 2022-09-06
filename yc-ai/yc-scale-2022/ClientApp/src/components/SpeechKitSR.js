@@ -255,7 +255,7 @@ export class SpeechKitSR extends React.Component {
                         {this.renderSentimentAnalyzis() }
                     </div>
                     <div className={b('bottom')}>                       
-                        <Button onClick={isRecording ? this.stopRecording : this.initialize}>
+                        <Button size="xl" view="action" onClick={isRecording ? this.stopRecording : this.initialize}>
                             {isRecording ? "Завершить" : "Распознать"}
                         </Button>
                     </div>

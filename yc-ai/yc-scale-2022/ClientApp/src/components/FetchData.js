@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button } from '@yandex-cloud/uikit';
+import { convertUTCDateToLocalDate } from './utils'
 
 export class FetchData extends Component {
   static displayName = FetchData.name;
@@ -11,8 +11,10 @@ export class FetchData extends Component {
 
   componentDidMount() {
     this.populateSentimentsData();
-  }
+    }
 
+
+  
   static renderSentimentsTable(sentiments) {
       return (
           <div>
@@ -22,8 +24,8 @@ export class FetchData extends Component {
             <th >Time</th>
             <th>NoEmotion</th>
             <th>Joy</th>
-            <th>Sadness</th>
             <th>Surprise</th>
+            <th>Sadness</th>            
             <th>Fear</th>
             <th>Anger</th>
             <th>Text</th>
@@ -31,16 +33,16 @@ export class FetchData extends Component {
         </thead>
         <tbody>
             {sentiments.map(sentiments =>
-                <tr key={sentiments.recognitionId}>
-                    <td>{(new Date(sentiments.startDate)).toLocaleTimeString()}</td>
-                    <td>{sentiments.noEmotion.toFixed(2)}</td>
-                    <td>{sentiments.joy.toFixed(2)}</td>
-                    <td>{sentiments.sadness.toFixed(2)}</td>
-                    <td>{sentiments.surprise.toFixed(2)}</td>
-                    <td>{sentiments.fear.toFixed(2)}</td>
-                    <td>{sentiments.anger.toFixed(2)}</td>
-                    <td>{sentiments.text}</td>
-            </tr>
+        <tr key={sentiments.recognitionId}>
+            <td>{(convertUTCDateToLocalDate(new Date(sentiments.startDate))).toLocaleTimeString()}</td>
+            <td>{sentiments.noEmotion.toFixed(2)}</td>
+            <td>{sentiments.joy.toFixed(2)}</td>
+            <td>{sentiments.surprise.toFixed(2)}</td>
+            <td>{sentiments.sadness.toFixed(2)}</td>
+            <td>{sentiments.fear.toFixed(2)}</td>
+            <td>{sentiments.anger.toFixed(2)}</td>
+            <td>{sentiments.text}</td>
+        </tr>
           )}
         </tbody>
               </table>

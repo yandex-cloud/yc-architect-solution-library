@@ -36,6 +36,9 @@ export class NavMenu extends Component {
                 <NavItem>
                   <NavLink tag={Link} className="text-dark" to="/fetch-data">Stat</NavLink>
                 </NavItem>
+                <NavItem>
+                   <NavLink tag={Link} className="text-dark" to={{ pathname: "https://datalens.yandex/15q3m9cc8rd4s" }} target="_blank">DataLens</NavLink>
+                </NavItem>
               </ul>
             </Collapse>
           </Container>

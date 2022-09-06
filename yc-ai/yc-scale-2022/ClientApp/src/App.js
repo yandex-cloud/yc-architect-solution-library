@@ -13,7 +13,7 @@ export default class App extends Component {
     return (
       <Layout>        
         <Route exact path='/' component={SpeechKitSR} />
-        <Route path='/fetch-data' component={FetchData} />        
+        <Route path='/fetch-data' component={FetchData} />            
       </Layout>
     );
   }
