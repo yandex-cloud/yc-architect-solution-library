@@ -142,7 +142,10 @@ namespace yc_scale_2022
 
                     if (mlInference != null)
                     {
-                        await this.CreateTrackerTask(responseModel, mlInference);
+                        // Create Tracker ticket and store key in the model
+                        String TrackerKey = await this.CreateTrackerTask(responseModel, mlInference);
+                        SpeechKitResponseModel storedModel = this.dbConn.AsrResponses.Find(responseModel.RecognitionId);
+                        storedModel.TrackerKey = TrackerKey;
                     }
                     
                 }
@@ -153,8 +156,10 @@ namespace yc_scale_2022
                 }
 
                
-                
-            }catch(Exception ex)
+
+
+            }
+            catch(Exception ex)
             {
                 logger.LogError($"Error {ex.Message} \n {ex.StackTrace} \n processing database updated from session {asrSession.AsrSessionId}");
             }
@@ -244,7 +249,7 @@ namespace yc_scale_2022
 
 
 
-        private async Task<TrackerResponseModel> CreateTrackerTask(SpeechKitResponseModel responseModel, Inference mlResponse) {
+        private async Task<String> CreateTrackerTask(SpeechKitResponseModel responseModel, Inference mlResponse) {
             
             return await this.trackProcessor.CreateTiket(responseModel, mlResponse);
 

@@ -28,7 +28,7 @@ namespace yc_scale_2022
                                 new System.Net.Http.Headers.AuthenticationHeaderValue("OAuth", "y0_AgAAAABkVZ7GAAhihgAAAADN_8ulLuf0Vv2qTTGn7sylnWvgObF57pQ");
         }
 
-        public async Task<TrackerResponseModel> CreateTiket(SpeechKitResponseModel responseModel, Inference mlInference)
+        public async Task<string> CreateTiket(SpeechKitResponseModel responseModel, Inference mlInference)
         {
 
 
@@ -59,11 +59,10 @@ namespace yc_scale_2022
                 {
                     TrackerResponseModel trackerOutput = JsonSerializer.Deserialize<TrackerResponseModel>(respJsonPayLoad);
 
-                    
 
-                    this.logger.LogTrace($"session {responseModel.SessionId}  tracker key {trackerOutput.key}");
+                    this.logger.LogTrace($"session {responseModel.RecognitionId}  tracker key {trackerOutput.key}");
 
-                    return trackerOutput;
+                    return trackerOutput.key;
 
                 }
                 catch (Exception e)

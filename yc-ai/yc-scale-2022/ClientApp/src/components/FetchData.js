@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { Link } from '@yandex-cloud/uikit';
+import { Text } from '@yandex-cloud/uikit';
 import { convertUTCDateToLocalDate } from './utils'
 
 export class FetchData extends Component {
@@ -41,7 +43,17 @@ export class FetchData extends Component {
             <td>{sentiments.sadness.toFixed(2)}</td>
             <td>{sentiments.fear.toFixed(2)}</td>
             <td>{sentiments.anger.toFixed(2)}</td>
-            <td>{sentiments.text}</td>
+                    <td>{(() => {
+                        if (sentiments.trackerKey) {
+                            return (
+                                <Link href={"https://tracker.yandex.ru/" + sentiments.trackerKey}>{sentiments.text}</Link>
+                            )
+                        } else {
+                            return (
+                                <div class="asr-txt">{sentiments.text}</div>
+                            )
+                        }
+                    })()}</td>
         </tr>
           )}
         </tbody>

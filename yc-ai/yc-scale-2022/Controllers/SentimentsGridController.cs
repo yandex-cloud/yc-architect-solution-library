@@ -42,7 +42,8 @@ namespace yc_scale_2022.Controllers
                                           Sadness = inf.sadness,
                                           Surprise = inf.surprise,
                                           Fear = inf.fear,
-                                          Anger = inf.anger
+                                          Anger = inf.anger,
+                                          TrackerKey = resp.TrackerKey
                                       }).Take(1);
 
             return sentementStatQuery.FirstOrDefault();
@@ -77,7 +78,8 @@ namespace yc_scale_2022.Controllers
                                               Surprise = inf.surprise,
                                               Fear = inf.fear,
                                               Anger = inf.anger,
-                                              Text = alt.Text
+                                              Text = alt.Text,
+                                              TrackerKey = resp.TrackerKey
                                           }).Take(10);
 
                 return sentementStatQuery.ToArray();

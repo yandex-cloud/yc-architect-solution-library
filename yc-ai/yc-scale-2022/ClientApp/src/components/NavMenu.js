@@ -31,13 +31,16 @@ export class NavMenu extends Component {
             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
               <ul className="navbar-nav flex-grow">
               <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/">ASR</NavLink>
-              </NavItem>                
-                <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/fetch-data">Stat</NavLink>
-                </NavItem>
+                  <NavLink tag={Link} className="text-dark" to="/">SpeechKit ASR</NavLink>
+              </NavItem>                                
                 <NavItem>
                    <NavLink tag={Link} className="text-dark" to={{ pathname: "https://datalens.yandex/15q3m9cc8rd4s" }} target="_blank">DataLens</NavLink>
+                </NavItem>
+                <NavItem>
+                   <NavLink tag={Link} className="text-dark" to={{ pathname: "https://tracker.yandex.ru/agile/board/2" }} target="_blank">Tracker</NavLink>
+                </NavItem>
+                <NavItem>
+                    <NavLink tag={Link} className="text-dark" to="/fetch-data">Stat</NavLink>
                 </NavItem>
               </ul>
             </Collapse>

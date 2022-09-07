@@ -17,6 +17,9 @@ namespace yc_scale_2022.Models
         public DateTime RecognitionDateTime { get; set; }
 
         public double? AudioLen { get; set; }
+
+        [Column(TypeName = "varchar(100)")]
+        public String TrackerKey { get; set; }
         
         [ForeignKey("AlternativeId")]
         public List<Alternative> Alternatives { get; set; }
