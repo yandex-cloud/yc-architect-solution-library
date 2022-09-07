@@ -23,9 +23,9 @@ namespace yc_scale_2022
             this.logger = logger;
             this._httpClient = new HttpClient();
 
-            _httpClient.DefaultRequestHeaders.Add("X-Org-ID", "6935533");
+            _httpClient.DefaultRequestHeaders.Add("X-Org-ID", configuration["X-Org-ID"]);
             _httpClient.DefaultRequestHeaders.Authorization =
-                                new System.Net.Http.Headers.AuthenticationHeaderValue("OAuth", "y0_AgAAAABkVZ7GAAhihgAAAADN_8ulLuf0Vv2qTTGn7sylnWvgObF57pQ");
+                                new System.Net.Http.Headers.AuthenticationHeaderValue("OAuth", configuration["TrackerOAuth"]);
         }
 
         public async Task<string> CreateTiket(SpeechKitResponseModel responseModel, Inference mlInference)
