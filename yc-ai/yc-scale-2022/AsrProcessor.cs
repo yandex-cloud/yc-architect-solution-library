@@ -44,6 +44,8 @@ namespace yc_scale_2022
 
         ApplicationDbContext dbConn;
 
+        MlProcessor mlInference;
+        TrackerProcessor trackProcessor;
   
         // audio recording start moment
         private DateTime audioStartMoment;
@@ -76,6 +78,9 @@ namespace yc_scale_2022
             };
             
             this.configuration = configuration;
+
+            this.mlInference = new MlProcessor(configuration, _loggerFactory.CreateLogger<MlProcessor>());
+            this.trackProcessor = new TrackerProcessor(configuration, _loggerFactory.CreateLogger<TrackerProcessor>());
         }
 
 
@@ -108,19 +113,7 @@ namespace yc_scale_2022
 
             return speechKitClient;
         }
-/*
-        public async void checkFinalTimeout()
-        {
-            Thread.Sleep(MaxAsrSilenceTime);
-            double asrDataDelay = DateTime.Now.Subtract(this.lastPartialTime).TotalSeconds;
-            if (asrDataDelay >= MaxAsrSilenceTime)
-            {
-                logger.LogTrace($"Asr silence for {asrDataDelay} sec. >  {MaxAsrSilenceTime} timeout. Finalize");
-                await SafePartialResults();
-            }
-              
-        }
-*/
+
         private  async void SpeechToTextResponseReader_AsrRecived(object sender, ChunkRecievedEventArgs e)
         {
             try
@@ -141,11 +134,17 @@ namespace yc_scale_2022
 
                 
 
-                if (responseModel.Final) { 
+                if (responseModel.Final) {
                     // apply sentiment detection
-                    await this.SentimentAnalysis(responseModel);
+                    Inference mlInference = await this.SentimentAnalysis(responseModel);
                     this.audioStartMoment = DateTime.Now;
                     this.lastPartialResponseId = Guid.Empty;
+
+                    if (mlInference != null)
+                    {
+                        await this.CreateTrackerTask(responseModel, mlInference);
+                    }
+                    
                 }
                 else
                 {
@@ -206,84 +205,53 @@ namespace yc_scale_2022
             }
         }
 
-        private async Task<SpeechKitResponseModel> SentimentAnalysis(SpeechKitResponseModel responseModel)
+        private async Task<Inference> SentimentAnalysis(SpeechKitResponseModel responseModel)
         {
 
             if (responseModel.Alternatives != null && responseModel.Alternatives.Count > 0)
             {
-                    HttpClient _httpClient = new HttpClient();
-                    StringBuilder sb = new StringBuilder(); 
-                    foreach (Alternative alt in responseModel.Alternatives){
-                       sb.AppendLine(alt.Text);
-                    }
-                    MlInput mlInTextPayload = new MlInput() {  
-                        input_data  = new MlInputTextPayload() { text = sb.ToString()} 
-                    };
-                   // string mlInJsonPayload = JsonSerializer.Serialize(mlInTextPayload);
+                //  ml inference
+                Inference emotions_list = await this.mlInference.SentimentAnalysis(responseModel);
 
-                    String node_id = this.configuration["MlNodeId"]; // datashpere node id
-                    String ml_api_key = this.configuration["MlApiKey"]; // datashpere api key
-                   
-  
-                    String url = $"https://datasphere.api.cloud.yandex.net/datasphere/v1/nodes/{node_id}:execute";
-                    
-                    _httpClient.DefaultRequestHeaders.Add("Host", "datasphere.api.cloud.yandex.net");
-                    _httpClient.DefaultRequestHeaders.Authorization = 
-                                        new System.Net.Http.Headers.AuthenticationHeaderValue("Api-Key",ml_api_key);
-
-                MlInputModelPayload mlPayload = new MlInputModelPayload() { 
-                                folder_id= this.configuration["MlFolderId"], ///datashpere folder id
-                         input = mlInTextPayload
-                };
-
-                    HttpResponseMessage httpResponse = await _httpClient.PostAsync(url, 
-                                        new StringContent(JsonSerializer.Serialize(mlPayload), Encoding.UTF8, "application/json"));
-                    if (httpResponse.StatusCode == System.Net.HttpStatusCode.OK)
-                    {
-                        String respJsonPayLoad = await httpResponse.Content.ReadAsStringAsync();
-
-                        try
-                        {
-                        InferenceRoot mlOutput = JsonSerializer.Deserialize<InferenceRoot>(respJsonPayLoad);
-
-                            mlOutput.output.voice_stat.emotions_list.recognition_id = responseModel.RecognitionId;
-                            this.dbConn.MlInferences.Add(mlOutput.output.voice_stat.emotions_list);
-                            
-                            //send to websocket
-                            WssPayload wpl = new WssPayload() { type = WssPayload.MSG_TYPE_ML, 
-                                data = JsonSerializer.Serialize(mlOutput.output.voice_stat.emotions_list) };
-                            await Task.Run(() => SendToWebsocket(wpl));
-
-                        logger.LogInformation($"session {asrSession.AsrSessionId}  model inference recieved for asr response {responseModel.RecognitionId}..");
-
-                        }
-                        catch(Exception e)
-                        {
-                            logger.LogError($"Error parsing rest {url} response {e} for asr response {responseModel.RecognitionId}.");                           
-                        }
-                    }
-                    else
-                    {
-                        logger.LogError($"Http error {httpResponse.StatusCode} calling {url} for asr response {responseModel.RecognitionId}..");
-                        
-                    }
-            }
-
-            // Attempt saving changes into to the database
-            if (this.dbConn != null)
-            {
-                lock (db_changes_locker)
+                if (emotions_list != null)
                 {
-                    int savedEntitiesCount = this.dbConn.SaveChanges();
-                    logger.LogInformation($"db updated with {savedEntitiesCount} entities for {responseModel.RecognitionId} session {asrSession.AsrSessionId}");
+                    //send to websocket
+                    WssPayload wpl = new WssPayload()
+                    {
+                        type = WssPayload.MSG_TYPE_ML,
+                        data = JsonSerializer.Serialize(emotions_list)
+                    };
+                    await Task.Run(() => SendToWebsocket(wpl));
 
+                    // Attempt saving changes into to the database
+                    if (this.dbConn != null)
+                    {
+                        this.dbConn.MlInferences.Add(emotions_list);
+
+                        lock (db_changes_locker)
+                        {
+                            int savedEntitiesCount = this.dbConn.SaveChanges();
+                            logger.LogInformation($"db updated with {savedEntitiesCount} entities for {responseModel.RecognitionId} session {asrSession.AsrSessionId}");
+
+                        }
+                    }
+
+                    return emotions_list;
                 }
             }
-            return responseModel;
+            return null;
+        }
+
+
+
+        private async Task<TrackerResponseModel> CreateTrackerTask(SpeechKitResponseModel responseModel, Inference mlResponse) {
+            
+            return await this.trackProcessor.CreateTiket(responseModel, mlResponse);
+
         }
 
         /* Handle last partial results as final before close */
-        internal async Task<SpeechKitResponseModel> SafePartialResults()
+        internal async Task<Inference> SafePartialResults()
         {
 
                 SpeechKitResponseModel responseModel = this.dbConn.AsrResponses.Find(this.lastPartialResponseId);
@@ -326,6 +294,10 @@ namespace yc_scale_2022
                     // dispose speechkit client
                     this.speechKitClient.Dispose();
                     this.speechKitClient = null;
+
+                    this.mlInference = null;
+                    this.trackProcessor = null;
+
                     logger.LogInformation($"session {asrSession.AsrSessionId} closed.");
                 }
             }catch(Exception ex)

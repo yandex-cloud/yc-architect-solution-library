@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
 
 namespace yc_scale_2022.Models
 {
@@ -26,6 +27,16 @@ namespace yc_scale_2022.Models
         {
             this.RecognitionId = Guid.NewGuid();
             this.RecognitionDateTime = DateTime.UtcNow; ;
+        }
+
+        public String GetWholeText()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (Alternative alt in this.Alternatives)
+            {
+                sb.AppendLine(alt.Text);
+            }
+            return sb.ToString();
         }
     }
     [Table("asr_alternative")] 
