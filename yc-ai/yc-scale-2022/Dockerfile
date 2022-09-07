@@ -27,7 +27,17 @@ RUN dotnet build "yc-scale-2022.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "yc-scale-2022.csproj" -c Release -o /app/publish
 
+FROM node:16 AS build-web
+COPY ./yc-scale-2022/ClientApp/package.json /yc-scale-2022/ClientApp/package.json
+COPY ./yc-scale-2022/ClientApp/package-lock.json /yc-scale-2022/ClientApp/package-lock.json
+WORKDIR /yc-scale-2022/ClientApp
+RUN npm ci
+COPY ./yc-scale-2022/ClientApp/ /yc-scale-2022/ClientApp
+RUN npm run build
+
+
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=build-web /yc-scale-2022/ClientApp/build ./ClientApp/build
 ENTRYPOINT ["dotnet", "yc-scale-2022.dll"]
