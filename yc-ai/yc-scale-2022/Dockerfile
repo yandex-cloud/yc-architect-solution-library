@@ -31,7 +31,7 @@ FROM node:16 AS build-web
 COPY ./yc-scale-2022/ClientApp/package.json /yc-scale-2022/ClientApp/package.json
 COPY ./yc-scale-2022/ClientApp/package-lock.json /yc-scale-2022/ClientApp/package-lock.json
 WORKDIR /yc-scale-2022/ClientApp
-RUN npm ci
+RUN npm install
 COPY ./yc-scale-2022/ClientApp/ /yc-scale-2022/ClientApp
 RUN npm run build
 
