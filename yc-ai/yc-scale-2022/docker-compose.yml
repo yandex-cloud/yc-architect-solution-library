@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:  
+  yc-scale-2022:
+    image: ycscale2022:latest
+    ports:
+      - 8080:80
+    environment:
+      - REACT_APP_ENV=production
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=YandexScale2022
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/scale2022_smarthive_ru.pfx
+      - FolderId=b1g1ocf9phrhi7obskcn
+      - Token=AQVN2Go9ZGupSWGd33tm03H5hqds_CtDiijTCVth
+      - AuthTokenType=APIKey
+      - MlNodeId=81ed6c0e-4b2e-4879-b641-92b00654af6d
+      - MlFolderId=b1gabkit19conpj9qd6c
+      - MlApiKey=AQVNwG1qQIHKPopfNLmceQJSMshmjFbHXlvzxt5f
+      - ConnectionStrings:SentimentsDatabase=Host=rc1b-efq1n5ghr7z3lvmn.mdb.yandexcloud.net;Port=6432;Database=sentiments;Username=sa-data-svc;Password=Lra-84b-7V5-YrX;Ssl Mode=Prefer;Trust Server Certificate=true        
+      - X-Org-ID:6935533
+      - TrackerOAuth:y0_AgAAAABkVZ7GAAhihgAAAADN_8ulLuf0Vv2qTTGn7sylnWvgObF57pQ
+    restart: always
+    volumes:
+      - "C:/Users/makhlu/AppData/Roaming/ASP.NET/Https:/https"

@@ -126,7 +126,7 @@ namespace yc_scale_2022
                 String jSonRes = e.AsJson(false);
                 SpeechKitResponseModel responseModel = mapResponseJson(jSonRes);
 
-                this.dbConn.AsrResponses.Add(responseModel);
+                
 
                 // Send response to WebSocket
                 if (webSocket.State == WebSocketState.Open)                   
@@ -135,28 +135,17 @@ namespace yc_scale_2022
                 
 
                 if (responseModel.Final) {
-                    // apply sentiment detection
-                    Inference mlInference = await this.SentimentAnalysis(responseModel);
-                    this.audioStartMoment = DateTime.Now;
-                    this.lastPartialResponseId = Guid.Empty;
 
-                    if (mlInference != null)
-                    {
-                        // Create Tracker ticket and store key in the model
-                        String TrackerKey = await this.CreateTrackerTask(responseModel, mlInference);
-                        SpeechKitResponseModel storedModel = this.dbConn.AsrResponses.Find(responseModel.RecognitionId);
-                        storedModel.TrackerKey = TrackerKey;
-                    }
-                    
+                    await this.DoFinileResponseTasks(responseModel);
                 }
                 else
                 {
+                    this.dbConn.AsrResponses.Add(responseModel);
                     this.lastPartialResponseId = responseModel.RecognitionId;
                     logger.LogTrace($"Skip partial results {responseModel.RecognitionId}");
                 }
 
-               
-
+                
 
             }
             catch(Exception ex)
@@ -167,6 +156,31 @@ namespace yc_scale_2022
             {
                 request_in_progress = false;
             }
+        }
+
+        private async Task<Inference> DoFinileResponseTasks(SpeechKitResponseModel responseModel)
+        {
+            // apply sentiment detection
+            Inference mlInference = await this.SentimentAnalysis(responseModel);
+            // Attempt saving changes into to the database
+            if (mlInference != null)
+            {
+                this.dbConn.MlInferences.Add(mlInference);
+
+                responseModel.TrackerKey = await this.CreateTrackerTask(responseModel, mlInference);
+            }
+
+            this.audioStartMoment = DateTime.Now;
+            this.lastPartialResponseId = Guid.Empty;
+
+            this.dbConn.AsrResponses.Add(responseModel);
+
+            lock (db_changes_locker) { 
+                int savedEntitiesCount = this.dbConn.SaveChanges();
+                logger.LogInformation($"db updated with {savedEntitiesCount} entities for {responseModel.RecognitionId} session {asrSession.AsrSessionId}");
+            }
+
+            return mlInference;
         }
 
         private SpeechKitResponseModel mapResponseJson(String asrJson)
@@ -227,19 +241,7 @@ namespace yc_scale_2022
                         data = JsonSerializer.Serialize(emotions_list)
                     };
                     await Task.Run(() => SendToWebsocket(wpl));
-
-                    // Attempt saving changes into to the database
-                    if (this.dbConn != null)
-                    {
-                        this.dbConn.MlInferences.Add(emotions_list);
-
-                        lock (db_changes_locker)
-                        {
-                            int savedEntitiesCount = this.dbConn.SaveChanges();
-                            logger.LogInformation($"db updated with {savedEntitiesCount} entities for {responseModel.RecognitionId} session {asrSession.AsrSessionId}");
-
-                        }
-                    }
+                   
 
                     return emotions_list;
                 }
@@ -264,7 +266,7 @@ namespace yc_scale_2022
             {
                 logger.LogInformation($"Mark last partial result {this.lastPartialResponseId} as final for session {asrSession.AsrSessionId}.");
                 responseModel.Final = true;
-                return await SentimentAnalysis(responseModel);
+                return await this.DoFinileResponseTasks(responseModel);
             }
             else
             {
