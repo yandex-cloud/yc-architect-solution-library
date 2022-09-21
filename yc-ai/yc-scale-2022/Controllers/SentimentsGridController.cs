@@ -37,12 +37,12 @@ namespace yc_scale_2022.Controllers
                                       {
                                           RecognitionId = resp.RecognitionId,
                                           StartDate = resp.RecognitionDateTime,
-                                          NoEmotion = inf.no_emotion,
-                                          Joy = inf.joy,
-                                          Sadness = inf.sadness,
-                                          Surprise = inf.surprise,
-                                          Fear = inf.fear,
-                                          Anger = inf.anger,
+                                          NoEmotion = inf.no_emotion * 100,
+                                          Joy = inf.joy * 100,
+                                          Sadness = inf.sadness * 100,
+                                          Surprise = inf.surprise * 100,
+                                          Fear = inf.fear * 100,
+                                          Anger = inf.anger * 100,
                                           TrackerKey = resp.TrackerKey
                                       }).Take(1);
 
@@ -72,12 +72,12 @@ namespace yc_scale_2022.Controllers
                                           {
                                               RecognitionId = resp.RecognitionId,
                                               StartDate = resp.RecognitionDateTime,
-                                              NoEmotion = inf.no_emotion,
-                                              Joy = inf.joy,
-                                              Sadness = inf.sadness,
-                                              Surprise = inf.surprise,
-                                              Fear = inf.fear,
-                                              Anger = inf.anger,
+                                              NoEmotion = inf.no_emotion * 100,
+                                              Joy = inf.joy * 100,
+                                              Sadness = inf.sadness * 100,
+                                              Surprise = inf.surprise * 100,
+                                              Fear = inf.fear * 100,
+                                              Anger = inf.anger * 100,
                                               Text = alt.Text,
                                               TrackerKey = resp.TrackerKey
                                           }).Take(10);

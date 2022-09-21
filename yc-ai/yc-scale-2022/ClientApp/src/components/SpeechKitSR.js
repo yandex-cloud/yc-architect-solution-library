@@ -202,28 +202,30 @@ export class SpeechKitSR extends React.Component {
         }
         if (emotions) {
             return (
-                <table className="table table-borderless">
-                    <thead>
-                        <tr>
-                            <th>Emotions</th>
-                            <th>joy</th>
-                            <th>surprise</th>
-                            <th>sadness</th>                    
-                            <th>fear</th>
-                            <th>anger</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td></td>
+                <div className={b('tblEmotions')}>
+                    <table className="uk-table uk-table-striped {b('tblEmotions')}">
+                        <thead>
+                            <tr>                                
+                                <th>😂 Радость</th>
+                                <th>😮 Удивление</th>
+                                <th>😞 Грусть</th>                    
+                                <th>😨 Страх</th>
+                                <th>😡 Злость</th>
+                                <th>😐 Без эмоций</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr>                           
                             <td>{emotions.joy.toFixed(2)}</td>
                             <td>{emotions.surprise.toFixed(2)}</td>
                             <td>{emotions.sadness.toFixed(2)}</td>
                             <td>{emotions.fear.toFixed(2)}</td>
                             <td>{emotions.anger.toFixed(2)}</td>
+                            <td>{emotions.noEmotion.toFixed(2)}</td>
                         </tr>
                     </tbody>
-                </table>
+                    </table>
+                </div>
                 )
         } else {
             return null;

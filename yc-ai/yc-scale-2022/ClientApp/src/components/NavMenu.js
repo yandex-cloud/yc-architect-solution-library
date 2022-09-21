@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { text } from '@yandex-cloud/uikit';
 import './NavMenu.css';
 
 export class NavMenu extends Component {
@@ -24,23 +25,23 @@ export class NavMenu extends Component {
   render () {
     return (
       <header>
-        <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
-          <Container>
-            <NavbarBrand tag={Link} to="/">Yandex Scale 2022</NavbarBrand>
+        <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" dark>
+          <Container>                   
+            <NavbarBrand tag={Link} to="/">Yandex Scale 2022</NavbarBrand>                    
             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
               <ul className="navbar-nav flex-grow">
               <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/">SpeechKit ASR</NavLink>
+                  <NavLink tag={Link} className="text-white" to="/">SpeechKit ASR</NavLink>
               </NavItem>                                
                 <NavItem>
-                   <NavLink tag={Link} className="text-dark" to={{ pathname: "https://datalens.yandex/15q3m9cc8rd4s" }} target="_blank">DataLens</NavLink>
+                   <NavLink tag={Link} className="text-white" to={{ pathname: "https://datalens.yandex/15q3m9cc8rd4s" }} target="_blank">DataLens</NavLink>
                 </NavItem>
                 <NavItem>
-                   <NavLink tag={Link} className="text-dark" to={{ pathname: "https://tracker.yandex.ru/agile/board/2" }} target="_blank">Tracker</NavLink>
+                   <NavLink tag={Link} className="text-white" to={{ pathname: "https://tracker.yandex.ru/agile/board/2" }} target="_blank">Tracker</NavLink>
                 </NavItem>
                 <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/fetch-data">Stat</NavLink>
+                    <NavLink tag={Link} className="text-white" to="/fetch-data">Stat</NavLink>
                 </NavItem>
               </ul>
             </Collapse>

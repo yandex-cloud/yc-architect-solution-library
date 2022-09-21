@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import { Link } from '@yandex-cloud/uikit';
-import { Text } from '@yandex-cloud/uikit';
+import { Table } from '@yandex-cloud/uikit';
 import { convertUTCDateToLocalDate } from './utils'
 
 export class FetchData extends Component {
@@ -19,24 +19,25 @@ export class FetchData extends Component {
   
   static renderSentimentsTable(sentiments) {
       return (
-          <div>
-      <table className='table table-striped' aria-labelledby="tabelLabel">
+          <div>            
+
+              <table className='uk-table .uk-table-striped' aria-labelledby="tabelLabel">
         <thead>
           <tr>
-            <th >Time</th>
-            <th>NoEmotion</th>
-            <th>Joy</th>
-            <th>Surprise</th>
-            <th>Sadness</th>            
-            <th>Fear</th>
-            <th>Anger</th>
-            <th>Text</th>
+            <th className='text'>Время</th>
+            <th>😐 Без эмоций</th>
+            <th>😂 Радость</th>
+            <th>😮 Удивление</th>
+            <th>😞 Грусть</th>
+            <th>😨 Страх</th>
+            <th>😡 Злость</th>
+            <th>Текст</th>
           </tr>
         </thead>
         <tbody>
             {sentiments.map(sentiments =>
         <tr key={sentiments.recognitionId}>
-            <td>{(convertUTCDateToLocalDate(new Date(sentiments.startDate))).toLocaleTimeString()}</td>
+            <td>{(new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit' }).format(convertUTCDateToLocalDate(new Date(sentiments.startDate))))}</td>
             <td>{sentiments.noEmotion.toFixed(2)}</td>
             <td>{sentiments.joy.toFixed(2)}</td>
             <td>{sentiments.surprise.toFixed(2)}</td>
@@ -50,7 +51,7 @@ export class FetchData extends Component {
                             )
                         } else {
                             return (
-                                <div class="asr-txt">{sentiments.text}</div>
+                                <div className="asr-txt">{sentiments.text}</div>
                             )
                         }
                     })()}</td>

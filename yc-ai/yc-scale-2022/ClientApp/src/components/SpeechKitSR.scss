@@ -49,9 +49,14 @@
         height: 100%;
     }
 
+    &__tblEmotions {
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+    }
 
     &__text {
-       /* @include text-size(header-2);*/
+        /* @include text-size(header-2);*/
     }
 
     &__placeholder {
