@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using yc_scale_2022.Models;
@@ -9,9 +10,10 @@ using yc_scale_2022.Models;
 namespace yc_scale_2022.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220922084932_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,24 +85,6 @@ namespace yc_scale_2022.Migrations
                     b.ToTable("ml_inference");
                 });
 
-            modelBuilder.Entity("yc_scale_2022.Models.SubstDictionary", b =>
-                {
-                    b.Property<int>("substitutionRuleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("patternMatch")
-                        .HasColumnType("text");
-
-                    b.Property<string>("replacement")
-                        .HasColumnType("text");
-
-                    b.HasKey("substitutionRuleId");
-
-                    b.ToTable("dic_substitution");
-                });
-
             modelBuilder.Entity("yc_scale_2022.Models.V3SpeechKitModels+Alternative", b =>
                 {
                     b.Property<Guid>("AlternativeId")
@@ -134,14 +118,14 @@ namespace yc_scale_2022.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("UserRequestId")
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Uuid")
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("text");
 
                     b.HasKey("SpeechKitSessionId");
 
-                    b.ToTable("asr_speechkit_session_ids");
+                    b.ToTable("SessionUuid");
                 });
 
             modelBuilder.Entity("yc_scale_2022.Models.V3SpeechKitModels+SpeechKitResponseModel", b =>
@@ -149,9 +133,6 @@ namespace yc_scale_2022.Migrations
                     b.Property<Guid>("RecognitionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<double?>("AudioLen")
-                        .HasColumnType("double precision");
 
                     b.Property<int>("EventCase")
                         .HasColumnType("integer");

@@ -10,8 +10,8 @@ using yc_scale_2022.Models;
 namespace yc_scale_2022.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220907080649_Tracker-Key")]
-    partial class TrackerKey
+    [Migration("20220922085050_InitialGuid")]
+    partial class InitialGuid
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,25 +21,6 @@ namespace yc_scale_2022.Migrations
                 .HasAnnotation("ProductVersion", "3.1.28")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("yc_scale_2022.Models.Alternative", b =>
-                {
-                    b.Property<Guid>("AlternativeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Confidence")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("RecognitionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Text")
-                        .HasColumnType("text");
-
-                    b.HasKey("AlternativeId");
-
-                    b.ToTable("asr_alternative");
-                });
-
             modelBuilder.Entity("yc_scale_2022.Models.AsrSession", b =>
                 {
                     b.Property<Guid>("AsrSessionId")
@@ -47,7 +28,7 @@ namespace yc_scale_2022.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("RemoteIpAddress")
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(32)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp without time zone");
@@ -56,7 +37,7 @@ namespace yc_scale_2022.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("UserAgent")
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("AsrSessionId");
 
@@ -104,7 +85,78 @@ namespace yc_scale_2022.Migrations
                     b.ToTable("ml_inference");
                 });
 
-            modelBuilder.Entity("yc_scale_2022.Models.RecognizedWord", b =>
+            modelBuilder.Entity("yc_scale_2022.Models.V3SpeechKitModels+Alternative", b =>
+                {
+                    b.Property<Guid>("AlternativeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Confidence")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EndTimeMs")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("RecognitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("StartTimeMs")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("text");
+
+                    b.HasKey("AlternativeId");
+
+                    b.ToTable("asr_alternative");
+                });
+
+            modelBuilder.Entity("yc_scale_2022.Models.V3SpeechKitModels+SessionUuid", b =>
+                {
+                    b.Property<int>("SpeechKitSessionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("UserRequestId")
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Uuid")
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("SpeechKitSessionId");
+
+                    b.ToTable("SessionUuid");
+                });
+
+            modelBuilder.Entity("yc_scale_2022.Models.V3SpeechKitModels+SpeechKitResponseModel", b =>
+                {
+                    b.Property<Guid>("RecognitionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("EventCase")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("RecognitionDateTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("SessionUuidSpeechKitSessionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TrackerKey")
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("RecognitionId");
+
+                    b.HasIndex("SessionUuidSpeechKitSessionId");
+
+                    b.ToTable("asr_recognition");
+                });
+
+            modelBuilder.Entity("yc_scale_2022.Models.V3SpeechKitModels+Word", b =>
                 {
                     b.Property<int>("WordId")
                         .ValueGeneratedOnAdd()
@@ -114,10 +166,13 @@ namespace yc_scale_2022.Migrations
                     b.Property<Guid>("AlternativeId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Confidence")
+                    b.Property<int>("EndTimeMs")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Word")
+                    b.Property<int>("StartTimeMs")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
                         .HasColumnType("text");
 
                     b.HasKey("WordId");
@@ -127,47 +182,25 @@ namespace yc_scale_2022.Migrations
                     b.ToTable("asr_word");
                 });
 
-            modelBuilder.Entity("yc_scale_2022.Models.SpeechKitResponseModel", b =>
+            modelBuilder.Entity("yc_scale_2022.Models.V3SpeechKitModels+Alternative", b =>
                 {
-                    b.Property<Guid>("RecognitionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<double?>("AudioLen")
-                        .HasColumnType("double precision");
-
-                    b.Property<bool>("EndOfUtterance")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Final")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("RecognitionDateTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("SessionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("TrackerKey")
-                        .HasColumnType("text");
-
-                    b.HasKey("RecognitionId");
-
-                    b.ToTable("asr_recognition");
-                });
-
-            modelBuilder.Entity("yc_scale_2022.Models.Alternative", b =>
-                {
-                    b.HasOne("yc_scale_2022.Models.SpeechKitResponseModel", null)
+                    b.HasOne("yc_scale_2022.Models.V3SpeechKitModels+SpeechKitResponseModel", null)
                         .WithMany("Alternatives")
                         .HasForeignKey("AlternativeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("yc_scale_2022.Models.RecognizedWord", b =>
+            modelBuilder.Entity("yc_scale_2022.Models.V3SpeechKitModels+SpeechKitResponseModel", b =>
                 {
-                    b.HasOne("yc_scale_2022.Models.Alternative", null)
+                    b.HasOne("yc_scale_2022.Models.V3SpeechKitModels+SessionUuid", "SessionUuid")
+                        .WithMany()
+                        .HasForeignKey("SessionUuidSpeechKitSessionId");
+                });
+
+            modelBuilder.Entity("yc_scale_2022.Models.V3SpeechKitModels+Word", b =>
+                {
+                    b.HasOne("yc_scale_2022.Models.V3SpeechKitModels+Alternative", null)
                         .WithMany("Words")
                         .HasForeignKey("AlternativeId")
                         .OnDelete(DeleteBehavior.Cascade)

@@ -9,29 +9,14 @@ namespace yc_scale_2022.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "asr_recognition",
-                columns: table => new
-                {
-                    RecognitionId = table.Column<Guid>(nullable: false),
-                    SessionId = table.Column<Guid>(nullable: false),
-                    RecognitionDateTime = table.Column<DateTime>(nullable: false),
-                    Final = table.Column<bool>(nullable: false),
-                    EndOfUtterance = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_asr_recognition", x => x.RecognitionId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "asr_sessions",
                 columns: table => new
                 {
                     AsrSessionId = table.Column<Guid>(nullable: false),
                     StartDate = table.Column<DateTime>(nullable: false),
                     TraceIdentifier = table.Column<string>(nullable: true),
-                    UserAgent = table.Column<string>(nullable: true),
-                    RemoteIpAddress = table.Column<string>(nullable: true)
+                    UserAgent = table.Column<string>(type: "varchar(255)", nullable: true),
+                    RemoteIpAddress = table.Column<string>(type: "varchar(32)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -58,19 +43,57 @@ namespace yc_scale_2022.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "asr_aternative",
+                name: "SessionUuid",
+                columns: table => new
+                {
+                    SpeechKitSessionId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Uuid = table.Column<string>(nullable: true),
+                    UserRequestId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SessionUuid", x => x.SpeechKitSessionId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "asr_recognition",
+                columns: table => new
+                {
+                    RecognitionId = table.Column<Guid>(nullable: false),
+                    SessionId = table.Column<Guid>(nullable: false),
+                    RecognitionDateTime = table.Column<DateTime>(nullable: false),
+                    TrackerKey = table.Column<string>(type: "varchar(100)", nullable: true),
+                    SessionUuidSpeechKitSessionId = table.Column<int>(nullable: true),
+                    EventCase = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_asr_recognition", x => x.RecognitionId);
+                    table.ForeignKey(
+                        name: "FK_asr_recognition_SessionUuid_SessionUuidSpeechKitSessionId",
+                        column: x => x.SessionUuidSpeechKitSessionId,
+                        principalTable: "SessionUuid",
+                        principalColumn: "SpeechKitSessionId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "asr_alternative",
                 columns: table => new
                 {
                     AlternativeId = table.Column<Guid>(nullable: false),
                     RecognitionId = table.Column<Guid>(nullable: false),
                     Text = table.Column<string>(nullable: true),
+                    StartTimeMs = table.Column<int>(nullable: false),
+                    EndTimeMs = table.Column<int>(nullable: false),
                     Confidence = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_asr_aternative", x => x.AlternativeId);
+                    table.PrimaryKey("PK_asr_alternative", x => x.AlternativeId);
                     table.ForeignKey(
-                        name: "FK_asr_aternative_asr_recognition_AlternativeId",
+                        name: "FK_asr_alternative_asr_recognition_AlternativeId",
                         column: x => x.AlternativeId,
                         principalTable: "asr_recognition",
                         principalColumn: "RecognitionId",
@@ -84,19 +107,25 @@ namespace yc_scale_2022.Migrations
                     WordId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     AlternativeId = table.Column<Guid>(nullable: false),
-                    Word = table.Column<string>(nullable: true),
-                    Confidence = table.Column<int>(nullable: false)
+                    Text = table.Column<string>(nullable: true),
+                    StartTimeMs = table.Column<int>(nullable: false),
+                    EndTimeMs = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_asr_word", x => x.WordId);
                     table.ForeignKey(
-                        name: "FK_asr_word_asr_aternative_AlternativeId",
+                        name: "FK_asr_word_asr_alternative_AlternativeId",
                         column: x => x.AlternativeId,
-                        principalTable: "asr_aternative",
+                        principalTable: "asr_alternative",
                         principalColumn: "AlternativeId",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_asr_recognition_SessionUuidSpeechKitSessionId",
+                table: "asr_recognition",
+                column: "SessionUuidSpeechKitSessionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_asr_word_AlternativeId",
@@ -116,10 +145,13 @@ namespace yc_scale_2022.Migrations
                 name: "ml_inference");
 
             migrationBuilder.DropTable(
-                name: "asr_aternative");
+                name: "asr_alternative");
 
             migrationBuilder.DropTable(
                 name: "asr_recognition");
+
+            migrationBuilder.DropTable(
+                name: "SessionUuid");
         }
     }
 }

@@ -20,8 +20,9 @@
         }
 
         public DbSet<AsrSession> AsrSessions { get; set; }
-        public DbSet<SpeechKitResponseModel> AsrResponses { get; set; }
-        public DbSet<Alternative> AsrAletrnative { get; set; }
+        public DbSet<V3SpeechKitModels.SpeechKitResponseModel> AsrResponses { get; set; }
+        public DbSet<V3SpeechKitModels.Alternative> AsrAletrnative { get; set; }
+        public DbSet<SubstDictionary> Substitutions { get; set; }
         public DbSet<Inference> MlInferences { get; set; }
     }
 }

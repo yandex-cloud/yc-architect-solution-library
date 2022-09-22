@@ -82,20 +82,24 @@ export class SpeechKitSR extends React.Component {
     };
 
     processText = (data) => {
-        if (!data.Alternatives) {
+        if (!data.text) {
             return;
         }
-        this.setState({ sessionId: data.SessionId })
-        const tempText = data.Alternatives[0].Text;
-        const isFinal = data.Final;
-
-        if (isFinal) {
-            this.setState(({ text }) => ({
+        this.setState({ sessionId: data.asr_event_id })
+        const tempText = data.text;
+        
+        if (data.asr_event_type == 4) {
+            // Partial
+            this.state.tempText = data.text;
+           /* this.setState(({ text }) => ({
                 tempText: '',
                 text: `${text} ${tempText}`.trim(),
-            }));
+            }));*/
+        } else if (data.asr_event_type == 5) {             
+            this.state.tempText = data.text;
         } else {
-            this.setState({ tempText });
+            this.state.text += data.text + "\n";
+            this.state.tempText = '';
         }
     };
 
@@ -154,11 +158,16 @@ export class SpeechKitSR extends React.Component {
             clearInterval(this.timer);
             this.setState({ isRecording: false, wsConnected: false, stream: null });
 
-           setTimeout(function () { //Start the timer
+          /* setTimeout(function () { //Start the timer
                     this.populateSentimentsData(); //After 1 second, set render to true
-           }.bind(this), 1000)
+           }.bind(this), 1000)*/
             
-            
+            setTimeout(function () { //Refresh page after 10 sec. if we ar in idle
+
+                if (!this.state.isRecording)
+                    window.location.reload();
+
+            }.bind(this), 10 * 1000) 
 
         });
     };
@@ -202,7 +211,10 @@ export class SpeechKitSR extends React.Component {
         }
         if (emotions) {
             return (
-                <div className={b('tblEmotions')}>
+                <div className={b('text-placeholder')}>
+                    <div className={b('text-placeholder')}>
+                        <div className={b('text')}>Результаты текста: {emotions.text}</div>
+                    </div>
                     <table className="uk-table uk-table-striped {b('tblEmotions')}">
                         <thead>
                             <tr>                                
@@ -221,7 +233,7 @@ export class SpeechKitSR extends React.Component {
                             <td>{emotions.sadness.toFixed(2)}</td>
                             <td>{emotions.fear.toFixed(2)}</td>
                             <td>{emotions.anger.toFixed(2)}</td>
-                            <td>{emotions.noEmotion.toFixed(2)}</td>
+                            <td>{emotions.no_emotion ? emotions.no_emotion.toFixed(2) : ''}</td>
                         </tr>
                     </tbody>
                     </table>
@@ -253,9 +265,9 @@ export class SpeechKitSR extends React.Component {
                                 ''
                             )}
                         </div>
-                        {this.renderText()}
-                        {this.renderSentimentAnalyzis() }
+                        {this.renderText()}  
                     </div>
+                    {this.renderSentimentAnalyzis()}    
                     <div className={b('bottom')}>                       
                         <Button size="xl" view="action" onClick={isRecording ? this.stopRecording : this.initialize}>
                             {isRecording ? "Завершить" : "Распознать"}

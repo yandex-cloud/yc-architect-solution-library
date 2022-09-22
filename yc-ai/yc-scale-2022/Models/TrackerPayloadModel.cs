@@ -14,7 +14,7 @@ namespace yc_scale_2022.Models
             {
             this.queue = new TrackerQueue();
             }
-
+            public string description { get; set; }
             public string summary { get; set; }
             public TrackerQueue queue { get; set; }
             public string osnovnaaEmocia { get; set; }
@@ -31,7 +31,7 @@ namespace yc_scale_2022.Models
         public string id { get; set; }
         public string key { get; set; }
         public int version { get; set; }
-        public string summary { get; set; }
+        public string summary { get; set; }        
         public string statusStartTime { get; set; }
         public UpdatedBy updatedBy { get; set; }
         public List<Board> boards { get; set; }

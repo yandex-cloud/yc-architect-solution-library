@@ -6,6 +6,7 @@ using yc_scale_2022.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using SpeechKitResponseModel = yc_scale_2022.Models.V3SpeechKitModels.SpeechKitResponseModel;
 
 namespace yc_scale_2022
 {
@@ -62,11 +63,11 @@ namespace yc_scale_2022
                     {
                         InferenceRoot mlOutput = JsonSerializer.Deserialize<InferenceRoot>(respJsonPayLoad);
 
-                        mlOutput.output.voice_stat.emotions_list.recognition_id = responseModel.RecognitionId;
+                        mlOutput.output.output.emotions_list.recognition_id = responseModel.RecognitionId;
                     
                         this.logger.LogTrace($"session {responseModel.SessionId}  model inference recieved for asr response {responseModel.RecognitionId}..");
 
-                        return mlOutput.output.voice_stat.emotions_list;                                               
+                        return mlOutput.output.output.emotions_list;                                               
 
                     }
                     catch (Exception e)

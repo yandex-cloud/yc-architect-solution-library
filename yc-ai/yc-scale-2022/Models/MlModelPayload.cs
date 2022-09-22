@@ -46,11 +46,14 @@ namespace yc_scale_2022.Models
         public double fear { get; set; }
         [Column("Anger")]
         public double anger { get; set; }
+       
+        [NotMapped]
+        public string text { get; set; }
     }
 
     public class Output
     {
-        public VoiceStat voice_stat { get; set; }
+        public VoiceStat output { get; set; }
     }
 
     public class InferenceRoot

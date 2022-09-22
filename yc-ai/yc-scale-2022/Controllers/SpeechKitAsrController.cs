@@ -10,12 +10,13 @@ using System.Text;
 using System.Text.Json;
 using System.IO;
 
-using YC.SpeechKit.Streaming.Asr;
+using ai.adoptionpack.speechkit.hybrid.client;
+using ai.adoptionpack.speechkit.hybrid;
 using yc_scale_2022.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
-using YC.SpeechKit.Streaming.Asr.SpeechKitClient;
+
 
 namespace yc_scale_2022.Controllers
 {
@@ -93,7 +94,8 @@ namespace yc_scale_2022.Controllers
                 // remove event handler
                 if (asrController != null)
                     this.AudioBinaryRecived -= asrController.Listener_SpeechKitSend;
-                await processor.SafePartialResults();
+               
+                await processor.SafeFinalResults();
 
                 processor.Dispose();
                 processor = null;

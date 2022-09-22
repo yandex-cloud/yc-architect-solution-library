@@ -72,12 +72,11 @@ namespace ai.adoptionpack.speechkit.hybrid.client
 
         }
 
-        private FileStream debugStream = File.OpenWrite(@"c:\\tmp\debug_audio.wav");
-
         public SpeechKitSttStreamClient(Uri address, Options rSpec, ILoggerFactory loggerFactory) : base(address, rSpec.TokenType, rSpec.Token) {
             this.sessionConf = new StreamingOptions()
             {
                 RecognitionModel = new RecognitionModelOptions() {
+                    Model = rSpec.model,
                     AudioFormat = new AudioFormatOptions() {
                         RawAudio = new RawAudio() {
                             AudioEncoding = RawAudio.Types.AudioEncoding.Linear16Pcm,

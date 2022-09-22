@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using yc_scale_2022.Models;
 using System.Text.Json;
 using System.Text;
+using SpeechKitResponseModel = yc_scale_2022.Models.V3SpeechKitModels.SpeechKitResponseModel;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 namespace yc_scale_2022
 {
@@ -35,7 +38,10 @@ namespace yc_scale_2022
 
             TrackerPayloadModel trackerPayload = new TrackerPayloadModel();
             trackerPayload.queue.key = "SCALE";
-            trackerPayload.summary = responseModel.GetWholeText();
+            string text = responseModel.GetWholeText();
+            trackerPayload.summary = text.Length > 50 ? text.Substring(0, 50) : text;
+            trackerPayload.description = text.Length > 50 ? text : "";
+
             trackerPayload.tags = trackerPayload.osnovnaaEmocia = FormatMainEmotion(mlInference);
             trackerPayload.boards = 2;
             trackerPayload.assignee = "scale2022";
@@ -47,10 +53,14 @@ namespace yc_scale_2022
 
             String url = $"https://api.tracker.yandex.net/v2/issues/";
 
-            
+            var options = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
+                WriteIndented = false
+            };
 
             HttpResponseMessage httpResponse = await _httpClient.PostAsync(url,
-                                    new StringContent(JsonSerializer.Serialize(trackerPayload), Encoding.UTF8, "application/json"));
+                                    new StringContent(JsonSerializer.Serialize(trackerPayload, options), Encoding.UTF8, "application/json"));
             if (httpResponse.StatusCode == System.Net.HttpStatusCode.Created)
             {
                 String respJsonPayLoad = await httpResponse.Content.ReadAsStringAsync();
@@ -82,7 +92,7 @@ namespace yc_scale_2022
         private static String FormatMainEmotion(Inference mlInference)
         {
             Dictionary<string, double> emoutionsDict = new Dictionary<string, double>();
-            emoutionsDict.Add("Без эмоции", mlInference.no_emotion);
+            emoutionsDict.Add("Без эмоций", mlInference.no_emotion);
             emoutionsDict.Add("Грусть", mlInference.sadness);
             emoutionsDict.Add("Радость", mlInference.joy);
             emoutionsDict.Add("Злость", mlInference.anger);

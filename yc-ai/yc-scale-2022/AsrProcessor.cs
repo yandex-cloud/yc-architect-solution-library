@@ -2,11 +2,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using YC.SpeechKit.Streaming.Asr;
-using YC.SpeechKit.Streaming.Asr.SpeechKitClient;
+using ai.adoptionpack.speechkit.hybrid;
+using ai.adoptionpack.speechkit.hybrid.client;
 using System.Linq;
-using yc_scale_2022.Models;
-using Yandex.Cloud.Ai.Stt.V2;
+
+// using Speechkit.Stt.V3;
 using System.Text;
 using System.Net.WebSockets;
 using System.Net.Http.Headers;
@@ -22,6 +22,12 @@ using YamlDotNet.Core.Tokens;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Speechkit.Stt.V3;
+using Alternative = yc_scale_2022.Models.V3SpeechKitModels.Alternative;
+using SpeechKitResponseModel = yc_scale_2022.Models.V3SpeechKitModels.SpeechKitResponseModel;
+using Word = yc_scale_2022.Models.V3SpeechKitModels.Word;
+using yc_scale_2022.Models;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace yc_scale_2022
 {
@@ -32,9 +38,9 @@ namespace yc_scale_2022
         private const int MAX_BYTES_SENT = 10 * 1024 * 1024; // check https://cloud.yandex.com/docs/speechkit/stt/streaming#session-restrictions for limitation details
 
 
-        private AsrSession asrSession = new AsrSession();
+        private AsrSession asrSession;
 
-        private RecognitionSpec rSpeс;
+        private Options args;
         private ILogger logger;
         private ILoggerFactory _loggerFactory;
         private IConfiguration configuration;
@@ -46,15 +52,21 @@ namespace yc_scale_2022
 
         MlProcessor mlInference;
         TrackerProcessor trackProcessor;
-  
-        // audio recording start moment
-        private DateTime audioStartMoment;
-        
+
+        private static Dictionary<string, string> substDictionary = null;
+       
         Object db_changes_locker = 0;
         bool request_in_progress = false;
 
         /* Last SpeechKit Partial (not final) Response identity*/
         private Guid lastPartialResponseId = Guid.Empty;
+
+        private SpeechKitResponseModel finalRefinement;
+        private StringBuilder WholeRefinementText;
+
+        private SpeechKitResponseModel final;
+        private StringBuilder WholeFinalText;
+
 
         public AsrProcessor(AudioStreamFormat format, IConfiguration configuration)
         {
@@ -65,19 +77,22 @@ namespace yc_scale_2022
                 builder.AddDebug();
             });
             this.logger = _loggerFactory.CreateLogger<AsrProcessor>();
-
-            this.rSpeс = new RecognitionSpec()
-            {
-                LanguageCode = format.language,
-                ProfanityFilter = false,
-                Model = "general",
-                PartialResults = true, //возвращать только финальные результаты false
-                AudioEncoding = (RecognitionSpec.Types.AudioEncoding)Enum.Parse(typeof(RecognitionSpec.Types.AudioEncoding), 
-                                                format.getAudioEncoding()),
-                SampleRateHertz = format.sampleRate
-            };
-            
             this.configuration = configuration;
+            this.args = new Options()
+            {
+                Token = configuration["Token"],
+                TokenType = (AuthTokenType)Enum.Parse(typeof(AuthTokenType), configuration["AuthTokenType"]),
+                lang = format.language,                 
+                model = "general:rc",
+                /*ProfanityFilter = false,
+                PartialResults = true, //возвращать только финальные результаты false
+                audioEncoding = (ContainerAudio.Types.ContainerAudioType)Enum.Parse(typeof(ContainerAudio.Types.ContainerAudioType), 
+                                                format.getAudioEncoding()),*/
+
+                sampleRate = format.sampleRate
+            };
+            WholeFinalText = WholeRefinementText = new StringBuilder();
+            final = finalRefinement = null;
 
             this.mlInference = new MlProcessor(configuration, _loggerFactory.CreateLogger<MlProcessor>());
             this.trackProcessor = new TrackerProcessor(configuration, _loggerFactory.CreateLogger<TrackerProcessor>());
@@ -87,31 +102,37 @@ namespace yc_scale_2022
 
         public SpeechKitSttStreamClient Init(HttpContext context, WebSocket webSocket)
         {
+            try
+            {
+                this.webSocket = webSocket;
 
-            this.webSocket = webSocket;
-            this.audioStartMoment = DateTime.Now;
+                this.dbConn = new ApplicationDbContext(this.configuration);
 
-            this.dbConn = new ApplicationDbContext(this.configuration);
-
-            this.asrSession.TraceIdentifier = context.TraceIdentifier;
-            this.asrSession.UserAgent = context.Request.Headers["User-Agent"];
-            this.asrSession.RemoteIpAddress = context.Connection.RemoteIpAddress.ToString();
-            
-                        
-
-            speechKitClient =  new SpeechKitSttStreamClient(new Uri("https://stt.api.cloud.yandex.net:443"),
-                                                    
-                                                    this.configuration["FolderId"],
-                                                    (AuthTokenType) Enum.Parse(typeof(AuthTokenType), this.configuration["AuthTokenType"]),
-                                                    this.configuration["Token"],
-                                                this.rSpeс, this._loggerFactory);//
-                // Subscribe for speech to text events comming from SpeechKit
-            SpeechToTextResponseReader.ChunkRecived += this.SpeechToTextResponseReader_AsrRecived;
+                this.asrSession = new AsrSession();
+                this.asrSession.TraceIdentifier = context.TraceIdentifier;
+                this.asrSession.UserAgent = context.Request.Headers["User-Agent"];
+                this.asrSession.RemoteIpAddress = context.Connection.RemoteIpAddress.ToString();
                 this.dbConn.AsrSessions.Add(this.asrSession);
+                
+                if (substDictionary == null)
+                {
+                    this.dbConn.Substitutions.Load();
+                    substDictionary = this.dbConn.Substitutions.ToDictionary(t => t.patternMatch, t => t.replacement);
+                }
 
-            logger.LogInformation($"session {asrSession.AsrSessionId} started.");
+                speechKitClient = new SpeechKitSttStreamClient(new Uri("https://stt.api.cloud.yandex.net:443"),
+                                                    this.args, this._loggerFactory);//
+                                                                                    // Subscribe for speech to text events comming from SpeechKit
+                SpeechToTextResponseReader.ChunkRecived += this.SpeechToTextResponseReader_AsrRecived;
 
-            return speechKitClient;
+                logger.LogInformation($"session {asrSession.AsrSessionId} started.");
+
+                return speechKitClient;
+            }catch(Exception ex)
+            {
+                Log.Fatal($"Error instantiating AsrProcessor {ex.Message} {ex.StackTrace}");
+                return null;
+            }
         }
 
         private  async void SpeechToTextResponseReader_AsrRecived(object sender, ChunkRecievedEventArgs e)
@@ -121,26 +142,47 @@ namespace yc_scale_2022
                 if (this.dbConn == null)
                     return;
 
+
+                if (e.EventCase != StreamingResponse.EventOneofCase.Final
+                            && e.EventCase != StreamingResponse.EventOneofCase.Partial
+                                && e.EventCase != StreamingResponse.EventOneofCase.FinalRefinement)
+                {
+                    // unknown event - no text for processing                    
+                    this.logger.LogWarning($"Skipping SpeechKit response event {e.EventCase}");
+                    return;
+                }
+                
                 request_in_progress = true;
                
                 String jSonRes = e.AsJson(false);
-                SpeechKitResponseModel responseModel = mapResponseJson(jSonRes);
+                V3SpeechKitModels.SpeechKitResponseModel responseModel = mapResponseJson(e.EventCase, jSonRes);
 
-                
+                // Send response to WebSocket                    
+                await Task.Run(() => this.ResponseToBrowser(responseModel));
 
-                // Send response to WebSocket
-                if (webSocket.State == WebSocketState.Open)                   
-                    await Task.Run(() =>  this.ResponseToBrowser(responseModel));
+                if (e.EventCase == StreamingResponse.EventOneofCase.FinalRefinement) {
+                    
+                    // Add final refinement to the list
+                    this.finalRefinement = responseModel;
+                    this.WholeRefinementText.Append(responseModel.GetWholeText());
 
-                
+                    // apply sentiment detection
+                    Inference mlInference = await this.SentimentAnalysis(responseModel);
+                    
+                    this.lastPartialResponseId = Guid.Empty;
+                    //this.AddResponse(responseModel);
+                    lock (db_changes_locker)
+                    {
+                        this.dbConn.MlInferences.Add(mlInference);
+                        int savedEntitiesCount = this.dbConn.SaveChanges();
+                        logger.LogInformation($"db updated with {savedEntitiesCount} entities for {responseModel.RecognitionId} session {asrSession.AsrSessionId}");
+                    }
 
-                if (responseModel.Final) {
 
-                    await this.DoFinileResponseTasks(responseModel);
                 }
                 else
-                {
-                    this.dbConn.AsrResponses.Add(responseModel);
+                {                    
+
                     this.lastPartialResponseId = responseModel.RecognitionId;
                     logger.LogTrace($"Skip partial results {responseModel.RecognitionId}");
                 }
@@ -158,24 +200,42 @@ namespace yc_scale_2022
             }
         }
 
-        private async Task<Inference> DoFinileResponseTasks(SpeechKitResponseModel responseModel)
+        private void AddResponse(SpeechKitResponseModel responseModel)
+        {
+            lock (db_changes_locker)
+            {
+                var previousResponse = this.dbConn.AsrResponses.Find(responseModel.RecognitionId);
+                if (previousResponse != null)
+                {
+                    this.dbConn.Entry(previousResponse).CurrentValues.SetValues(responseModel);
+                }
+                else
+                {
+                    this.dbConn.AsrResponses.Add(responseModel);
+                }
+            }
+        }
+
+        private async Task<Inference> DoFinaleResponseTasks(SpeechKitResponseModel responseModel)
         {
             // apply sentiment detection
             Inference mlInference = await this.SentimentAnalysis(responseModel);
             // Attempt saving changes into to the database
             if (mlInference != null)
             {
-                this.dbConn.MlInferences.Add(mlInference);
+               
 
                 responseModel.TrackerKey = await this.CreateTrackerTask(responseModel, mlInference);
             }
-
-            this.audioStartMoment = DateTime.Now;
             this.lastPartialResponseId = Guid.Empty;
 
-            this.dbConn.AsrResponses.Add(responseModel);
+            
+            this.AddResponse(responseModel);
 
-            lock (db_changes_locker) { 
+            lock (db_changes_locker) {
+                
+                this.dbConn.MlInferences.Add(mlInference);
+
                 int savedEntitiesCount = this.dbConn.SaveChanges();
                 logger.LogInformation($"db updated with {savedEntitiesCount} entities for {responseModel.RecognitionId} session {asrSession.AsrSessionId}");
             }
@@ -183,29 +243,54 @@ namespace yc_scale_2022
             return mlInference;
         }
 
-        private SpeechKitResponseModel mapResponseJson(String asrJson)
+        private V3SpeechKitModels.SpeechKitResponseModel mapResponseJson(StreamingResponse.EventOneofCase eventCase, String asrJson)
         {
             // Map response data 
-            SpeechKitResponseModel responseModel = JsonSerializer.Deserialize<SpeechKitResponseModel>(asrJson);
-            responseModel.SessionId = this.asrSession.AsrSessionId;
-            responseModel.AudioLen = DateTime.Now.Subtract(this.audioStartMoment).TotalSeconds;
-            /* Store response into database */
+            V3SpeechKitModels.SpeechKitResponseModel responseModel = JsonSerializer.Deserialize<V3SpeechKitModels.SpeechKitResponseModel>(asrJson);
+               responseModel.SessionId = this.asrSession.AsrSessionId;
+            //   responseModel.AudioLen = DateTime.Now.Subtract(this.audioStartMoment).TotalSeconds;
+            /* Store response into database */           
+
             foreach (Alternative alt in responseModel.Alternatives)
             {
                 alt.RecognitionId = responseModel.RecognitionId;
-                foreach (RecognizedWord w in alt.Words)
+                alt.Text = SubstituteText(alt.Text);
+                foreach (Word w in alt.Words)
                     w.AlternativeId = alt.AlternativeId;
             }
 
             return responseModel;
         }
 
-        private async void  ResponseToBrowser(SpeechKitResponseModel responseModel)
-        {                               
-                WssPayload wpl = new WssPayload() { type = WssPayload.MSG_TYPE_DATA, 
-                                                        data = JsonSerializer.Serialize(responseModel)};
-                await Task.Run( ()=> SendToWebsocket(wpl));
- 
+        public static string SubstituteText(string inText)
+        {
+           return  substDictionary.Aggregate(inText, (current, value) =>
+                    current.Replace(value.Key, value.Value, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+
+        private async void ResponseToBrowser(SpeechKitResponseModel responseModel)
+        {
+            WssData data = new WssData()
+            {
+                asr_event_id = responseModel.RecognitionId,
+                asr_event_type = responseModel.EventCase,
+                text = responseModel.GetWholeText()
+
+            };
+
+            if (string.IsNullOrEmpty(data.text))
+            {
+                return;
+            }
+
+            WssPayload wpl = new WssPayload()
+            {
+                type = WssPayload.MSG_TYPE_DATA,
+                data = JsonSerializer.Serialize(data)
+            };
+            await Task.Run(() => SendToWebsocket(wpl));
+
         }
 
         private async void SendToWebsocket(WssPayload wpl)
@@ -230,7 +315,8 @@ namespace yc_scale_2022
             if (responseModel.Alternatives != null && responseModel.Alternatives.Count > 0)
             {
                 //  ml inference
-                Inference emotions_list = await this.mlInference.SentimentAnalysis(responseModel);
+                Inference emotions_list = await this.mlInference.SentimentAnalysis(responseModel);                
+                emotions_list.text = responseModel.GetWholeText();
 
                 if (emotions_list != null)
                 {
@@ -258,21 +344,32 @@ namespace yc_scale_2022
         }
 
         /* Handle last partial results as final before close */
-        internal async Task<Inference> SafePartialResults()
+        internal async Task<Inference> SafeFinalResults()
         {
 
-                SpeechKitResponseModel responseModel = this.dbConn.AsrResponses.Find(this.lastPartialResponseId);
-            if (responseModel != null)
+            if (this.finalRefinement == null)
             {
-                logger.LogInformation($"Mark last partial result {this.lastPartialResponseId} as final for session {asrSession.AsrSessionId}.");
-                responseModel.Final = true;
-                return await this.DoFinileResponseTasks(responseModel);
+                if (final != null)
+                {   // If we don't have final refinement - take final. 
+                    this.finalRefinement = final;
+                    this.finalRefinement.Final.Alternatives[0].Text = WholeFinalText.ToString();
+                    this.finalRefinement.EventCase = StreamingResponse.EventOneofCase.FinalRefinement;
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
-                return null;
-            }
+                this.finalRefinement.FinalRefinement.NormalizedText.Alternatives[0].Text = this.WholeRefinementText.ToString();
+            }                            
+
+            return await DoFinaleResponseTasks(finalRefinement);            
         }
+
+
+        
 
         public void Dispose()
         {
