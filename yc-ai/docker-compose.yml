@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  yc-scale-2022:
+    image: cr.yandex/crpuvtvtl6gooqe60efa/yc-scale-dem2.0.22:
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=YandexScale2022
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/scale2022_smarthive_ru.pfx
+      - FolderId=<your folder id>
+      - Token=<speech kit api key>
+      - AuthTokenType=APIKey
+      - MlNodeId=<ml node id>
+      - MlFolderId=<your ml-folder id>
+      - MlApiKey=<ml-model-node-api-key>
+      - ConnectionStrings:SentimentsDatabase=<your postgredatabase connection string>
+      - X-Org-ID=<your tracker -org -id>
+      - TrackerOAuth=<tracker-tocket>
+    restart: always
+    volumes:
+      - /<path to your directory with pfx files>:/https:ro

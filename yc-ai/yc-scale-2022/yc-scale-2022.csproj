@@ -60,7 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\yc-speechkit-streaming-asr\yc-speechkit-streaming-asr.csproj" />
+    <ProjectReference Include="..\yc-speechkit-hybrid\yc-speechkit-hybrid.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -129,9 +129,6 @@
     </None>
     <None Update="ClientApp\src\styles\variables.scss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="docker-compose.override.yml">
-      <DependentUpon>docker-compose.yml</DependentUpon>
     </None>
   </ItemGroup>
 
