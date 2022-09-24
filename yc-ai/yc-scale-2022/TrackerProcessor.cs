@@ -34,8 +34,6 @@ namespace yc_scale_2022
         public async Task<string> CreateTiket(SpeechKitResponseModel responseModel, Inference mlInference)
         {
 
-
-
             TrackerPayloadModel trackerPayload = new TrackerPayloadModel();
             trackerPayload.queue.key = "SCALE";
             string text = responseModel.GetWholeText();
@@ -45,11 +43,6 @@ namespace yc_scale_2022
             trackerPayload.tags = trackerPayload.osnovnaaEmocia = FormatMainEmotion(mlInference);
             trackerPayload.boards = 2;
             trackerPayload.assignee = "scale2022";
-
-
-            String node_id = this.configuration["MlNodeId"]; // datashpere node id
-            String ml_api_key = this.configuration["MlApiKey"]; // datashpere api key
-
 
             String url = $"https://api.tracker.yandex.net/v2/issues/";
 

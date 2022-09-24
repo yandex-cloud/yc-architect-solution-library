@@ -94,8 +94,24 @@ namespace yc_scale_2022
             WholeFinalText = WholeRefinementText = new StringBuilder();
             final = finalRefinement = null;
 
-            this.mlInference = new MlProcessor(configuration, _loggerFactory.CreateLogger<MlProcessor>());
-            this.trackProcessor = new TrackerProcessor(configuration, _loggerFactory.CreateLogger<TrackerProcessor>());
+            if (!string.IsNullOrEmpty(this.configuration["MlApiKey"]))
+            {
+                this.mlInference = new MlProcessor(configuration, _loggerFactory.CreateLogger<MlProcessor>());
+
+                if (!string.IsNullOrEmpty(configuration["TrackerOAuth"]) && !string.IsNullOrEmpty(configuration["X-Org-ID"]))
+                {
+                    this.trackProcessor = new TrackerProcessor(configuration, _loggerFactory.CreateLogger<TrackerProcessor>());
+                }
+                else
+                {
+                    logger.LogWarning($"Missing TrackerOAuth and/or X-Org-ID configuration properties. Tracker support will be turned off");
+                }
+            }
+            else
+            {
+                logger.LogWarning($"Missing MlApiKey configuration property. Sentiment analyzis and Tracker support will be turned off.");
+            }
+                
         }
 
 
@@ -223,10 +239,9 @@ namespace yc_scale_2022
             // Attempt saving changes into to the database
             if (mlInference != null)
             {
-               
-
                 responseModel.TrackerKey = await this.CreateTrackerTask(responseModel, mlInference);
             }
+
             this.lastPartialResponseId = Guid.Empty;
 
             
@@ -310,9 +325,8 @@ namespace yc_scale_2022
         }
 
         private async Task<Inference> SentimentAnalysis(SpeechKitResponseModel responseModel)
-        {
-
-            if (responseModel.Alternatives != null && responseModel.Alternatives.Count > 0)
+        {            
+            if (this.mlInference != null && responseModel.Alternatives != null && responseModel.Alternatives.Count > 0)
             {
                 //  ml inference
                 Inference emotions_list = await this.mlInference.SentimentAnalysis(responseModel);                
@@ -338,8 +352,11 @@ namespace yc_scale_2022
 
 
         private async Task<String> CreateTrackerTask(SpeechKitResponseModel responseModel, Inference mlResponse) {
-            
-            return await this.trackProcessor.CreateTiket(responseModel, mlResponse);
+
+            if (this.trackProcessor != null)
+                return await this.trackProcessor.CreateTiket(responseModel, mlResponse);
+            else
+                return null;
 
         }
 
