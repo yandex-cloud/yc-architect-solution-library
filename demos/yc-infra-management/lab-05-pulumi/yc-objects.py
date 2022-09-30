@@ -3,7 +3,7 @@ import pulumi
 import pulumi_yandex as yc
 
 # Create new network in VPC
-vpc_network = yc.VpcNetwork("pulumi-net")
+# vpc_network = yc.VpcNetwork("pulumi-net")
 
 # Parse environment variables
 access_key = os.environ["SA_KEY"]

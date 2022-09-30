@@ -2,24 +2,23 @@
 
 Список задач практического задания:
 * 3.1 [Развёртывание кластера Managed Service for Kubernetes](#h3-1)
-* 3.2 [Подключение к кластеру Kubernetes и проверка его состония](#h3-2)
+* 3.2 [Подключение к кластеру Kubernetes и проверка его состояния](#h3-2)
 
 ### 3.1 Развёртывание кластера Managed Service for Kubernetes  <a id="h3-1"/></a>
 
-В процессе выполнения будут развёрнуты слеудующие облачные ресурсы: 
+В процессе выполнения будут развёрнуты следующие облачные ресурсы: 
 * зональный кластер Kubernetes с одним `master node`
 * одна группа узлов c одним `worker node` в группе
 
 Подготовка входных данных для развёртывания кластера Kubernetes:
 ```bash
+
 cd ~/labs/lab-03-terraform
 cp /usr/local/etc/terraform.rc ~/.terraformrc
 ```
 
-`ВАЖНО!` Заменить нули в значении переменной ниже на цифры из логина, предоставленого для аутентификации в облаке `SA_NAME=user-000-sa` и выполнить команду по созданию переменной `SA_NAME`.
-
 ```bash
-SA_NAME=user-000-sa
+SA_NAME=webinar-sa
 ```
 
 ```bash
@@ -91,14 +90,14 @@ source $HOME/.bashrc
 Проверить состояние узлов кластера Kubernetes
 ```bash
 kubectl get nodes
-k get -A pods
-k get ns
+kubectl get -A pods
+kubectl get ns
 ```
 
 Проверить работу kubectl autocomplete.
 
 Написать начало команды `k get apise` в командной строке и далее нажать `Tab`.
-Строка должна расшриться до "k get apiservices.apiregistration.k8s.io" после чего нажать `Enter` и выполнить команду.
+Строка должна расшириться до "k get apiservices.apiregistration.k8s.io" после чего нажать `Enter` и выполнить команду.
 
 
 `Поздравляем! Вы успешно справились с заданием!`

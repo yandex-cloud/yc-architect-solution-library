@@ -15,14 +15,14 @@ resource "yandex_kubernetes_cluster" "k8s" {
       subnet_id = var.subnet_id
     }
     public_ip = false
-    version   = "1.21"
+    version   = "1.22"
   }
 }
 
 resource "yandex_kubernetes_node_group" "group_1" {
   cluster_id = yandex_kubernetes_cluster.k8s.id
   name       = "group-1"
-  version    = "1.21"
+  version    = "1.22"
 
   scale_policy {
     fixed_scale {
