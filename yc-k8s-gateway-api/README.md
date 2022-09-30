@@ -25,8 +25,8 @@ yc vpc address create --name=dev --labels reserved=true --external-ipv4 zone=ru-
 ### Create prod and dev records to your zone
 
 ```bash
-yc dns zone add-records --name yc-courses --record '*.prod.example.com 60 A  <ip_address>'
-yc dns zone add-records --name yc-courses --record '*.dev.example.com 60 A  <ip_address>'
+yc dns zone add-records --name my-domain --record '*.prod.example.com 60 A  <ip_address>'
+yc dns zone add-records --name my-domain --record '*.dev.example.com 60 A  <ip_address>'
 ```
 
 ### Create tls certificate (optional) and separate namespace for tls secrets
