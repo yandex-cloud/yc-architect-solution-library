@@ -1,0 +1,45 @@
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: Gateway
+metadata:
+  name: gateway-api-dev
+  annotations:
+    gateway.alb.yc.io/security-groups: enp61fl4915me9ht17k5
+spec:
+  gatewayClassName: yc-df-class
+  listeners:  
+  - name: gateway-api-dev
+    protocol: HTTP
+    port: 80
+    hostname: "*.dev.example.com"
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchExpressions:
+          - key: kubernetes.io/metadata.name
+            operator: In
+            values:
+            - dev-app
+  - name: gateway-api-dev-tls
+    protocol: HTTPS
+    port: 443
+    hostname: "*.dev.example.com"
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchExpressions:
+          - key: kubernetes.io/metadata.name
+            operator: In
+            values:
+            - dev-app
+    tls:
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: gateway-dev-tls
+        namespace: gateway-api-tls-secrets
+      mode: Terminate
+  addresses:
+    - type: IPAddress
+      value: <ip_address> # dev-ip-address

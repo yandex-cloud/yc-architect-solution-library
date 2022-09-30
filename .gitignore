@@ -25,3 +25,6 @@
 /yc-ai/yc-speechkit-transcoder/src/google
 /yc-ai/yc-speechkit-transcoder/src/out/build
 /yc-ai/yc-speechkit-transcoder/.idea
+
+**/*.pem
+**/*.cert
