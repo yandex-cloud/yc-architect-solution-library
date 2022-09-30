@@ -11,7 +11,7 @@ This folder contains examples of k8s manifests to set up kubernetes [gateways](h
 ## Gateway installation
 
 - Install Gateway API from Marketplace. In console go to Managed Service for Kubernetes -> (Select your cluster) -> Marketplace -> Gateway API -> Use.
-- Fill all necessary fields and install Gateway API
+- Fill all necessary fields and install Gateway API.
 
 ## Example of Prod and Dev gateways and environments
 
