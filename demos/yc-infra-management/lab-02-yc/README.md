@@ -10,11 +10,11 @@
 
 ### 2.1 Клонирование репозитория практикума на ВМ<a id="h2-1"/></a>
 ```bash
-REPO=yc-infra-mgmt-workshop
 mkdir labs
 cd labs
-git clone https://github.com/nettworker/$REPO.git
-cp -R $REPO/* .
+REPO=yc-architect-solution-library
+git clone https://github.com/yandex-cloud/$REPO.git
+cp -R $REPO/demos/yc-infra-management/* .
 rm -rf $REPO
 unset REPO
 ```
@@ -25,7 +25,6 @@ unset REPO
 
 Получаем идентификатор ВМ через [сервис метаданных](https://cloud.yandex.ru/docs/compute/concepts/vm-metadata):
 ```bash
-cd ~/labs/lab-02-yc
 VM_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 ```
 
@@ -59,11 +58,6 @@ source $HOME/.bashrc
 ```bash
 yc config profile list
 yc config list
-```
-
-Проверить нужные переменные окружения:
-```bash
-env | grep YC_
 ```
 
 ### 2.3 Просмотр облачных ресурсов - подсети, ВМ <a id="h2-3"/></a>
@@ -140,21 +134,6 @@ curl http://$LEMP_IP
 ssh yc-user@$LEMP_IP
 exit
 ```
-
-### 2.5* `Опционально!` Проверить работу веб-сервера со своего компьютера
-
-Установить SSH соединение со своего компьютера к ВМ `infra-vm`. Порт `tcp/9000` на локальном компьютере будет использоваться для туннелирования трафика через SSH в удаленную облачную сеть:
-```bash
-ssh -D 9000 -q -C admin@<зарезервированный-ip-адрес>
-```
-
-Установить расширение к веб-браузеру, на своём компьютере, например, [Proxy SwitchyOmega](https://addons.mozilla.org/en-US/firefox/addon/switchyomega/).
-
-Настроить расширение к веб-браузеру для работы через локальный порт `9000`, протокол `SOCKS5`. Весь трафик от локального порта 9000 будет перенаправляться через SSH-proxy на ВМ `infra-vm`.
-
-Открыть в браузере на локальном компьютере URL `http://<значение переменной LEMP_IP>`.
-Если всё настроено верно должна открыться страница сервера nginx.
-
 
 ### 2.6 Удаление ВМ с веб-сервером <a id="h2-6"/></a>
 

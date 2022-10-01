@@ -15,7 +15,8 @@
 ```bash
 cd ~/labs/lab-05-pulumi
 
-SA_ID=$(yc iam service-account list --limit=1 --format=json | jq -r .[0].id)
+SA_NAME=webinar-sa
+SA_ID=$(yc iam service-account list --format=json | jq -r '.[] | select(.name == ('\"$SA_NAME\"')) | .id')
 yc iam access-key create --service-account-id=$SA_ID --format=json > sa-key.json
 
 export SA_KEY=$(cat sa-key.json | jq -r .access_key.key_id)
@@ -34,7 +35,7 @@ export PULUMI_CONFIG_PASSPHRASE="default"
 pulumi new --generate-only --name="cloud-app" --description="My Cloud App" --stack="dev" python
 ```
 
-Установить зависимости для Python:
+Активировать виртуальное окружение Python и установить необходимые зависимости:
 ```bash
 python3 -m venv venv
 source venv/bin/activate
@@ -43,7 +44,7 @@ pip3 install pulumi_yandex
 pulumi stack init dev
 ```
 
-Подготовить переменные окружения в venv:
+Подготовить переменные в виртуальном окружении:
 ```bash
 meta_id=$(curl -s 169.254.169.254/latest/meta-data/instance-id)
 export YC_FOLDER_ID=$(yc compute instance get --id=$meta_id --format json | jq -r .folder_id)
@@ -65,7 +66,7 @@ cp ../yc-objects.py __main__.py
 pulumi up
 ```
 
-Убедиться через облачную веб-консоль, что сеть `pulumi-net` в VPC и бакет `pulumi-NNN-bucket`в Object Storage создались.
+Убедиться с помощью облачной веб-консоли, что бакет в Object Storage создался.
 
 
 ### 5.4 AWS CLI. Работа с файлами в Bucket <a id="h5-4"/></a>
@@ -74,27 +75,32 @@ pulumi up
 
 Настроить AWS CLI для работы с YC Object Storage
 ```bash
-echo $SA_KEY
-echo $SA_SECRET
-aws configure
+mkdir $HOME/.aws 2> /dev/null
+cat <<EOF > $HOME/.aws/config
+[default]
+region = eu-central-1
+output = json
+EOF
+
+cat <<EOF > $HOME/.aws/credentials
+[default]
+aws_access_key_id = $SA_KEY
+aws_secret_access_key = $SA_SECRET
+EOF
 ```
-Ввести следующие значения при запросе:
-* AWS Access Key ID [None]: `содержимое переменной SA_KEY`
-* AWS Secret Access Key [None]: `содержимое переменной SA_SECRET`
-* Default region name [None]: `ru-central1`
-* Default output format [None]:
+
 
 Создать alias, в котором указать AWS CLI адрес endpoint в YC Object Storage
 ```bash
 alias ycs3='aws s3 --endpoint-url=https://storage.yandexcloud.net'
 ```
 
-Получить список бакетов в Object Storage
+Получить список buckets в Object Storage
 ```bash
 ycs3 ls
 ```
 
-Скопировать локальный файл в бакет
+Скопировать локальный файл в bucket
 ```bash
 ycs3 cp __main__.py s3://$BUCKET/yc-objects.py
 ```
@@ -104,13 +110,13 @@ ycs3 cp __main__.py s3://$BUCKET/yc-objects.py
 ycs3 ls s3://$BUCKET
 ```
 
-Загрузить файл из bucket и проверить его содержимое
+Загрузить файл из bucket и посмотреть его содержимое
 ```bash
 ycs3 cp s3://$BUCKET/yc-objects.py yc-objects.py
 cat yc-objects.py
 ```
 
-Удалить файл в bucket и убедиться в этом
+Удалить файл в bucket и убедиться, что он удалился
 ```bash
 ycs3 rm s3://$BUCKET/yc-objects.py
 ycs3 ls s3://$BUCKET
@@ -118,7 +124,7 @@ ycs3 ls s3://$BUCKET
 
 ### 5.5 Удаление Bucket в Object Storage <a id="h5-5"/></a>
 
-Удалить созданные ранее объекты с помощью Pulumi и деактивировать venv
+Удалить созданные ранее объекты с помощью Pulumi и деактивировать виртуальное окружение Python
 ```bash
 pulumi destroy
 deactivate
