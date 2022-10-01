@@ -1,0 +1,45 @@
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: Gateway
+metadata:
+  name: gateway-api-prod
+  annotations:
+    gateway.alb.yc.io/security-groups: enp61fl4915me9ht17k5
+spec:
+  gatewayClassName: yc-df-class
+  listeners:  
+  - name: gateway-api-prod
+    protocol: HTTP
+    port: 80
+    hostname: "*.prod.example.com"
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchExpressions:
+          - key: kubernetes.io/metadata.name
+            operator: In
+            values:
+            - prod-app
+  - name: gateway-api-prod-tls
+    protocol: HTTPS
+    port: 443
+    hostname: "*.prod.example.com"
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchExpressions:
+          - key: kubernetes.io/metadata.name
+            operator: In
+            values:
+            - prod-app
+    tls:
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: gateway-prod-tls
+        namespace: gateway-api-tls-secrets
+      mode: Terminate
+  addresses:
+    - type: IPAddress
+      value: <ip_address> # prod-ip-address
