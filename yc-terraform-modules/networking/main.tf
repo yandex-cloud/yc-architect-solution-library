@@ -38,6 +38,8 @@ resource "yandex_vpc_subnet" "this" {
 
   labels = var.labels
 }
+
+## Routes
 resource "yandex_vpc_gateway" "egress-gateway" {
   count = var.internet_access ? 1 : 0
   name  = "egress-gateway"
@@ -45,6 +47,7 @@ resource "yandex_vpc_gateway" "egress-gateway" {
 }
 
 resource "yandex_vpc_route_table" "rt" {
+  name = var.network_name
   network_id = local.vpc_id
 
   dynamic "static_route" {
@@ -64,14 +67,7 @@ resource "yandex_vpc_route_table" "rt" {
 
 }
 
-
-
-
-
-
-
 ## Default Security Group
-
 resource "yandex_vpc_default_security_group" "default_sg" {
   count       = var.create_vpc ? 1 : 0
   description = "Default security group"
