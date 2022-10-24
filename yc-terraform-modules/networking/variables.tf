@@ -20,6 +20,11 @@ variable "network_description" {
   type        = string
   default     = "terraform-created"
 }
+variable "internet_access" {
+  description = "Add NAT Gateway and route table rule to the internet"
+  type        = bool
+  default     = true
+}
 
 variable "folder_id" {
   type        = string
@@ -47,6 +52,14 @@ variable "subnets" {
       v4_cidr_blocks = "10.130.0.0/16"
     }
   ]
+}
+variable "routes" {
+  description = "Describe your routes preferences"
+  type = list(object({
+    destination_prefix = string
+    next_hop_address   = string
+  }))
+  default = null
 }
 variable "domain_name" {
   type        = string

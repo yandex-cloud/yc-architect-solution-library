@@ -1,10 +1,11 @@
 labels              = { tag = " demo" }
 network_description = "terraform-created"
 network_name        = "net-module"
-domain_name         = "test.com"
-#domain_name_servers = ["8.8.8.8", "2.2.2.2"]
-#vpc_id = "enp5v4es0f4vgdboXXXX"
+# domain_name         = "test.com"
+# domain_name_servers = ["8.8.8.8", "2.2.2.2"]
+# vpc_id = "enp5v4es0f4vgdboXXXX"
 create_vpc = true
+#internet_access = false
 subnets = [
 
   {
@@ -24,3 +25,9 @@ subnets = [
     "zone" : "ru-central1-c"
   },
 ]
+# routes = [
+#   {
+#     destination_prefix : "172.16.0.0/16",
+#     next_hop_address : "10.131.0.10"
+#   },
+#   ]

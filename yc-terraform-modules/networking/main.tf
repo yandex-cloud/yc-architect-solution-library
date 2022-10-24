@@ -5,6 +5,11 @@ data "yandex_client_config" "client" {}
 locals {
   folder_id = var.folder_id == null ? data.yandex_client_config.client.folder_id : var.folder_id
   vpc_id    = var.create_vpc ? yandex_vpc_network.this[0].id : var.vpc_id
+  route_to_internet = var.internet_access ? [{
+    destination_prefix = "0.0.0.0/0"
+    gateway_id         = "${yandex_vpc_gateway.egress-gateway[0].id}"
+  }] : null
+
 }
 
 ### Network
@@ -24,6 +29,7 @@ resource "yandex_vpc_subnet" "this" {
   zone           = each.value.zone
   network_id     = local.vpc_id
   folder_id      = local.folder_id
+  route_table_id = yandex_vpc_route_table.rt.id
   dhcp_options {
     domain_name         = var.domain_name == null ? "internal." : var.domain_name
     domain_name_servers = var.domain_name_servers == null ? [cidrhost(each.value.v4_cidr_blocks, 2)] : var.domain_name_servers
@@ -32,6 +38,37 @@ resource "yandex_vpc_subnet" "this" {
 
   labels = var.labels
 }
+resource "yandex_vpc_gateway" "egress-gateway" {
+  count = var.internet_access ? 1 : 0
+  name  = "egress-gateway"
+  shared_egress_gateway {}
+}
+
+resource "yandex_vpc_route_table" "rt" {
+  network_id = local.vpc_id
+
+  dynamic "static_route" {
+    for_each = var.routes == null ? [] : var.routes
+    content {
+      destination_prefix = static_route.value["destination_prefix"]
+      next_hop_address   = static_route.value["next_hop_address"]
+    }
+  }
+  dynamic "static_route" {
+    for_each = var.internet_access ? local.route_to_internet : []
+    content {
+      destination_prefix = static_route.value["destination_prefix"]
+      gateway_id         = static_route.value["gateway_id"]
+    }
+  }
+
+}
+
+
+
+
+
+
 
 ## Default Security Group
 
