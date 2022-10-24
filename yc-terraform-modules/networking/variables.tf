@@ -20,11 +20,6 @@ variable "network_description" {
   type        = string
   default     = "terraform-created"
 }
-variable "internet_access" {
-  description = "Add NAT Gateway and route table rule to the internet"
-  type        = bool
-  default     = true
-}
 
 variable "folder_id" {
   type        = string
@@ -32,29 +27,33 @@ variable "folder_id" {
   description = "Folder-ID where the resources will be created"
 }
 
-variable "subnets" {
-  description = "Describe your subnets preferences"
+variable "public_subnets" {
+  description = "Describe your public subnets preferences"
   type = list(object({
     zone           = string
     v4_cidr_blocks = string
   }))
-  default = [
-    {
-      zone           = "ru-central1-a"
-      v4_cidr_blocks = "10.110.0.0/16"
-    },
-    {
-      zone           = "ru-central1-b"
-      v4_cidr_blocks = "10.120.0.0/16"
-    },
-    {
-      zone           = "ru-central1-c"
-      v4_cidr_blocks = "10.130.0.0/16"
-    }
-  ]
+  default = null
 }
-variable "routes" {
-  description = "Describe your routes preferences"
+
+variable "private_subnets" {
+  description = "Describe your private subnets preferences"
+  type = list(object({
+    zone           = string
+    v4_cidr_blocks = string
+  }))
+  default = null
+}
+variable "routes_public_subnets" {
+  description = "Describe your routes preferences for public subnets"
+  type = list(object({
+    destination_prefix = string
+    next_hop_address   = string
+  }))
+  default = null
+}
+variable "routes_private_subnets" {
+  description = "Describe your routes preferences for public subnets"
   type = list(object({
     destination_prefix = string
     next_hop_address   = string
