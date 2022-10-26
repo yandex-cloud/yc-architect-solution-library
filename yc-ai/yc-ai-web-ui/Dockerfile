@@ -1,0 +1,22 @@
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["yc-ai-web-ui/yc-ai-web-ui.csproj", "yc-ai-web-ui/"]
+RUN dotnet restore "yc-ai-web-ui/yc-ai-web-ui.csproj"
+COPY . .
+WORKDIR "/src/yc-ai-web-ui"
+RUN dotnet build "yc-ai-web-ui.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "yc-ai-web-ui.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "yc-ai-web-ui.dll"]

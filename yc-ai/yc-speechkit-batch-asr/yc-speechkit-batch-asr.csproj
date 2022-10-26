@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <AssemblyName>yc-speechkit-batch-asr</AssemblyName>
   </PropertyGroup>
@@ -20,7 +20,6 @@
     <None Remove="yandex\cloud\ai\tts\v3\tts_service.proto" />
     <None Remove="yandex\cloud\api\operation.proto" />
     <None Remove="yandex\cloud\operation\operation.proto" />
-    <None Remove="yandex\cloud\operation\operation_service.proto" />
     <None Remove="yandex\cloud\validation.proto" />
   </ItemGroup>
 
@@ -56,7 +55,6 @@
     <Protobuf Include="yandex\cloud\ai\tts\v3\tts_service.proto" />
     <Protobuf Include="yandex\cloud\api\operation.proto" />
     <Protobuf Include="yandex\cloud\operation\operation.proto" />
-    <Protobuf Include="yandex\cloud\operation\operation_service.proto" />
     <Protobuf Include="yandex\cloud\validation.proto" />
   </ItemGroup>
 

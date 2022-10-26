@@ -14,7 +14,7 @@ namespace ai.adoptionpack.speechkit.hybrid
             AudioData = new byte[len];
         }
 
-        internal static AudioDataEventArgs FromByateArray(byte[] arBytes, int len)
+        public static AudioDataEventArgs FromByateArray(byte[] arBytes, int len)
         {
             AudioDataEventArgs retVal = new AudioDataEventArgs(len);
             Array.Copy(arBytes, retVal.AudioData, len);

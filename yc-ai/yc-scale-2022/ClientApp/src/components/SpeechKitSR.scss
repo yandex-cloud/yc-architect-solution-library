@@ -1,0 +1,79 @@
+﻿/*@import '../styles/variables.scss';
+@import '../styles/mixins.scss';
+*/
+
+
+
+.SpeechKitSR {
+    $root: &;
+
+    &__wrap {
+        min-height: 430px;
+        padding: 40px;
+        align-items: center;
+    }
+
+    &__select {
+        padding: 25px 0;
+        margin-bottom: 0;
+        width: 380px;
+    }
+
+    &__recording {
+        #{$root}__wrap {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        #{$root}__top {
+            flex: 1;
+            text-align: center;
+        }
+
+        #{$root}__bottom {
+            padding-top: 10px;
+            text-align: center;
+        }
+    }
+
+    &__audio-analyser {
+        margin: 15px 0;
+        height: 80px;
+    }
+
+    &__error {
+        color: var(--yc-color-text-danger);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    &__tblEmotions {
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &__text {
+        /* @include text-size(header-2);*/
+    }
+
+    &__placeholder {
+        opacity: 0.3;
+    }
+
+    &__bottom {
+        #{$root}__button + #{$root}__button {
+            margin-left: 4px;
+        }
+    }
+
+    &_constructor & {
+        &__wrap {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+}

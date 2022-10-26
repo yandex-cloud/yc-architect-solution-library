@@ -4,7 +4,7 @@ package yandex.cloud;
 
 import "google/protobuf/descriptor.proto";
 
-option go_package = "github.com/yandex-cloud/go-genproto/yandex/cloud;cloud";
+option go_package = "cloud";
 option java_package = "yandex.cloud.api";
 
 extend google.protobuf.OneofOptions {

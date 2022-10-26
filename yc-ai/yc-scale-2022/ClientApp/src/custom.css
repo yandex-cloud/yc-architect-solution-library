@@ -1,0 +1,14 @@
+﻿/* Provide sufficient contrast against white background */
+a {
+  color: #0366d6;
+}
+
+code {
+  color: #E01A76;
+}
+
+.yc-button {
+    color: #fff;
+    background-color: red;
+    border-color: #1861ac;
+}

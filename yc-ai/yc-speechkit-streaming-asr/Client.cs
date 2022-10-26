@@ -41,7 +41,7 @@ namespace YC.SpeechKit.Streaming.Asr
 
             try
             {
-                outFile = File.OpenWrite(args.inputFilePath + ".speechkit.out");
+                outFile = File.OpenWrite(args.inputFilePath + ".speechkit.out.json");
 
                 switch (args.mode)
                 {
@@ -83,7 +83,7 @@ namespace YC.SpeechKit.Streaming.Asr
         static void DoTts(Options args, ILoggerFactory _loggerFactory)
         {
             SpeechKitTtsClient ttsClient = new SpeechKitTtsClient(new Uri("https://tts.api.cloud.yandex.net"),  //https://tts.api.cloud.yandex.net:443
-                args.folderId, args.iamToken, _loggerFactory);
+                args.folderId, args.TokenType, args.Token, _loggerFactory);
 
 
             ttsClient.TextToSpeachResultsRecieved += TtsClient_TextToSpeachResultsRecieved;
@@ -123,14 +123,14 @@ namespace YC.SpeechKit.Streaming.Asr
                     LanguageCode = args.lang,
                     ProfanityFilter = false,
                     Model = args.model,
-                    PartialResults = false, //возвращать только финальные результаты false
+                    PartialResults = true, //возвращать только финальные результаты false
                     AudioEncoding = args.audioEncoding,
                     SampleRateHertz = args.sampleRate
                 };
 
             
             SpeechKitSttStreamClient speechKitClient =
-                    new SpeechKitSttStreamClient(new Uri("https://stt.api.cloud.yandex.net:443"), args.folderId, args.iamToken, rSpec, _loggerFactory);//
+                    new SpeechKitSttStreamClient(new Uri("https://stt.api.cloud.yandex.net:443"), args.folderId, args.TokenType, args.Token, rSpec, _loggerFactory);//
                 // Subscribe for speech to text events comming from SpeechKit
                 SpeechKitClient.SpeechToTextResponseReader.ChunkRecived += SpeechToTextResponseReader_ChunksRecived;
 
@@ -157,7 +157,7 @@ namespace YC.SpeechKit.Streaming.Asr
 
         private static void SpeechToTextResponseReader_ChunksRecived(object sender, ChunkRecievedEventArgs e)
         {
-            notFinalBuf = e.AsJson();
+            notFinalBuf = e.AsJson(true);
             Log.Information(notFinalBuf); // Log partial results
 
             if (e.SpeechToTextChunk.Final)
@@ -202,8 +202,12 @@ namespace YC.SpeechKit.Streaming.Asr
         [Option("lang", Required = false, Default = "ru-RU", HelpText = "Language: ru-RU en-US - kk-KK")]
         public string lang { get; set; }
 
-        [Option("iam-token", Required = true, HelpText = "Specify the received IAM token when accessing Yandex.Cloud SpeechKit via the API.")]
-        public string iamToken { get; set; }
+        [Option("token-type", Required = true, HelpText = "Specify token type. Can be  APIKey or IAM.")]
+        public AuthTokenType TokenType { get; set; }
+
+        [Option("token", Required = true, HelpText = "Specify the received IAM or ApiKey token when accessing Yandex.Cloud SpeechKit via the API.")]
+        public string Token { get; set; }
+
 
        [Option("folder-id", Required = true, HelpText = "ID of the folder that you have access to.")]
         public String folderId { get; set; }
@@ -211,7 +215,7 @@ namespace YC.SpeechKit.Streaming.Asr
         [Option("in-file", Required = true, HelpText = "Path of the audio file for recognition. Path to text file for tts synthezis")]
         public string inputFilePath { get; set; }
 
-        [Option("model", Required = false, Default = "general", HelpText = "S2T model: deferred-general/ hqa/ general:rc/ general:deprecated")]
+        [Option("model", Required = false, Default = "general:rc", HelpText = "S2T model: deferred-general/ hqa/ general:rc/ general:deprecated")]
         public string model { get; set; }
 
         [Option("audio-encoding", Required = true, HelpText = "The format of the submitted audio. Acceptable values: Linear16Pcm, OggOpu.")]

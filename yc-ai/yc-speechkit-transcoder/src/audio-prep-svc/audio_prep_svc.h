@@ -11,9 +11,10 @@
 #include <map>
 #include <string>
 #include <memory>
-#include "parson/parson.h"
-
-
+#include <parson/parson.h>
+#include <iostream>
+#include <regex>
+using namespace std;
 
 class audio_prep_svc_callback {
 public:
@@ -36,8 +37,9 @@ typedef struct _DiscovererData {
 } DiscovererData;
 
 public:
-    const char* CFG_PIPELINE_TEMPLATE = "str_pipeline_template";
+    
     audio_preparation_svc(std::map<std::string, std::string> config, std::shared_ptr<audio_prep_svc_callback> callback);
+    ~audio_preparation_svc();
     void discover_audio_format(std::string audio_source_uri);
     void start_preparation_pipeline(std::string audio_source_uri);
 
@@ -49,9 +51,10 @@ private:
 * all the URIs we provided.*/
     static void on_finished_cb(GstDiscoverer* discoverer, DiscovererData* data);
     static void on_discovered_cb(GstDiscoverer* discoverer, GstDiscovererInfo* info, GError* err, DiscovererData* data);
-    static void print_topology(GstDiscovererStreamInfo* info, gint depth);
-    static void print_stream_info(GstDiscovererStreamInfo* info, gint depth);
+    static void print_topology(GstDiscovererStreamInfo* info, gint depth, JSON_Value* streams_array);
+    static void print_stream_info(GstDiscovererStreamInfo* info, gint depth, JSON_Value* streams_array);
     static void print_tag_foreach(const GstTagList* tags, const gchar* tag, gpointer user_data);
+    std::string make_pipeline_string(std::string audio_source_uri);
 
     DiscovererData _discovery{};
 protected:

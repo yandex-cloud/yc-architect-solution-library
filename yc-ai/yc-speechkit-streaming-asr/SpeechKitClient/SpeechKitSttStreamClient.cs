@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
 {
-    class SpeechKitSttStreamClient : SpeechKitAbstractClient, IDisposable
+    public class SpeechKitSttStreamClient : SpeechKitAbstractClient, IDisposable
     {
 
         public event EventHandler<ChunkRecievedEventArgs> SpeechToTextResultsRecived;
@@ -28,33 +28,38 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
 
         private  AsyncDuplexStreamingCall<StreamingRecognitionRequest, StreamingRecognitionResponse> ActiveCall()
         {
-           
+
             if (this._call != null)
             {
-                try
-                {
-                    Status status = this._call.GetStatus();
-                    log.Information($"Call status: ${status.StatusCode} ${status.Detail}");
-
-                    this._call.Dispose();
-                    this._call = null;
-                    if (this._readTask != null)
-                    {
-                        log.Information($"Call status: ${status.StatusCode} ${status.Detail}. Disposing.");
-                        this._readTask.Dispose(); // Close read task
-                    }
-                    this._readTask = null;
-                    
-                    // call is finished
-                }
-                catch (Exception ex)
-                {
-                    log.Information($"Call is in process - reuse. ${ex.Message}");
-                    return this._call;
-                }
+                log.Verbose($"Reuse exisiting grpc session for call.");
+                return this._call;
             }
-            try
-            {
+                /*if (this._call != null)
+                {
+                    try
+                    {
+                        Status status = this._call.GetStatus();
+                        log.Information($"Call status: ${status.StatusCode} ${status.Detail}");
+
+                        this._call.Dispose();
+                        this._call = null;
+                        if (this._readTask != null)
+                        {
+                            log.Information($"Call status: ${status.StatusCode} ${status.Detail}. Disposing.");
+                            this._readTask.Dispose(); // Close read task
+                        }
+                        this._readTask = null;
+
+                        // call is finished
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Information($"Call is in process - reuse. ${ex.Message}");
+                        return this._call;
+                    }
+                }*/
+                try
+               {
                 Log.Information($"Initialize gRPC call is finished");
                 this._call = speechKitRpctClient.StreamingRecognize(
                     headers: this.MakeMetadata(), 
@@ -96,8 +101,8 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
             SpeechToTextResultsRecived?.Invoke(sender,e);
         }
 
-        public SpeechKitSttStreamClient(Uri address, string folderId, string IamToken, 
-            RecognitionSpec rSpec, ILoggerFactory loggerFactory) : base(address,IamToken) {
+        public SpeechKitSttStreamClient(Uri address, string folderId, AuthTokenType tokenType, string Token, 
+            RecognitionSpec rSpec, ILoggerFactory loggerFactory) : base(address, tokenType, Token) {
 
             this.rConf = new RecognitionConfig()
             {
@@ -111,7 +116,7 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
 
         
 
-       internal void Listener_SpeechKitSend(object sender, AudioDataEventArgs e)
+       public void Listener_SpeechKitSend(object sender, AudioDataEventArgs e)
         {
                 bool locked = callMutex.WaitOne(5 * 1000); // Всеравно тайм аут наступет через 5 сек. после прекращения записи на сервисе
                 if (locked)
@@ -171,14 +176,21 @@ namespace YC.SpeechKit.Streaming.Asr.SpeechKitClient
             {
                 try
                 {
+                    if (this._readTask != null)
+                    {
+                        log.Information($"Disposing reading tasks");
+                        this._readTask.Dispose(); // Close read task
+                    }
+                    this._readTask = null;
+
                     if (this._call != null)
                     {
-                        Status status = this._call.GetStatus(); // throw exception if not done
+                        //Status status = this._call.GetStatus();  throw exception if not done
                         log.Information("Shutting down SpeechKit grpc connection.");
                         this._call.Dispose();
                         this._call = null;
-                    }
-                    
+                    }                    
+
                     callMutex.ReleaseMutex();
                     locked = false;
                 }

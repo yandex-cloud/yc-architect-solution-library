@@ -1,0 +1,206 @@
+﻿@import '~@yandex-data-ui/page-constructor/styles/mixins.scss';
+@import 'case-themes';
+@import 'variables';
+
+@mixin overflow-ellipsis($type: ellipsis) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: $type;
+}
+
+@mixin expand-interactive-area($hSize: 4px, $vSize: $hSize) {
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: -$vSize;
+        left: -$hSize;
+        right: -$hSize;
+        bottom: -$vSize;
+    }
+}
+
+@mixin navigation-link() {
+    @include islands-focus();
+    @include reset-link-style();
+    cursor: pointer;
+
+    &:hover,
+    &:active {
+        --pc-text-header-color: var(--yc-color-text-link);
+        color: var(--yc-color-text-link);
+    }
+
+    .mobile & {
+        &:hover,
+        &:active {
+            --pc-text-header-color: inherit;
+            color: inherit;
+        }
+    }
+}
+
+@mixin navigation-menu($class) {
+    width: 100%;
+
+    #{$class}__wrapper {
+        margin: 0;
+    }
+
+    #{$class}__title {
+        padding-left: 8px;
+        color: var(--yc-color-text-primary);
+    }
+
+    #{$class}__section-link {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 8px;
+        opacity: 1;
+        color: var(--yc-color-text-primary);
+    }
+
+    #{$class}__section {
+        @include text-size(body-2);
+        display: flex;
+        align-items: center;
+        min-height: 36px;
+        margin-bottom: 4px;
+        border: 0;
+        border-radius: 6px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--yc-color-base-simple-hover);
+            color: var(--yc-color-text-primary);
+        }
+
+        &_active {
+            background-color: var(--yc-color-base-selection);
+
+            &:hover {
+                background-color: var(--yc-color-base-selection-hover);
+            }
+        }
+    }
+
+    #{$class}__sections {
+        @include reset-list-style();
+        left: 0;
+        border: 0;
+    }
+}
+
+@mixin nav-arrow() {
+    &::after {
+        content: '\2192';
+        position: relative;
+        bottom: -1px;
+        margin-left: 4px;
+        font-family: Helvetica, sans-serif;
+    }
+}
+
+@mixin fixAnchorPosition($offset: 0px) {
+    padding-top: 0px;
+    margin-top: $offset;
+}
+
+@mixin back-link {
+    @include link();
+    position: relative;
+    left: -18px;
+
+    &::before {
+        content: '\2190';
+        margin-right: 4px;
+        color: var(--www-text-content-color);
+        font-family: Helvetica, sans-serif;
+    }
+}
+
+@mixin underlined-link {
+    @include reset-link-style();
+    border-bottom: 1px solid var(--www-link-decoration);
+
+    &:hover {
+        color: var(--www-text-content-color);
+        border-bottom-color: var(--www-text-content-color);
+    }
+}
+
+@mixin note {
+    @include text-size(body-1);
+    opacity: 0.5;
+
+    a {
+        @include underlined-link();
+    }
+}
+
+// CLOUDFRONT-2885 use component from cloud-components
+
+@mixin service-icon() {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--yc-color-text-light-primary);
+    background-color: var(--yc-color-base-special);
+}
+
+@mixin add-theme-colors() {
+    @each $colorName, $colorValues in $ColorThemes {
+        &_color_#{$colorName} {
+            --www-colorful-theme-background-color: #{map-get($colorValues, 'main')};
+            --www-colorful-theme-text-color: #{map-get($colorValues, 'text')};
+            --www-colorful-theme-quote-color: #{map-get($colorValues, 'quote')};
+            --www-colorful-theme-fill-color: #{map-get($colorValues, 'fill')};
+            --www-colorful-theme-highlight-color: #{map-get($colorValues, 'highlight')};
+
+            @if (map-get($colorValues, 'tag') == 'light') {
+                --www-colorful-theme-tag-color: #{$caseTagColorLight};
+                --www-colorful-theme-tag-color-hover: #{darken($caseTagColorLight, 10%)};
+            }
+            @else {
+                --www-colorful-theme-tag-color: #{$caseTagColorDark};
+                --www-colorful-theme-tag-color-hover: #{lighten($caseTagColorDark, 10%)};
+            }
+        }
+    }
+}
+
+@mixin navigation-input() {
+    /* stylelint-disable declaration-no-important */
+    .yc-text-input__control {
+        border-radius: 4px;
+        background-color: var(--yc-color-base-generic) !important;
+        border: none !important;
+    }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:active,
+    input:-webkit-autofill:focus {
+        box-shadow: 0 0 0px 1000px var(--yc-color-base-generic) inset !important;
+    }
+
+    input:-moz-autofill {
+        box-shadow: 0 0 0px 1000px var(--yc-color-base-generic) inset !important;
+    }
+    /* stylelint-enable declaration-no-important */
+}
+
+@mixin calculator-card {
+    @include desktop-tablet-only();
+    margin: 0;
+    padding: 48px 64px 64px;
+    color: var(--www-text-content-color);
+    box-shadow: 0px 4px 24px var(--pc-color-sfx-shadow), 0px 2px 8px var(--pc-color-sfx-shadow);
+    border-radius: $borderRadius;
+    border: none;
+}
