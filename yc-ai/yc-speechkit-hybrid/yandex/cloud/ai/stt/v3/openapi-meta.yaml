@@ -1,0 +1,7 @@
+info:
+  title: SpeechKit Speech To Text Service API
+  version: v3
+  description: The service does not operate with resources. Actions are performed by sending HTTP requests to resource URLs or making RPC calls. For more information about API architecture, see [API Concepts](/docs/api-design-guide/).
+  x-y-docUri: v3/api-ref
+  x-y-baseUrl: "https://stt.api.cloud.yandex.net"
+docName: "/docs/ai/stt/v3/api-ref"

@@ -1,0 +1,7 @@
+info:
+  title: SpeechKit Text To Speech Service API
+  version: v3
+  description: The service does not operate with resources. For more information about API architecture, see [API Concepts](/docs/api-design-guide/). <br><br><strong> API has limitation — the request cannot exceed 250 characters and 24 seconds for synthesis.</strong> <br><br> Service is available at tts.api.cloud.yandex.net, port 443.
+  x-y-docUri: new-v3/api-ref
+  x-y-baseUrl: "https://tts.api.cloud.yandex.net"
+docName: "/docs/ai/tts/new-v3/api-ref"

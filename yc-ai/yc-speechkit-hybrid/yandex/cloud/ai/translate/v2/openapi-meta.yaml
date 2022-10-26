@@ -1,0 +1,7 @@
+info:
+  title: Translate API v2
+  version: v2
+  description: The service does not operate with resources. All service's methods are presented on the [Translation](Translation/) page.
+  x-y-docUri: api-ref
+  x-y-baseUrl: "https://translate.api.cloud.yandex.net"
+docName: "/docs/translate/api-ref"
