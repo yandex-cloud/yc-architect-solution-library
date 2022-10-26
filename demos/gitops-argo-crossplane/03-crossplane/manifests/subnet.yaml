@@ -1,0 +1,13 @@
+apiVersion: vpc.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: Subnet
+metadata:
+  name: crossplane-demo-a
+spec:
+  forProvider:
+    name: crossplane-demo-a
+    networkIdRef:
+      name: crossplane-demo
+    v4CidrBlocks:
+      - 10.130.0.0/24
+    zone: ru-central1-a
+    folderId: <FOLDER ID>

@@ -1,0 +1,15 @@
+{{- $fullName := include "my-app.fullname" . -}}
+{{- range .Values.databases }}
+---
+apiVersion: mdb.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: PostgresqlDatabase
+metadata:
+  name: {{ $fullName }}-{{ .dbname }}
+spec:
+  forProvider:
+    clusterIdRef:
+      name: {{ .transfer.fromcluster }}
+    name: {{ $fullName }}-{{ .dbname }}
+    owner: {{ $fullName }}-{{ .owner }}
+---
+{{- end }} 

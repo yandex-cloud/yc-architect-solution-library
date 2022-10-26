@@ -1,0 +1,35 @@
+apiVersion: mdb.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: PostgresqlCluster
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  forProvider:
+    name: {{ .Release.Name }}
+    environment: PRESTABLE
+    networkId: {{ .Values.networkId }}
+    config:
+      - version: "12"
+        access:
+          - webSql: true
+        resources:
+          - diskSize: {{ .Values.diskSize }}
+            diskTypeId: {{ .Values.diskTypeId }}
+            resourcePresetId: {{ .Values.resourcePresetId }}
+        # postgresqlConfig:
+        #   max_connections: "200"
+        #   enable_parallel_hash: "true"
+        #   vacuum_cleanup_index_scale_factor: "0.2"
+        #   autovacuum_vacuum_scale_factor: "0.34"
+        #   default_transaction_isolation: "TRANSACTION_ISOLATION_READ_COMMITTED"
+        #   shared_preload_libraries: SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN
+    maintenanceWindow:
+      - type: WEEKLY
+        day: SAT
+        hour: 12
+    host:
+      - zone: {{ .Values.postgresZone }}
+        subnetId: {{ .Values.subnetId }}
+    folderId: {{ .Values.folderID }}
+  writeConnectionSecretToRef:
+    name: conn-{{ .Release.Name }}
+    namespace: {{ .Release.Namespace }}

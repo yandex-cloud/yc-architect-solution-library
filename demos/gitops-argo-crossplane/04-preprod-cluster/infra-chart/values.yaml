@@ -1,0 +1,28 @@
+cloudId: ""   # yc config list
+folderId: ""  # yc config list
+
+providerConfigName: "default" # name of crossplane providerconfig for yc
+
+projectName: "demo"
+projectSuffix: "prod" # prod/preprod/test/dev
+
+kubeClusterZonal: true
+kubeVersion: "1.21"
+kubeReleaseChannel: "RAPID"
+
+securityGroupsEnabled: true
+
+subnets:
+  a:
+    zone: ru-central1-a
+    cidr: 10.10.0.0/24
+  b:
+    zone: ru-central1-b
+    cidr: 10.11.0.0/24
+  c:
+    zone: ru-central1-c
+    cidr: 10.12.0.0/24
+
+gitlab:
+  token: ""
+  ciPipelineTriggerUrl: ""

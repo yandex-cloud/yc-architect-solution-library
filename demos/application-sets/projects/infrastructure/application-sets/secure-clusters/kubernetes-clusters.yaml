@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kubernetes-clusters
+  namespace: argocd # insert your argocd namespace
+spec:
+  generators:
+  - git:
+      repoURL: https://xxxxxx.gitlab.yandexcloud.net/demo/infrastructure.git # insert your gitlab instance address
+      revision: HEAD
+      directories:
+      - path: infra/*
+  template:
+    metadata:
+      name: '{{path.basenameNormalized}}'
+    spec:
+      project: default
+      source:
+        helm:
+          valueFiles:
+          - '../../{{path}}/values.yaml'
+        repoURL: https://xxxxxx.gitlab.yandexcloud.net/demo/infrastructure.git # insert your gitlab instance address
+        targetRevision: HEAD
+        path: "crossplane-charts/k8s-cluster"
+      destination:
+        server: https://kubernetes.default.svc # default argocd cluster is used, other cluster can be specified as well
+        namespace: clusters
+      syncPolicy:
+        automated:
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true

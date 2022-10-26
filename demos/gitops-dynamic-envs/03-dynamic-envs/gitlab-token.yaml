@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-token
+  namespace: argocd # check the argocd namespace, the secret should be put in it
+stringData:
+  token: xxxxxx # get the gitlab token and paste it here

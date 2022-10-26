@@ -1,0 +1,68 @@
+
+{{- range .Values.databases }}
+  {{- if .transfer -}}
+  {{- $owner := .owner -}}
+    {{- with .transfer -}}
+---
+apiVersion: datatransfer.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: Endpoint
+metadata:
+  name: demo-source
+spec:
+  forProvider:
+    folderId: {{ $.Values.folderID }}
+    name: demo-source
+    settings:
+      - postgresSource:
+        - database: {{ .fromdb }}
+          password:
+            - rawSecretRef:
+                name: pass-{{ .user }}
+                namespace: {{ .fromnamespace }}
+                key: password
+          user: {{ .user }}
+          connection:
+          - mdbClusterIdRef:
+              name: {{ .fromcluster }}
+    {{- end }} 
+---
+apiVersion: datatransfer.yandex-cloud.jet.crossplane.io/v1alpha1 
+kind: Endpoint
+metadata:
+  name: demo-target
+spec:
+  forProvider:
+    name: demo-target
+    folderId: {{ $.Values.folderID }}
+    settings:
+      - postgresTarget:
+        - database: {{.dbname }}
+        {{- range $.Values.users -}}
+          {{ if eq .name $owner }} # выбираем пользователя eq владелец, берем его secret
+          password:
+            - rawSecretRef:
+                name: pass-{{ .name }}
+                namespace: {{ $.Release.Namespace }}
+                key: password
+          {{- end }} 
+        {{- end }} 
+          user: {{.owner }}
+          connection:
+          - mdbClusterIdRef:
+              name: {{ $.Release.Name }}
+---
+apiVersion: datatransfer.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: Transfer
+metadata:
+  name: demo-transfer
+spec:
+  forProvider:
+    name: demo-transfer
+    sourceIdRef:
+      name: demo-source
+    targetIdRef:
+      name: demo-target
+    type: "SNAPSHOT_AND_INCREMENT"
+    folderId: {{ $.Values.folderID }}
+  {{- end }} 
+{{- end }} 

@@ -1,0 +1,151 @@
+antiAffinity:
+  enable: true
+background: true
+config:
+  excludeGroupRole: null
+  excludeUsername: null
+  existingConfig: ""
+  generateSuccessEvents: "false"
+  metricsConfig:
+    namespaces:
+      exclude: []
+      include: []
+  resourceFilters:
+  - '[Event,*,*]'
+  - '[*,kube-system,*]'
+  - '[*,kube-public,*]'
+  - '[*,kube-node-lease,*]'
+  - '[Node,*,*]'
+  - '[APIService,*,*]'
+  - '[TokenReview,*,*]'
+  - '[SubjectAccessReview,*,*]'
+  - '[SelfSubjectAccessReview,*,*]'
+  - '[*,kyverno,kyverno*]'
+  - '[Binding,*,*]'
+  - '[ReplicaSet,*,*]'
+  - '[ReportChangeRequest,*,*]'
+  - '[ClusterReportChangeRequest,*,*]'
+  webhooks: null
+createSelfSignedCert: false
+customLabels: {}
+dnsPolicy: ClusterFirst
+enableKyvernoPolices: true
+envVars: {}
+envVarsInit: {}
+extraArgs: []
+fullnameOverride: null
+generatecontrollerExtraResources: null
+hostNetwork: false
+image:
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+  repository: cr.yandex/yc-marketplace/yandex-cloud/marketplace/kyverno
+  tag: 1.6.0
+includeOtherPolicies: []
+initImage:
+  pullPolicy: null
+  repository: cr.yandex/yc-marketplace/yandex-cloud/marketplace/kyvernopre
+  tag: 1.6.0
+initResources:
+  limits:
+    cpu: 100m
+    memory: 256Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+livenessProbe:
+  failureThreshold: 2
+  httpGet:
+    path: /health/liveness
+    port: 9443
+    scheme: HTTPS
+  initialDelaySeconds: 15
+  periodSeconds: 30
+  successThreshold: 1
+  timeoutSeconds: 5
+metricsService:
+  annotations: {}
+  create: true
+  nodePort: null
+  port: 8000
+  type: ClusterIP
+mode: standalone
+nameOverride: null
+namespace: null
+networkPolicy:
+  enabled: false
+  ingressFrom: []
+nodeAffinity: {}
+nodeSelector: {}
+podAffinity: {}
+podAnnotations: {}
+podAntiAffinity:
+  preferredDuringSchedulingIgnoredDuringExecution:
+  - podAffinityTerm:
+      labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - kyverno
+      topologyKey: kubernetes.io/hostname
+    weight: 1
+podDisruptionBudget:
+  minAvailable: 1
+podLabels: {}
+podSecurityContext: {}
+podSecurityPolicies: []
+podSecuritySeverity: medium
+podSecurityStandard: baseline
+policyExclude: {}
+priorityClassName: ""
+rbac:
+  create: true
+  serviceAccount:
+    annotations: {}
+    create: true
+    name: null
+readinessProbe:
+  failureThreshold: 6
+  httpGet:
+    path: /health/readiness
+    port: 9443
+    scheme: HTTPS
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 5
+replicaCount: 0
+resources:
+  limits:
+    memory: 384Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+service:
+  annotations: {}
+  nodePort: null
+  port: 443
+  type: ClusterIP
+serviceMonitor:
+  additionalLabels: null
+  enabled: false
+  interval: 30s
+  namespace: null
+  scrapeTimeout: 25s
+  secure: false
+  tlsConfig: {}
+testImage:
+  pullPolicy: null
+  repository: null
+  tag: null
+tolerations: []
+topologySpreadConstraints: []
+updateStrategy:
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 40%
+  type: RollingUpdate
+validationFailureAction: audit
+validationFailureActionOverrides:
+  all: []

@@ -1,0 +1,22 @@
+{{- $fullName := include "my-app.fullname" . -}}
+{{- range .Values.users }}
+---
+apiVersion: mdb.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: PostgresqlUser
+metadata:
+  name: {{ $fullName }}-{{ .name }}
+spec:
+  forProvider:
+    {{- with (index  $.Values.databases 0) }}
+    clusterIdRef:
+      name: {{ .transfer.fromcluster }}
+    {{- end }}
+    name: {{ $fullName }}-{{ .name }}
+    passwordSecretRef:
+      name: pass-{{ .name }} 
+      namespace: {{ $.Release.Namespace }}
+      key: password 
+    grants:
+      {{- toYaml .grants | nindent 6 }}
+---
+{{- end }} 

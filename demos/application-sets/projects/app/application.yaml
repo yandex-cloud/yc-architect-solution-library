@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: test
+  annotations:
+    argocd-image-updater.argoproj.io/pull-secret: pullsecret:argo-cd/image-updater-pull-secret
+    argocd-image-updater.argoproj.io/image-list: cr.yandex/crps8j3slip157u5k5ko/gitops/kuberconf/app
+    argocd-image-updater.argoproj.io/update-strategy: latest
+    argocd-image-updater.argoproj.io/allow-tags: regexp:^.\..\..-.*\.main-.*$
+spec:
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  destination:
+    namespace: test
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    repoURL: https://gitlab.gitlab.yandexcloud.net/gitops/kuberconf/infra.git
+    targetRevision: HEAD
+    path: .

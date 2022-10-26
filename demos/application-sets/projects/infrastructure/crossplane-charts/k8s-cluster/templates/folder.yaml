@@ -1,0 +1,18 @@
+apiVersion: resourcemanager.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: Folder
+metadata:
+  name: folder-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+  {{- if .Values.folderId }}
+  annotations:
+    crossplane.io/external-name: {{ .Values.folderId }}
+  {{- end }}
+spec:
+  forProvider:
+    {{- if not .Values.folderId }}
+    name: folder-{{ include "crossplane.fullname" . }}
+    description: {{ include "crossplane.fullname" . }}
+    {{- end }}
+    cloudId: {{ required "cloud_id is required" .Values.cloudId }}
+  deletionPolicy: Orphan
+  {{- include "crossplane.provider" . | nindent 2 }}

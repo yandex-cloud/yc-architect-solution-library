@@ -1,0 +1,83 @@
+apiVersion: iam.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: FolderIAMMember
+metadata:
+  name: folder-iam-member-kube-sa-editor-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    serviceAccountRef:
+      name: kube-sa-{{ include "crossplane.fullname" . }}
+    role: editor
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}
+---
+apiVersion: iam.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: FolderIAMMember
+metadata:
+  name: folder-iam-member-alb-sa-editor-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    serviceAccountRef:
+      name: alb-sa-{{ include "crossplane.fullname" . }}
+    role: alb.editor
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}
+---
+apiVersion: iam.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: FolderIAMMember
+metadata:
+  name: folder-iam-member-alb-sa-vpcadmin-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    serviceAccountRef:
+      name: alb-sa-{{ include "crossplane.fullname" . }}
+    role: vpc.publicAdmin 
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}
+---
+apiVersion: iam.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: FolderIAMMember
+metadata:
+  name: folder-iam-member-alb-sa-ca-download-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    serviceAccountRef:
+      name: alb-sa-{{ include "crossplane.fullname" . }}
+    role: certificate-manager.certificates.downloader 
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}
+---
+apiVersion: iam.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: FolderIAMMember
+metadata:
+  name: cloud-iam-member-kube-sa-image-puller-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    serviceAccountRef:
+      name: kube-sa-{{ include "crossplane.fullname" . }}
+    role: container-registry.images.puller
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}
+---
+apiVersion: iam.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: FolderIAMMember
+metadata:
+  name: folder-iam-member-alb-sa-compute-view-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    serviceAccountRef:
+      name: alb-sa-{{ include "crossplane.fullname" . }}
+    role: compute.viewer 
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}

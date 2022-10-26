@@ -1,0 +1,42 @@
+--- 
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata: 
+  name: dynamic-dev-env
+spec: 
+  generators: 
+  - scmProvider: 
+      cloneProtocol: https
+      filters: 
+        - branchMatch: ^feature
+          repositoryMatch: ^app
+      gitlab: 
+        allBranches: true
+        api: "https://xxxxxx.gitlab.yandexcloud.net"            # insert your gitlab instance address
+        group: demo
+        includeSubgroups: false
+        tokenRef: 
+          key: token
+          secretName: gitlab-token                              # create the gitlab token secret
+  template: 
+    metadata: 
+      name: "{{ repository }}-{{ branch }}"
+    spec: 
+      destination: 
+        namespace: "{{ repository }}-{{ branch }}"
+        server: "https://kubernetes.default.svc"                # default cluster is used, other cluster can be specified here
+      project: default                                          # argocd project
+      source: 
+        path: "application-charts/my-app"
+        repoURL: "https://xxxxxx.gitlab.yandexcloud.net/demo/infrastructure.git" # insert your gitlab instance address
+        targetRevision: HEAD
+        helm:
+          parameters:
+          - name: "image.tag"
+            value: "{{sha}}"
+      syncPolicy: 
+        automated: 
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true

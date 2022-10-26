@@ -1,0 +1,59 @@
+--- 
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: test
+spec:
+  generators:
+  - merge:
+      mergeKeys:
+        - branch
+      generators:
+      - scmProvider:
+          cloneProtocol: https
+          filters:
+            - branchMatch: ^feature
+              repositoryMatch: ^demo-python-main-service
+          gitlab:
+            allBranches: true
+            api: "https://xxxxxxxx.gitlab.yandexcloud.net"   # Укажите здесь свой адрес инстанса Gitlab
+            group: "demo"
+            includeSubgroups: false
+            tokenRef:
+              key: token
+              secretName: gitlab-token
+      - list:
+          elements:
+          - branch: feature-1
+            values:
+              appOneVersion: 1.1.0
+  template:
+    metadata:
+      name: "{{ repository }}-{{ branch }}"
+    spec:
+      destination:
+        namespace: "{{ repository }}-{{ branch }}"
+        server: "https://kubernetes.default.svc"
+      project: default
+      source:
+        path: "demo-app-main-Chart"
+        repoURL: "https://xxxxxxxxx.gitlab.yandexcloud.net/demo/helm-charts.git"   # Укажите здесь свой адрес инстанса Gitlab
+        targetRevision: HEAD
+        helm:
+          parameters:
+            - name: "image.tag"
+              value: "{{sha}}"
+            - name: "image.repository"
+              value: "cr.yandex/xxxxxxxxxxxxx/demo/demo-python-main-service"    # Адрес вашего реджистри
+            - name: "ingress.host"
+              value: "demo-main-service-{{branch}}.xxxxxxxxxx.nip.io"   # IP вашего ингресса
+            - name: "serviceOne"
+              value: "demo-python-main-service-{{branch}}-webinar-app-one"
+            - name: "webinar-app-one.appVersionOverride"
+              value: "'{{values.appOneVersion}}'"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true

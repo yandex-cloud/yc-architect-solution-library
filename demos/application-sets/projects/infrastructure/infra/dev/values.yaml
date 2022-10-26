@@ -1,0 +1,14 @@
+cloudId: "xxxxxx" # yc config list
+folderId: "xxxxxx" # yc config list
+
+providerConfigName: "default" # name of crossplane providerconfig for yc
+
+projectName: "demo"
+projectSuffix: "dev" # prod/preprod/test/dev
+
+clusterType: "zonal" # zonal/regional
+clusterVersion: "1.21"
+clusterReleaseChannel: "RAPID"
+
+securityGroupsEnabled: true # true/false (default: true)
+secretEncryptionEnabled: true # true/false (default: true)

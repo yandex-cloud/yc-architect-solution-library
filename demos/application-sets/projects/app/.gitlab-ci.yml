@@ -1,0 +1,15 @@
+build:
+  stage: build
+  image:
+    name: "gcr.io/kaniko-project/executor:debug"
+    entrypoint: [""]
+  before_script:
+    # Настраиваем авторизацию в реджистри для Kaniko
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "$(echo -n ${CI_REGISTRY_PASSWORD} | base64 -d)" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+  script:
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_SHA}"

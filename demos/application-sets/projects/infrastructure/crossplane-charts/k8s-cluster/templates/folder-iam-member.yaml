@@ -1,0 +1,41 @@
+apiVersion: iam.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: FolderIAMMember
+metadata:
+  name: iam-member-kube-cluster-sa-agent-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    serviceAccountRef:
+      name: kube-cluster-sa-{{ include "crossplane.fullname" . }}
+    role: k8s.clusters.agent
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}
+---
+apiVersion: iam.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: FolderIAMMember
+metadata:
+  name: iam-member-kube-cluster-sa-vpc-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    serviceAccountRef:
+      name: kube-cluster-sa-{{ include "crossplane.fullname" . }}
+    role: vpc.publicAdmin
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}
+---
+apiVersion: iam.yandex-cloud.jet.crossplane.io/v1alpha1
+kind: FolderIAMMember
+metadata:
+  name: iam-member-kube-node-sa-{{ include "crossplane.fullname" . }}
+  {{- include "crossplane.labels" . | nindent 2 }}
+spec:
+  forProvider:
+    serviceAccountRef:
+      name: kube-node-sa-{{ include "crossplane.fullname" . }}
+    role: container-registry.images.puller
+    {{- include "crossplane.folderid" . | nindent 4 }}
+  {{- include "crossplane.deletionPolicy" . | nindent 2 }}
+  {{- include "crossplane.provider" . | nindent 2 }}

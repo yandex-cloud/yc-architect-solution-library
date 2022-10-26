@@ -40,3 +40,7 @@
 /yc-ai/yc-vision-batch-proc/Properties/launchSettings.json
 /yc-ai/yc-ai.rar
 /yc-ai.rar
+/yc-ai/yc-speechkit-transcoder/.idea
+**/*.pem
+**/*.cert
+
