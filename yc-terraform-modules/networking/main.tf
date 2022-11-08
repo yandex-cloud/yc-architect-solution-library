@@ -53,7 +53,7 @@ resource "yandex_vpc_subnet" "private" {
 
 ## Routes
 resource "yandex_vpc_gateway" "egress-gateway" {
-  name  = "egress-gateway"
+  name  = "${var.network_name}-egress-gateway"
   shared_egress_gateway {}
 }
 
