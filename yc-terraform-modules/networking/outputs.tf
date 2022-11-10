@@ -3,11 +3,6 @@ output "vpc_id" {
   value       = var.create_vpc ? yandex_vpc_network.this[0].id : null
 }
 
-# output "zones" {
-#   description = "List of zones used in vpc network"
-#   value       = distinct([for subnet in yandex_vpc_subnet.private : subnet.zone])
-# }
-
 output "public_v4_cidr_blocks" {
   description = "List of v4_cidr_blocks used in vpc network"
   value       = flatten([for subnet in yandex_vpc_subnet.public : subnet.v4_cidr_blocks])
