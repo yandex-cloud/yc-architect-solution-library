@@ -63,6 +63,18 @@ clush -w @gluster mkdir -p /bricks/brick1/vol0
 # High-Available Gluster Cluster with erasure coding 2 + 1
 clush -w gluster01 gluster volume create regional-volume disperse 3 redundancy 1 gluster01:/bricks/brick1/vol0 gluster02:/bricks/brick1/vol0 gluster03:/bricks/brick1/vol0 # HA 
 
+# Additional performance tuning
+clush -w gluster01 gluster volume set regional-volume client.event-threads 8
+clush -w gluster01 gluster volume set regional-volume server.event-threads 8
+clush -w gluster01 gluster volume set regional-volume cluster.shd-max-threads 8
+clush -w gluster01 gluster volume set regional-volume performance.read-ahead-page-count 16
+clush -w gluster01 gluster volume set regional-volume performance.client-io-threads on
+clush -w gluster01 gluster volume set regional-volume performance.quick-read off 
+clush -w gluster01 gluster volume set regional-volume performance.parallel-readdir on 
+clush -w gluster01 gluster volume set regional-volume performance.io-thread-count 32
+clush -w gluster01 gluster volume set regional-volume performance.cache-size 1GB
+clush -w gluster01 gluster volume set regional-volume server.allow-insecure on   
+
 # Start volume
 clush -w gluster01  gluster volume start regional-volume
 
