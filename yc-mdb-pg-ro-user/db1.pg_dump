@@ -1,0 +1,270 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 14.6 (Ubuntu 14.6-201-yandex.52662.649e571508)
+-- Dumped by pg_dump version 15.0
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO postgres;
+
+--
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+
+
+--
+-- Name: xml2; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS xml2 WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION xml2; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION xml2 IS 'XPath querying and XSLT';
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: actors; Type: TABLE; Schema: public; Owner: user_owner
+--
+
+CREATE TABLE public.actors (
+    id integer NOT NULL,
+    name character varying(1000) NOT NULL,
+    birth_date date,
+    bio text
+);
+
+
+ALTER TABLE public.actors OWNER TO user_owner;
+
+--
+-- Name: actors_id_seq; Type: SEQUENCE; Schema: public; Owner: user_owner
+--
+
+CREATE SEQUENCE public.actors_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.actors_id_seq OWNER TO user_owner;
+
+--
+-- Name: actors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: user_owner
+--
+
+ALTER SEQUENCE public.actors_id_seq OWNED BY public.actors.id;
+
+
+--
+-- Name: movie_actors; Type: TABLE; Schema: public; Owner: user_owner
+--
+
+CREATE TABLE public.movie_actors (
+    movie_id integer NOT NULL,
+    actor_id integer NOT NULL,
+    role_of character varying(1000)
+);
+
+
+ALTER TABLE public.movie_actors OWNER TO user_owner;
+
+--
+-- Name: movies; Type: TABLE; Schema: public; Owner: user_owner
+--
+
+CREATE TABLE public.movies (
+    id integer NOT NULL,
+    name character varying(1000) NOT NULL,
+    released_date date,
+    duration_sec integer,
+    pg_rating character varying(32)
+);
+
+
+ALTER TABLE public.movies OWNER TO user_owner;
+
+--
+-- Name: movies_id_seq; Type: SEQUENCE; Schema: public; Owner: user_owner
+--
+
+CREATE SEQUENCE public.movies_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.movies_id_seq OWNER TO user_owner;
+
+--
+-- Name: movies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: user_owner
+--
+
+ALTER SEQUENCE public.movies_id_seq OWNED BY public.movies.id;
+
+
+--
+-- Name: actors id; Type: DEFAULT; Schema: public; Owner: user_owner
+--
+
+ALTER TABLE ONLY public.actors ALTER COLUMN id SET DEFAULT nextval('public.actors_id_seq'::regclass);
+
+
+--
+-- Name: movies id; Type: DEFAULT; Schema: public; Owner: user_owner
+--
+
+ALTER TABLE ONLY public.movies ALTER COLUMN id SET DEFAULT nextval('public.movies_id_seq'::regclass);
+
+
+--
+-- Data for Name: actors; Type: TABLE DATA; Schema: public; Owner: user_owner
+--
+
+COPY public.actors (id, name, birth_date, bio) FROM stdin;
+1	Keanu Reeves	1964-09-02	Born in Beirut, Lebanon
+2	Carrie-Anne Moss	1967-08-21	Born in Vancouver, Canada
+3	Laurence Fishburne	1961-07-30	Born in Augusta, Georgia, USA
+4	Hugo Weaving	1960-04-04	Born in Nigeria
+\.
+
+
+--
+-- Data for Name: movie_actors; Type: TABLE DATA; Schema: public; Owner: user_owner
+--
+
+COPY public.movie_actors (movie_id, actor_id, role_of) FROM stdin;
+1	1	Neo
+1	2	Trinity
+1	3	Morpheus
+1	4	Agent Smith
+\.
+
+
+--
+-- Data for Name: movies; Type: TABLE DATA; Schema: public; Owner: user_owner
+--
+
+COPY public.movies (id, name, released_date, duration_sec, pg_rating) FROM stdin;
+1	The Matrix	1999-03-24	8160	R
+\.
+
+
+--
+-- Name: actors_id_seq; Type: SEQUENCE SET; Schema: public; Owner: user_owner
+--
+
+SELECT pg_catalog.setval('public.actors_id_seq', 4, true);
+
+
+--
+-- Name: movies_id_seq; Type: SEQUENCE SET; Schema: public; Owner: user_owner
+--
+
+SELECT pg_catalog.setval('public.movies_id_seq', 1, true);
+
+
+--
+-- Name: actors actors_pkey; Type: CONSTRAINT; Schema: public; Owner: user_owner
+--
+
+ALTER TABLE ONLY public.actors
+    ADD CONSTRAINT actors_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: movie_actors movie_actors_pkey; Type: CONSTRAINT; Schema: public; Owner: user_owner
+--
+
+ALTER TABLE ONLY public.movie_actors
+    ADD CONSTRAINT movie_actors_pkey PRIMARY KEY (movie_id, actor_id);
+
+
+--
+-- Name: movies movies_pkey; Type: CONSTRAINT; Schema: public; Owner: user_owner
+--
+
+ALTER TABLE ONLY public.movies
+    ADD CONSTRAINT movies_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- Name: FUNCTION pg_get_backend_memory_contexts(OUT name text, OUT ident text, OUT parent text, OUT level integer, OUT total_bytes bigint, OUT total_nblocks bigint, OUT free_bytes bigint, OUT free_chunks bigint, OUT used_bytes bigint); Type: ACL; Schema: pg_catalog; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_get_backend_memory_contexts(OUT name text, OUT ident text, OUT parent text, OUT level integer, OUT total_bytes bigint, OUT total_nblocks bigint, OUT free_bytes bigint, OUT free_chunks bigint, OUT used_bytes bigint) TO mdb_admin WITH GRANT OPTION;
+
+
+--
+-- Name: FUNCTION pg_stat_reset(); Type: ACL; Schema: pg_catalog; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_stat_reset() TO mdb_admin;
+
+
+--
+-- Name: TABLE pg_backend_memory_contexts; Type: ACL; Schema: pg_catalog; Owner: postgres
+--
+
+GRANT SELECT ON TABLE pg_catalog.pg_backend_memory_contexts TO mdb_admin WITH GRANT OPTION;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT,INSERT,DELETE,UPDATE ON TABLES  TO user_owner WITH GRANT OPTION;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
