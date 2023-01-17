@@ -1,0 +1,26 @@
+#cloud-config
+#ssh_pwauth: no
+users:
+  - name: storage
+    groups: sudo
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh-authorized-keys:
+      - ${master_pubkey}
+      - ${local_pubkey}
+  - name: root
+    groups: sudo
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh-authorized-keys:
+      - ${master_pubkey}
+      - ${local_pubkey}
+
+write_files:
+  - content: |
+%{ for line in master_privkey ~}
+      ${line}
+%{ endfor ~}
+    path: /root/.ssh/id_ed25519
+    permissions: "0400"
+    owner: root:root
