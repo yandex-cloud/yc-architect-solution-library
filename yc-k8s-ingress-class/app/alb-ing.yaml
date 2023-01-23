@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alb-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: yc-clusterissuer
+    ingress.alb.yc.io/subnets: <SUBNETID>
+    ingress.alb.yc.io/security-groups: <SGID>,<SGID> # https://cloud.yandex.com/en-ru/docs/application-load-balancer/tools/k8s-ingress-controller/security-groups please do not forget to add sg with ingress rules for 443,80
+    ingress.alb.yc.io/external-ipv4-address: <IP>
+    ingress.alb.yc.io/use-regex: "true"
+    ingress.alb.yc.io/group-name: default
+    ingress.alb.yc.io/group-order: "1"
+spec:
+  ingressClassName: alb
+  tls:
+    - hosts:
+        - app.alb.<DOMAIN>
+      secretName: alb-example-secret
+  rules:
+    - host: app.alb.<DOMAIN>
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: app
+                port:
+                  number: 80
