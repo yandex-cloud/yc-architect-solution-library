@@ -106,6 +106,7 @@ EOF
 
 # Create certififcate
 kubectl apply -f -<<EOF
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: alb-example
