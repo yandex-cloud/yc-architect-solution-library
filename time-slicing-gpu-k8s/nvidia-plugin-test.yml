@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nvidia-plugin-test
+  labels:
+    app: nvidia-plugin-test
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: nvidia-plugin-test
+  template:
+    metadata:
+      labels:
+        app: nvidia-plugin-test
+    spec:
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: dcgmproftester11
+          image: nvidia/samples:dcgmproftester-2.0.10-cuda11.0-ubuntu18.04
+          command: ["/bin/sh", "-c"]
+          args:
+            - while true; do /usr/bin/dcgmproftester11 --no-dcgm-validation -t 1004 -d 300; sleep 30; done
+          resources:
+           limits:
+             nvidia.com/gpu: 1
+          securityContext:
+            capabilities:
+              add: ["SYS_ADMIN"]
