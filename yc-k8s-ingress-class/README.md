@@ -5,8 +5,14 @@ This guide shows how to deploy two ingresses with ingressClass nginx and alb in 
 ## Prerequirites
 
 - yc installed and configured
+- Public zone for your [delegated](https://cloud.yandex.com/en-ru/docs/dns/operations/zone-create-public?from=int-console-help-center-or-nav) domain
 - mK8S deployed in YC
 - Fill variables in `app/alb-ing.yaml` and `app/nginx-ing.yaml`
+
+```bash
+git clone https://github.com/yc-architect-solution-library
+cd yc-architect-solution-library/yc-k8s-ingress-class
+```
 
 ## NGINX ingress + cert-manager.io Installation
 
@@ -47,14 +53,36 @@ spec:
           class: nginx
 EOF
 
-kubectl get svc -n nginx # copy External IP of nginx-ingress service
+kubectl get svc -n nginx 
+NAME                                       TYPE           CLUSTER-IP      EXTERNAL-IP    PORT(S)                      AGE
+nginx-ingress-nginx-controller             LoadBalancer   10.96.139.123   51.250.6.111   80:30561/TCP,443:31017/TCP   45h # copy External IP of nginx-ingress-nginx-controller service
+nginx-ingress-nginx-controller-admission   ClusterIP      10.96.201.127   <none>         443/TCP                      45h
+
 yc dns zone add-records your-zone --record  "*.nginx 60 A <EXT_IP>"
++--------+-----------------------+------+-------------+-----+
+| ACTION |         NAME          | TYPE |    DATA     | TTL |
++--------+-----------------------+------+-------------+-----+
+| +      | *.nginx.example.com.  | A    | 51.250.69.0 | 60  |
++--------+-----------------------+------+-------------+-----+
+
+yc dns zone list-records your-zone
++-----------------------------------------+------+-------+---------------------------------------------+
+|                  NAME                   | TTL  | TYPE  |                    DATA                     |
++-----------------------------------------+------+-------+---------------------------------------------+
+| *.nginx.example.com.                    |   60 | A     | <EXT_IP>                                    |
+| example.com.                            | 3600 | NS    | ns1.yandexcloud.net.                        |
+|                                         |      |       | ns2.yandexcloud.net.                        |
+| example.com.                            | 3600 | SOA   | ns1.yandexcloud.net.                        |
+|                                         |      |       | mx.cloud.yandex.net. 1 10800                |
+|                                         |      |       | 900 604800 86400                            |
++-----------------------------------------+------+-------+---------------------------------------------+
 
 kubectl config set-context --current --namespace app
 kubectl apply -f app/app.yaml
 kubectl apply -f app/nginx-ing.yaml
 
 curl https://app.nginx.example.com
+App by Ingress Class
 ```
 
 ### DNS Challenge Webhook
