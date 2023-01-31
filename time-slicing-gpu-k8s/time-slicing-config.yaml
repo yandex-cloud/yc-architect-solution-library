@@ -11,6 +11,13 @@ metadata:
   name: time-slicing-config
   namespace: gpu-operator
 data:
+    a100-40gb: |-
+        version: v1
+        sharing:
+          timeSlicing:
+            resources:
+            - name: nvidia.com/gpu
+              replicas: 5
     tesla-t4: |-
         version: v1
         sharing:
