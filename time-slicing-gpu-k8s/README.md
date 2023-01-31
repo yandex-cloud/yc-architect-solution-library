@@ -24,14 +24,22 @@ helm repo add nvidia https://helm.ngc.nvidia.com/nvidia \
      -n gpu-operator \
      --set devicePlugin.config.name=time-slicing-config
 ```
-If u use one type of GPU across the cluster, you can use default: 
+The time-slicing configuration can be applied either at cluster level or per node. By default, the GPU Operator will not apply the time-slicing configuration to any GPU node in the cluster. You can use default with the devicePlugin.config.default=<config-name> parameter per ClusterPolicy: 
 ```
 kubectl patch clusterpolicies.nvidia.com/cluster-policy \
    -n gpu-operator --type merge \
    -p '{"spec": {"devicePlugin": {"config": {"name": "time-slicing-config", "default": "tesla-t4"}}}}'
 
 ```
-Testing GPU Time-Slicing with the NVIDIA GPU Operator
+OR
+
+per nodes with node label: 
+```
+yc managed-kubernetes node-group add-labels <NODE-GROUP-NAME>|<NODE-GROUP-ID> --labels nvidia.com/device-plugin.config=tesla-t4
+```
+
+
+## Testing GPU Time-Slicing with the NVIDIA GPU Operator
 
 Create a deployment with multiple replicas:
 ```
