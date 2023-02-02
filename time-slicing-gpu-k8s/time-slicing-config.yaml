@@ -11,7 +11,7 @@ metadata:
   name: time-slicing-config
   namespace: gpu-operator
 data:
-    a100-40gb: |-
+    a100-80gb: |-
         version: v1
         sharing:
           timeSlicing:
