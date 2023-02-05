@@ -84,7 +84,7 @@ kubectl describe pod nginx-5c4cd884f8-mtzxz
 
 ![](./img/img-01.png)
 
-Make sure that monitoring metrics are being pushed into [Yandex Monitoring](https://cloud.yandex.ru/services/monitoring) service.
+Make sure that monitoring metrics are being pushed into [Yandex Monitoring](https://cloud.yandex.com/en-ru/services/monitoring) service.
 Go to [the main page](https://monitoring.cloud.yandex.ru/) of Yandex Monitoring service and open the **Metric Explorer** tab.
 
 Create a new query with:
