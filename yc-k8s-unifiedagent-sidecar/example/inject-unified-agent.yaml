@@ -1,0 +1,30 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: inject-unified-agent
+spec:
+  rules:
+  - name: inject-unified-agent
+    match:
+      resources:
+        kinds:
+        - Deployment
+        - DaemonSet
+        - StatefulSet
+    mutate:
+      patchStrategicMerge:
+        metadata:
+          annotations:
+            (monitoring.yc.io/unified-agent-inject): "true"
+        spec:
+          template:
+            spec:
+              containers:
+              - name: unified-agent
+                image: cr.yandex/yc/unified-agent
+                imagePullPolicy: IfNotPresent
+                env:
+                  - name: FOLDER_ID
+                    value: <FOLDER_ID> # needs to be changed
+                  - name: SCRAPE_PORT
+                    value: "{{request.object.metadata.annotations.\"monitoring.yc.io/scrape-port\"}}"
