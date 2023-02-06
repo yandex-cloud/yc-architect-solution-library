@@ -50,7 +50,7 @@ resource "yandex_compute_instance" "storage_node_a" {
 }
 
 resource "yandex_compute_instance" "storage_node_b" {
-  count                     = var.storage_node_per_zone
+  count                     = (var.is_ha) ? var.storage_node_per_zone : 0
   allow_recreate            = true
   allow_stopping_for_update = true
   zone                      = yandex_vpc_subnet.net-b.zone
@@ -93,7 +93,7 @@ resource "yandex_compute_instance" "storage_node_b" {
 }
 
 resource "yandex_compute_instance" "storage_node_c" {
-  count                     = var.storage_node_per_zone
+  count                     = (var.is_ha) ? var.storage_node_per_zone : 0
   allow_recreate            = true
   allow_stopping_for_update = true
   zone                      = yandex_vpc_subnet.net-c.zone

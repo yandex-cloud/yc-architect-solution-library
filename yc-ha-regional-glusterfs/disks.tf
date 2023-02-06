@@ -9,7 +9,7 @@ resource "yandex_compute_disk" "glusterdisk_a" {
 }
 
 resource "yandex_compute_disk" "glusterdisk_b" {
-  count = var.disk_count_per_vm * var.storage_node_per_zone
+  count = (var.is_ha) ? var.disk_count_per_vm * var.storage_node_per_zone : 0
   zone  = yandex_vpc_subnet.net-b.zone
 
   allow_recreate = false
@@ -18,7 +18,7 @@ resource "yandex_compute_disk" "glusterdisk_b" {
   type           = var.disk_type
 }
 resource "yandex_compute_disk" "glusterdisk_c" {
-  count = var.disk_count_per_vm * var.storage_node_per_zone
+  count = (var.is_ha) ? var.disk_count_per_vm * var.storage_node_per_zone : 0
   zone  = yandex_vpc_subnet.net-c.zone
 
   allow_recreate = false

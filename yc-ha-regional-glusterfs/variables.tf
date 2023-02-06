@@ -1,3 +1,10 @@
+# TYPE: ZONAL (better for performance) OR REGIONAL (for HA)
+
+variable "is_ha" {
+  type    = bool
+  default = true
+}
+
 # NUMBER OF VM PER ZONE
 
 variable "client_node_per_zone" {
@@ -42,13 +49,13 @@ variable "disk_block_size" {
 
 variable "client_cpu_count" {
   type        = number
-  default     = 2
+  default     = 4
   description = "Number of CPU in Storage Node"
 }
 
 variable "client_memory_count" {
   type        = number
-  default     = 4
+  default     = 8
   description = "RAM (GB) size in Storage Node"
 }
 
