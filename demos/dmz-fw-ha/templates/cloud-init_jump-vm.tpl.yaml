@@ -1,0 +1,67 @@
+#cloud-config
+
+users:
+  - name: ${jump_vm_admin_username}
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - "${jump_vm_ssh_key_pub}"
+
+packages:
+  - wireguard-tools
+
+write_files:
+  # Create Wireguard Server config file
+  - path: /etc/wireguard/wg0.conf
+    owner: root:root
+    permissions: "0600"
+    content: |
+      [Interface]
+      Address = 10.77.77.1/24
+      ListenPort = ${wg_port}
+      PrivateKey = SERVER_PRIV_KEY
+      PostUp = iptables -A FORWARD -i eth0 -o wg0 -j ACCEPT; iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+      PostDown = iptables -D FORWARD -i eth0 -o wg0 -j ACCEPT; iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+      [Peer]
+      PublicKey = CLIENT_PUB_KEY
+      PresharedKey = CLIENT_PSK
+      AllowedIPs = 10.77.77.2/32
+  # Create Client config file
+  - path: /home/${jump_vm_admin_username}/jump-vm-wg.conf
+    content: |
+      [Interface]
+      Address = 10.77.77.2/32
+      PrivateKey = CLIENT_PRIV_KEY
+      DNS = ${wg_client_dns}
+
+      [Peer]
+      PublicKey = SERVER_PUB_KEY
+      PresharedKey = CLIENT_PSK
+      AllowedIPs = ${wg_allowed_ip}
+      Endpoint = ${wg_public_ip}:${wg_port}
+  # Enable IPv4 forwarding in Linux
+  - path: /etc/sysctl.d/wg.conf
+    owner: root:root
+    content: |
+      net.ipv4.ip_forward = 1
+
+# Setup Wireguard config and start
+runcmd:
+  # Enable IPv4 forwarding
+  - sudo sysctl -p /etc/sysctl.d/wg.conf
+  # Create wireguard keys
+  - SERVER_PRIV_KEY=$(wg genkey)
+  - SERVER_PUB_KEY=$(echo $SERVER_PRIV_KEY | wg pubkey)
+  - CLIENT_PRIV_KEY=$(wg genkey)
+  - CLIENT_PUB_KEY=$(echo $CLIENT_PRIV_KEY | wg pubkey)
+  - CLIENT_PSK=$(wg genpsk)
+  - sudo sed -i "s@SERVER_PRIV_KEY@$SERVER_PRIV_KEY@g;s@CLIENT_PUB_KEY@$CLIENT_PUB_KEY@g;s@CLIENT_PSK@$CLIENT_PSK@g" /etc/wireguard/wg0.conf
+  - sudo sed -i "s@SERVER_PUB_KEY@$SERVER_PUB_KEY@g;s@CLIENT_PRIV_KEY@$CLIENT_PRIV_KEY@g;s@CLIENT_PSK@$CLIENT_PSK@g" /home/${jump_vm_admin_username}/jump-vm-wg.conf
+  # Start wireguard service
+  - sudo systemctl enable wg-quick@wg0.service
+  - sudo systemctl start wg-quick@wg0.service
+
+
+
+

@@ -1,0 +1,7 @@
+pt_key.pem
+.backup
+.terraform.lock.hcl
+.terraform/
+*.tfstate*
+.key
+.conf
