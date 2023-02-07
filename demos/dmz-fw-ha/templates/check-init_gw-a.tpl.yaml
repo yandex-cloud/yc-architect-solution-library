@@ -1,0 +1,34 @@
+#cloud-config
+
+blink_config:
+  configure: "true"
+  gateway_cluster_member: "false"
+  download_info: "true"
+  upload_info: "true"
+  ftw_sic_key: "${pass_sic}"
+
+ssh_authorized_keys:
+- "${ssh_key}"
+
+system:
+  hostname: FW-A
+  dns2: 77.88.8.8
+  dns3: 77.88.8.1
+  ntp1:
+    address: ntp.checkpoint.com
+    version: 4
+  ntp2:
+    address: ntp2.checkpoint.com
+    version: 4
+
+routing:
+  static:
+%{ for dst, next-hop in static-routes }
+    - dst: "${dst}"
+      nexthop: "${next-hop}"
+%{ endfor ~}
+    
+clishcmd:
+- 'set static-route default nexthop gateway address "${gw}" on'
+- 'set static-route default nexthop gateway address 192.168.1.1 off'
+- 'save config'

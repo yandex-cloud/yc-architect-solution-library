@@ -1,0 +1,34 @@
+#cloud-config
+
+users:
+  - name: admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - "${ssh_key_pub}"
+
+# Create nginx config to listen on non-default port
+write_files:
+  - owner: root:root
+    path: /etc/nginx/sites-available/default
+    content: |
+      server {
+        listen ${nginx_port} default_server;
+        root /var/www/html; 
+        index index.html index.htm index.php index.nginx-debian.html;
+        location / {
+                # First attempt to serve request as file, then
+                # as directory, then fall back to displaying a 404.
+                try_files $uri $uri/ =404;
+        }
+      }
+
+# Add iptables rule and restart nginx service
+runcmd:
+  - sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+  - sudo netfilter-persistent save
+  - sudo systemctl restart nginx
+
+
+
+
