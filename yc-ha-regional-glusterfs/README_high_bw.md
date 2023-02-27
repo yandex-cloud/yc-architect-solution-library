@@ -74,7 +74,16 @@ clush -w gluster01 gluster volume set stripe-volume performance.quick-read off
 clush -w gluster01 gluster volume set stripe-volume performance.parallel-readdir on 
 clush -w gluster01 gluster volume set stripe-volume performance.io-thread-count 32
 clush -w gluster01 gluster volume set stripe-volume performance.cache-size 1GB
+clush -w gluster01 gluster volume set stripe-volume performance.cache-invalidation: on
+clush -w gluster01 gluster volume set stripe-volume performance.md-cache-timeout: 600
+clush -w gluster01 gluster volume set stripe-volume performance.stat-prefetch: on
 clush -w gluster01 gluster volume set stripe-volume server.allow-insecure on   
+clush -w gluster01 gluster volume set stripe-volume network.inode-lru-limit: 200000
+clush -w gluster01 gluster volume set stripe-volume features.shard-block-size: 128MB
+clush -w gluster01 gluster volume set stripe-volume features.shard: on
+clush -w gluster01 gluster volume set stripe-volume features.cache-invalidation-timeout: 600
+clush -w gluster01 gluster volume set stripe-volume storage.fips-mode-rchecksum: on
+
 
 # Start volume
 clush -w gluster01  gluster volume start stripe-volume
