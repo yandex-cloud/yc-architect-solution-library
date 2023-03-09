@@ -1,0 +1,8 @@
+.terraform
+.terraform.lock.hcl
+*.zip
+key.json
+private.auto.tfvars
+terraform.tfstate
+terraform.tfstate.backup
+test/

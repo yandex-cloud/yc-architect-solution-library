@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "asr-batch-cronjob.fullname" . }}
+  labels:
+    {{- include "asr-batch-cronjob.labels" . | nindent 4 }}
+spec:
+  schedule: "0/3 * * * *"
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: {{ .Chart.Name }}
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            envFrom:
+            - secretRef:
+                name: {{ include "asr-batch-cronjob.fullname" . }}
+            args:
+            - python3
+            - /app/function/main.py
+          restartPolicy: OnFailure
