@@ -1,0 +1,13 @@
+image:
+  repository: cr.yandex/crpa6b3re4pr2jpg3j34/asr-batch-worker
+  pullPolicy: IfNotPresent
+  tag: ""
+
+config:
+  bucket: "xxxxxx" # create a bucket in Object Storage and put the bucket name here
+  prefixIn: "input"
+  prefixLog: "log"
+  prefixOut: "out"
+  s3Key: "xxx" # create a static key for Object Storage access
+  s3Secret: "xxx" # create a static key secret for Object Storage access
+  apiSecret: "xxx" # API-key for SpeechKit access
