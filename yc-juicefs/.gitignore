@@ -1,0 +1,7 @@
+*.json
+.terraform/
+*tfstate*
+.env
+.terraform.lock*
+tfplan
+defined*
