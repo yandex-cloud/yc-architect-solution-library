@@ -11,9 +11,9 @@ output "public_v4_cidr_blocks" {
 output "public_subnets" {
   description = "List of maps of subnets used in vpc network: key = v4_cidr_block"
   value = { for v in yandex_vpc_subnet.public : v.v4_cidr_blocks[0] => {
-    "id"   = v.id,
-    "name" = v.name,
-    "zone" = v.zone
+    "subnet_id" = v.id,
+    "name"      = v.name,
+    "zone"      = v.zone
     }
   }
 }
@@ -25,9 +25,9 @@ output "private_v4_cidr_blocks" {
 output "private_subnets" {
   description = "List of maps of subnets used in vpc network: key = v4_cidr_block"
   value = { for v in yandex_vpc_subnet.private : v.v4_cidr_blocks[0] => {
-    "id"   = v.id,
-    "name" = v.name,
-    "zone" = v.zone
+    "subnet_id" = v.id,
+    "name"      = v.name,
+    "zone"      = v.zone
     }
   }
 }
