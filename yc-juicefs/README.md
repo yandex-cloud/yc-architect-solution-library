@@ -60,12 +60,12 @@ export YC_REDIS_CONNECT_URL=redis://:<pwd>@<fqdn>:6379/1
 
 juicefs format \
     --storage s3 \
-    --bucket https://$YC_BUCKET_NAME.storage.yandexcloud.net \
-    --access-key $YC_ACCESS_KEY_ID \
-    --secret-key $YC_SECRET_KEY \
-    $YC_REDIS_CONNECT_URL myjfs
+    --bucket https://${YC_BUCKET_NAME}.storage.yandexcloud.net \
+    --access-key ${YC_ACCESS_KEY_ID} \
+    --secret-key ${YC_SECRET_KEY} \
+    ${YC_REDIS_CONNECT_URL} myjfs
 
-clush -w @clients juicefs mount --cache-dir /dev/shm/jfscache $YC_REDIS_CONNECT_URL /mnt/jfs -d
+clush -w @clients juicefs mount --cache-dir /dev/shm/jfscache ${YC_REDIS_CONNECT_URL} /mnt/jfs -d
 
 # Check
 cat /dev/urandom | tr -dc '[:alnum:]' > /mnt/jfs/urandom.file

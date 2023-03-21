@@ -4,7 +4,7 @@ variable "folder_id" {
 
 variable "client_node_per_zone" {
   type    = number
-  default = 10
+  default = 1
 }
 
 variable "create_clients" {
@@ -16,13 +16,13 @@ variable "create_clients" {
 
 variable "client_cpu_count" {
   type        = number
-  default     = 40
+  default     = 4
   description = "Number of CPU in Storage Node"
 }
 
 variable "client_memory_count" {
   type        = number
-  default     = 120
+  default     = 4
   description = "RAM (GB) size in Storage Node"
 }
 
