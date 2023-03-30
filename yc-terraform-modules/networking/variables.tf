@@ -31,7 +31,7 @@ variable "public_subnets" {
   description = "Describe your public subnets preferences"
   type = list(object({
     zone           = string
-    v4_cidr_blocks = string
+    v4_cidr_blocks = list(string)
   }))
   default = null
 }
@@ -40,10 +40,17 @@ variable "private_subnets" {
   description = "Describe your private subnets preferences"
   type = list(object({
     zone           = string
-    v4_cidr_blocks = string
+    v4_cidr_blocks = list(string)
   }))
   default = null
 }
+
+variable "create_nat_gw" {
+  description = "Creates NAT gateway for internet access from private subnets"
+  type        = bool
+  default     = true
+}
+
 variable "routes_public_subnets" {
   description = "Describe your routes preferences for public subnets"
   type = list(object({
