@@ -4,3 +4,4 @@
 .env
 .terraform.lock*
 tfplan
+defined*
