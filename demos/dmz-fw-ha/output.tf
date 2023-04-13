@@ -43,3 +43,15 @@ output "fw-alb_public_ip_address" {
 output "dmz-web-server-nlb_ip_address" {
   value = "${cidrhost(var.subnet-a_vpc_1, 100)}"
 }
+
+output "route-switcher_nlb" {
+  value = module.route_switcher.nlb_for_route-switcher
+}
+
+output "route-switcher_bucket" {
+  value = module.route_switcher.bucket_for_route-switcher
+}
+
+output "route-switcher_function" {
+  value = module.route_switcher.route-switcher_function
+}
