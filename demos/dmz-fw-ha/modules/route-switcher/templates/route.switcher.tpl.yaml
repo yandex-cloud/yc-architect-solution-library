@@ -1,0 +1,20 @@
+${yamlencode({
+  loadBalancerId = load_balancer_id
+  targetGroupId = target_group_id
+  route_tables = [
+    for rt_id in route_tables : {
+      route_table_id = rt_id
+    } 
+  ]
+  routers = [
+    for router in routers : {
+      "healthchecked_ip" = (router.healthchecked_ip) 
+      "interfaces" = [
+        for int in router.interfaces : {
+          "own_ip" = (int.own_ip) 
+          "backup_peer_ip" = (int.backup_peer_ip)
+        }
+      ]
+    }
+  ]
+})}
