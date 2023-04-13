@@ -134,7 +134,7 @@ Application Load Balancer предоставляет расширенные во
 
 В данном сценарии подсети используют таблицу маршрутизации через FW-A для исходящего из сегмента трафика.
 
-Среднее время реакции на сбой составляет 1 мин (обусловлено алгоритмом работы функции route-checker).
+Среднее время реакции на сбой составляет 1 мин.
 
 <img src="./images/module_route-switcher.png" alt="Terraform модуль route-switcher" width="600"/>
 
@@ -341,6 +341,9 @@ Application Load Balancer предоставляет расширенные во
     | jump-vm_path_for_WireGuard_client_config | Файл конфигурации для защищенного VPN подключения с помощью клиента WireGuard к Jump ВМ | "./jump-vm-wg.conf" |
     | jump-vm_public_ip_address_jump-vm | Публичный IP адрес Jump ВМ | "D.D.D.D" |
     | path_for_private_ssh_key | Файл с private ключом для подключения по протоколу SSH к ВМ (jump-vm, fw-a, fw-b, mgmt-server, веб-серверы в сегменте dmz) | "./pt_key.pem" |
+    | route-switcher_nlb | Имя сетевого балансировщика в каталоге `mgmt` для мониторинга доступности FW-A и FW-B | "route-switcher-hnaf1gr0sx" |
+    | route-switcher_bucket | Имя бакета в Object Storage в каталоге `mgmt` для хранения файла конфигурации с информацией:<br>- таблицы маршрутизации с указанием предпочтительных next hop адресов для префиксов<br>- IP-адреса FW-A и FW-B: для проверки доступности, адреса для каждого FW (IP-адрес FW и соответствующий IP-адрес резервного FW) | "route-switcher-hnaf1gr0sx" |
+    | route-switcher_function | Имя облачной функции в каталоге `mgmt`, обеспечивающей работу модуля route-switcher по отказоустойчивости исходящего трафика из сегментов | "route-switcher-lb-hnaf1gr0sx" |
 
     </details>
 
