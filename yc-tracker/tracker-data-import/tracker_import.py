@@ -161,7 +161,7 @@ def get_tracker_issues(query_text):
     while len(issues) < int(response.headers['X-Total-Count']):
         scroll_id = response.headers['X-Scroll-Id']
         scroll_token = response.headers['X-Scroll-Token']
-        query_url = f"{query_url_base}?scrollId={scroll_id}&scrollToken={scroll_token}"
+        query_url = f"{TRACKER_API_ISSUES_URL}/_search?scrollId={scroll_id}&scrollToken={scroll_token}"
         issues.extend(requests.post(query_url, headers=TRACKER_HEADERS, json=query_body).json())
 
     logging.info('Tracker data loaded, total records: %d', len(issues))
@@ -605,7 +605,7 @@ def upload_clickhouse_data(data, table_name):
         raise ValueError(response.text)
 
 
-def upload_data_to_db(issues_df, changelog_df):
+def upload_data_to_db(issues, issues_chagelogs):
     """
     Upload two dataframes to database
 
@@ -617,13 +617,17 @@ def upload_data_to_db(issues_df, changelog_df):
     """
 
     # Prepare issues data to upload: escaping \n to allow fields with new lines be represented correctly in CSV format
-    issues_content = issues_df.replace("\n", "\\\n", regex=True).to_csv(index=False, sep='\t')
-    issues_content = issues_content.encode('utf-8')
-    # Prepare changelog data to upload: escaping \n to allow fields with new lines be represented correctly in CSV format
-    changelog_content = changelog_df.replace("\n", "\\\n", regex=True).to_csv(index=False, sep='\t')
-    changelog_content = changelog_content.encode('utf-8')
-    upload_clickhouse_data(issues_content, CH_ISSUES_TABLE)
-    upload_clickhouse_data(changelog_content, CH_CHANGELOG_TABLE)
+    if issues:
+        issues_df = shape_issues_data(issues)
+        issues_content = issues_df.replace("\n", "\\\n", regex=True).to_csv(index=False, sep='\t')
+        issues_content = issues_content.encode('utf-8')
+    if issues_chagelogs:
+        changelog_df = shape_issue_changelog_data(issues_chagelogs)
+        # Prepare changelog data to upload: escaping \n to allow fields with new lines be represented correctly in CSV format
+        changelog_content = changelog_df.replace("\n", "\\\n", regex=True).to_csv(index=False, sep='\t')
+        changelog_content = changelog_content.encode('utf-8')
+        upload_clickhouse_data(issues_content, CH_ISSUES_TABLE)
+        upload_clickhouse_data(changelog_content, CH_CHANGELOG_TABLE)
 
 
 def setup_logging():
@@ -639,7 +643,7 @@ def handler(*args, **kwargs):
     issues_chagelogs = get_tracker_issues_changelog(issues)
     logging.info("Finished loading issues")
 
-    upload_data_to_db(shape_issues_data(issues), shape_issue_changelog_data(issues_chagelogs))
+    upload_data_to_db(issues, issues_chagelogs)
 
     return {
         'statusCode': 200,
