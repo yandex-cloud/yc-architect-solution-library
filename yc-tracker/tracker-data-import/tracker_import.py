@@ -561,7 +561,7 @@ def init_database(drop_table=False):
     run_clickhouse_query(create_open_issues_view)
 
 
-def run_clickhouse_query(query, connection_timeout=1500):
+def run_clickhouse_query(query, connection_timeout=2500):
     """
     Exec clickhouse query
 
