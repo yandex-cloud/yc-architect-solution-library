@@ -1,6 +1,3 @@
-// id for cloud
-cloud_id = "b1g8dn6s3v2eiid9dbci"
-
 // folder id for resources
 folder_id = "b1genmlel3ax7ux47jko"
 

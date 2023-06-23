@@ -1,9 +1,3 @@
-// id for cloud
-variable "cloud_id" {
-  type = string
-  default = null
-}
-
 // folder id for resources
 variable "folder_id" {
   type = string
