@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: ansible
+  name: yc-image
 spec:
   template:
     spec:
       containers:
-      - name: alpine-ansible
-        image: cr.yandex/crpnks8pkloothbepsvb/ansible:2.0
+      - name: yc-image
+        image: cr.yandex/<container-registry-id>/yc-image:1.0
         imagePullPolicy: Always
         env:
         - name: CLUSTER_ID
