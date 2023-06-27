@@ -62,7 +62,7 @@ spec:
           ansible-playbook -i /inventory.json playbook.yaml -u $USR
       restartPolicy: Never
 ```
-(В `CLUSTER_ID` указываем id кластера k8s, в `LOCKBOX_ID` указываем ID секрета, куда сохранили ssh-private key, `CERT_ID` указываем ID сертификата, который загрузили в Yandex Certificate Manager, в `USR` указываем пользователя для подключения по SSH, в VM указываем или все хосты - `all` или id группы нод из кластера k8s и не забываем указать id container-registry в `image`.)
+(В `CLUSTER_ID` указываем id кластера k8s, в `LOCKBOX_ID` указываем ID секрета, куда сохранили ssh-private key, `CERT_ID` указываем ID сертификата, который загрузили в Yandex Certificate Manager, в `USR` указываем пользователя для подключения по SSH, в `VM` указываем или все хосты - `all` или id группы нод из кластера k8s и не забываем указать id container-registry в `image`.)
 
 и применяем:
 `kubectl apply -f job.yaml`
