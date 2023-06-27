@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ansible
+spec:
+  template:
+    spec:
+      containers:
+      - name: alpine-ansible
+        image: cr.yandex/crpnks8pkloothbepsvb/ansible:2.0
+        imagePullPolicy: Always
+        env:
+        - name: CLUSTER_ID
+          value: ""
+        - name: LOCKBOX_ID
+          value: ""
+        - name: CERT_ID
+          value: ""
+        - name: USR
+          value: ""
+        - name: VM
+          value: ""
+        command: ["/bin/bash", "-c"]
+        args:
+        - >
+          /worker.sh &&
+          ansible-playbook -i /inventory.json playbook.yaml -u $USR
+      restartPolicy: Never
