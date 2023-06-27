@@ -50,7 +50,7 @@ EOF
 #end of job.yaml
 
 while true; do
-  JOB_STATUS=$(kubectl get jobs ansible -n $NSPACE -o json | jq -r ".status.conditions[].type" 2>/dev/null)
+  JOB_STATUS=$(kubectl get jobs yc-image -n $NSPACE -o json | jq -r ".status.conditions[].type" 2>/dev/null)
 
   if [ "$JOB_STATUS" == "Complete" ]; then
     echo "Job completed."
@@ -60,4 +60,4 @@ while true; do
   fi
 done
 
-kubectl delete jobs ansible -n $NSPACE
+kubectl delete jobs yc-image -n $NSPACE
