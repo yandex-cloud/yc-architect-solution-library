@@ -10,7 +10,7 @@
 * Загруженный сертификат и private-ключ в Yandex Certificate Manager
 * Существющий private-registry
 * Container Registry в Yandex Cloud
-* Среда запуска котнейнеров - `containerd`
+* Среда запуска контейнеров - `containerd`
 
 ## Описание
 
