@@ -26,10 +26,11 @@
 
 4. Далее создаем container-registry. Подробнее об этом в нашей [**документации**](https://cloud.yandex.ru/docs/container-registry/operations/registry/registry-create).
 Создаем образ и закидываем ее в созданный container-registry (в `<container-registry-id>` указываем id созданного реестра):
-`docker build -t yc-image:1.0 .`
-`docker tag yc-image:1.0 cr.yandex/<container-registry-id>/yc-image:1.0`
-`docker push cr.yandex/<container-registry-id>/yc-image:1.0`
-
+```
+docker build -t yc-image:1.0 .
+docker tag yc-image:1.0 cr.yandex/<container-registry-id>/yc-image:1.0
+docker push cr.yandex/<container-registry-id>/yc-image:1.0
+```
 5. Далее создаем `job.yaml`для использования в кластере:
 ```
 apiVersion: batch/v1
