@@ -16,7 +16,7 @@
 
 1. Для начала потребуется создать KMS ключ. Как это сделать, подробнее можно посмотреть в [**документации**](https://cloud.yandex.ru/docs/kms/operations/key#create)
 
-2. Далее потребуется загрузить сертификат и ключ в Yandex Certificate Manager, подробнее также можно посмотреть в [**документации**].
+2. Далее потребуется загрузить сертификат и ключ в Yandex Certificate Manager, подробнее также можно посмотреть в [**документации**](https://cloud.yandex.ru/docs/certificate-manager/operations/import/cert-create).
 
 3. Далее, в сервис Yandex Lockbox потребуется передать ssh-private ключ для доступа к нодам в mk8s-кластере.
 Создать ключ можно такой командой:
@@ -24,7 +24,7 @@
 Обратите внимание, что в `<name>` указывается имя сохраняемого секрета ssh-private-key в сервисе lockbox, в `<path_to_key>` указывать путь до приватного ключа на локальном ПК, и в `<kms_id_key>` передается id ранее созданного KMS-ключа.
 (Можно обойтись и без шифрования секрета в сервисе Lockbox, не создавая KMS ключ и не указывая его при создании секрета, также не потребуются права`kms.keys.encrypterDecrypter` для сервисного аккаунта. НО! Мы не рекомендуем так делать из соображений безопасности.)
 
-4. Далее создаем container-registry. Подробнее об этом в нашей [**документации**].
+4. Далее создаем container-registry. Подробнее об этом в нашей [**документации**](https://cloud.yandex.ru/docs/container-registry/operations/registry/registry-create).
 Создаем образ и закидываем ее в созданный container-registry (в `<container-registry-id>` указываем id созданного реестра):
 `docker build -t yc-image:1.0 .`
 `docker tag yc-image:1.0 cr.yandex/<container-registry-id>/yc-image:1.0`
