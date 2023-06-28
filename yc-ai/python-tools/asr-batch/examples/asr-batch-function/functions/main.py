@@ -253,6 +253,26 @@ def check_processing_objects():
         except ClientError as e:
             logging.error("Object result upload failed: {}".format(e))
             continue
+        
+        if 'response' in result_data and 'chunks' in result_data['response']:
+            result_chunks = result_data['response']['chunks']
+            result_text = ''
+            for chunk in result_chunks:
+                if (chunk['channelTag'] == "1"):
+                    alternatives = chunk['alternatives']
+                    for alternative in alternatives:
+                        text = alternative['text']
+                        result_text += text + '\n'
+
+            result_text_key = result_key[:-5]+'.txt'
+            result_text_encoded = result_text.encode('utf-8')
+        
+            try:
+                s3.put_object(Bucket=config['s3_bucket'], Key=result_text_key, Body=result_text_encoded, ContentType="text/plain")
+                logging.info("Object process result was written: {}".format(result_text_key))
+            except ClientError as e:
+                logging.error("Object result upload failed: {}".format(e))
+                continue
 
         body_complete = {
             "done": "true",
