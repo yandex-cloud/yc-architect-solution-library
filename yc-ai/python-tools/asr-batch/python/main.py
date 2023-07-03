@@ -17,7 +17,6 @@ config = {
     's3_prefix_output': os.environ['S3_PREFIX_OUT'],
     's3_key'          : os.environ['S3_KEY'],
     's3_secret'       : os.environ['S3_SECRET'],
-    'api_key_id'      : os.environ['API_KEY'],
     'api_key_secret'  : os.environ['API_SECRET']
 }
 
