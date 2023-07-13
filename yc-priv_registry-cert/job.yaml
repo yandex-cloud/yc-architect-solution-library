@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: yc-image
+spec:
+  template:
+    spec:
+      containers:
+      - name: yc-image
+        image: cr.yandex/<container-registry-id>/yc-image:1.0
+        imagePullPolicy: Always
+        env:
+        - name: CLUSTER_ID
+          value: ""
+        - name: LOCKBOX_ID
+          value: ""
+        - name: CERT_ID
+          value: ""
+        - name: USR
+          value: ""
+        - name: VM
+          value: ""
+        command: ["/bin/bash", "-c"]
+        args:
+        - >
+          /worker.sh &&
+          ansible-playbook -i /inventory.json playbook.yaml -u $USR
+      restartPolicy: Never
