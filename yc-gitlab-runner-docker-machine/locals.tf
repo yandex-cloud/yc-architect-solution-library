@@ -1,10 +1,12 @@
 locals {
+  folder_id = var.folder_id == null ? data.yandex_client_config.client.folder_id : var.folder_id
+  cloud_id = var.cloud_id == null ? data.yandex_client_config.client.cloud_id : var.cloud_id
   subnet_id = var.subnet_id == null ? module.network[0].subnets["${var.purpose}-${var.default_zone}"].id : var.subnet_id
   network_id = var.network_create == true ? module.network[0].network_id : var.network_id
 
   template_vars = {
-    cloud_id = var.cloud_id
-    folder_id = var.folder_id
+    cloud_id = local.cloud_id
+    folder_id = local.folder_id
     subnet_id = local.subnet_id
     security_groups = var.security_group_create ? yandex_vpc_security_group.security_group_worker[0].id : ""
     zone = var.default_zone

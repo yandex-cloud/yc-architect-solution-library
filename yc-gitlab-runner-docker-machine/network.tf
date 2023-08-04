@@ -1,9 +1,10 @@
 module "network" {
   count = var.subnet_id == null ? 1 : 0
   source = "./modules/network"
-  cloud_id = var.cloud_id
-  folder_id = var.folder_id
-  network_create = var.network_create
+  cloud_id = local.cloud_id
+  folder_id = local.folder_id
+  network_id = var.network_id
+  network_create = var.network_id == null
   network_name = var.network_name
   network_description = var.network_description
   subnets = [

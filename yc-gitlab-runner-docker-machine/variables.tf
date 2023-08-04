@@ -1,11 +1,13 @@
 variable "cloud_id" {
   type = string
   description = "cloud-id"
+  default = null
 }
 
 variable "folder_id" {
   type = string
   description = "folder-id"
+  default = null
 }
 
 variable "network_create" {

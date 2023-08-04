@@ -1,12 +1,14 @@
+data "yandex_client_config" "client" {}
+
 resource "yandex_iam_service_account" "gitlab_docker_machine" {
   name = "gitlab-docker-machine"
-  folder_id = "${var.folder_id}"
+  folder_id = local.folder_id
   description = "gitlab-docker-machine SA"
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "gitlab_docker_machine_roles" {
   for_each = toset([ "compute.admin", "vpc.user", "lockbox.payloadViewer" ])
-  folder_id = "${var.folder_id}"
+  folder_id = local.folder_id
 
   role = each.key
   member = "serviceAccount:${yandex_iam_service_account.gitlab_docker_machine.id}"
@@ -30,7 +32,7 @@ resource "yandex_compute_instance" "gitlab_docker_machine" {
   hostname = "gitlab-docker-machine"
   platform_id = "standard-v3"
   zone = var.default_zone
-  folder_id = var.folder_id
+  folder_id = local.folder_id
   allow_stopping_for_update = true
 
   service_account_id = yandex_iam_service_account.gitlab_docker_machine.id

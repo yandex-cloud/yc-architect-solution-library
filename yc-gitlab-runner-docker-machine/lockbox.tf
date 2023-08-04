@@ -1,13 +1,13 @@
 resource "yandex_kms_symmetric_key" "gitlab_token_key" {
   name = "gitlab-token-key"
-  folder_id = var.folder_id
+  folder_id = local.folder_id
   description = "gitlab token ecryption key"
   default_algorithm = "AES_256"
   rotation_period = "8760h"
 }
 
 resource "yandex_lockbox_secret" "gitlab_token" {
-  folder_id = var.folder_id
+  folder_id = local.folder_id
   name = "Gitlab token"
   kms_key_id = yandex_kms_symmetric_key.gitlab_token_key.id
 }
