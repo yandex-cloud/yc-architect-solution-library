@@ -1,0 +1,18 @@
+#cloud-config
+
+users:
+  - name: ${username}
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - ${ssh_key_pub}
+
+# Add iptables SNAT and DNAT rules and save them
+runcmd:
+  - sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to-destination ${s3_ip}
+  - sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+  - sudo netfilter-persistent save
+
+
+
+
