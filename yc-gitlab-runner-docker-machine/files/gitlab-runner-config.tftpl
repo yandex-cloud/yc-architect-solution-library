@@ -24,7 +24,7 @@ concurrent = 1000
       "yandex-subnet-id=${subnet_id}",
       ${security_groups == "" ? "" : "\"yandex-security-groups=${security_groups}\","}
       "yandex-use-internal-ip=${worker_use_internal_ip}",
-      "yandex-image-family=${worker_image_family}",
+      ${worker_image_id == null ? "\"yandex-image-family=${worker_image_family}\"" : "\"yandex-image-id=${worker_image_id}\""},
       "yandex-cores=${worker_cores}",
       "yandex-disk-type=${worker_disk_type}",
       "yandex-disk-size=${worker_disk_size}",
@@ -36,10 +36,10 @@ concurrent = 1000
     [[runners.machine.autoscaling]]
       Periods = ['* * 7-19 * * mon-fri *']
       IdleCount = 0
-      IdleTime  = 1800
+      IdleTime  = 600
       Timezone  = "UTC"
     [[runners.machine.autoscaling]]
       Periods = ['* * * * * sat,sun *']
       IdleCount = 0
-      IdleTime  = 600
+      IdleTime  = 300
       Timezone  = "UTC"

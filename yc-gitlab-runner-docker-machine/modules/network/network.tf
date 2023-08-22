@@ -1,3 +1,7 @@
+data "yandex_vpc_network" "thenetwork" {
+  network_id = var.network_id
+  folder_id = var.folder_id
+}
 
 resource "yandex_vpc_network" "thenetwork" {
   count = var.network_create ? 1 : 0
