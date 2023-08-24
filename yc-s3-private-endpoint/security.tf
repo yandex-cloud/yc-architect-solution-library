@@ -11,20 +11,20 @@ resource "yandex_resourcemanager_folder_iam_member" "nat_ig_sa_roles" {
 }
 
 // Create service account for Object Storage bucket and assign required roles for it
-resource "yandex_iam_service_account" "s3_test_bucket_sa" {
+resource "yandex_iam_service_account" "s3_bucket_sa" {
   folder_id = var.folder_id
-  name = "s3-test-bucket-sa"
+  name = "s3-bucket-sa"
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "s3_test_bucket_sa_roles" {
+resource "yandex_resourcemanager_folder_iam_member" "s3_bucket_sa_roles" {
   folder_id = var.folder_id
-  role   = "storage.editor"
-  member = "serviceAccount:${yandex_iam_service_account.s3_test_bucket_sa.id}"
+  role   = "storage.admin"
+  member = "serviceAccount:${yandex_iam_service_account.s3_bucket_sa.id}"
 }
 
 // Create static access key for service account to access Object Storage bucket
-resource "yandex_iam_service_account_static_access_key" "s3_test_bucket_sa_keys" {
-  service_account_id = yandex_iam_service_account.s3_test_bucket_sa.id
+resource "yandex_iam_service_account_static_access_key" "s3_bucket_sa_keys" {
+  service_account_id = yandex_iam_service_account.s3_bucket_sa.id
 }
 
 // Create security group for NAT instances
@@ -46,13 +46,6 @@ resource "yandex_vpc_security_group" "nat_sg" {
     description         = "https requests to Object Storage from trusted cloud internal networks"
     port                = 443
     v4_cidr_blocks      = var.trusted_cloud_nets
-  }
-
-  ingress {
-    protocol            = "TCP"
-    description         = "SSH from trusted public IP addresses"
-    port                = 22
-    v4_cidr_blocks      = var.trusted_ip_for_mgmt
   }
 
   egress {

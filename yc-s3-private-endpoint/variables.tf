@@ -10,22 +10,43 @@ variable "vpc_id" {
   default = null
 }
 
-variable "subnet_id_list" {
+variable "yc_availability_zones" {
+  type = list(string)
+  description = "List of Yandex Cloud availability zones for deploying NAT instances"
+  default = [
+    "ru-central1-a",
+    "ru-central1-b"
+  ]
+}
+
+variable "subnet_prefix_list" {
   type        = list(string)
-  description = "List of subnet id for NAT instances. Default create new subnets, one in every availability zone."
-  default     = []
+  description = "List of prefixes for NAT instances subnets. One prefix per availability zone in order: ru-central1-a, ru-central1-b, etc."
+  default     = ["10.10.1.0/24", "10.10.2.0/24", "10.10.3.0/24"]
 }
 
 variable "nat_instances_count" {
   type = number
-  description = "Number of NAT instances for Instance group"
+  description = "Number of NAT instances"
   default = 2
 }
 
-variable "trusted_ip_for_mgmt" {
-  type = list(string)
-  description = "List of trusted public IP addresses for connection to NAT-instances"
-  default = []
+variable "bucket_private_access" {
+  type        = bool
+  description = "Restrict access to bucket only from NAT-instances public IP-address"
+  default     = true
+}
+
+variable "bucket_console_access" {
+  type        = bool
+  description = "Allow access to bucket from Yandex Cloud console, apply if bucket_private_access = true"
+  default     = true
+}
+
+variable "mgmt_ip" {
+  type = string
+  description = "Public IP address of workstation with Terraform to allow actions with bucket during Terraform deployment"
+  default = null
 }
 
 variable "trusted_cloud_nets" {
@@ -52,11 +73,3 @@ variable "s3_fqdn" {
   default     = "storage.yandexcloud.net"
 }
 
-variable "yc_availability_zones" {
-  type = list(string)
-  description = "List of Yandex Cloud availability zones for deploying NAT instances"
-  default = [
-    "ru-central1-a",
-    "ru-central1-b"
-  ]
-}

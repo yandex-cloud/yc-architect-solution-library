@@ -8,13 +8,13 @@ resource "yandex_lb_network_load_balancer" "s3_nlb" {
     name = "https-listener"
     port = 443
     internal_address_spec {
-      subnet_id  = length(var.subnet_id_list) == 0 ? yandex_vpc_subnet.nat_instances_subnets[0].id : var.subnet_id_list[0]
-      address = length(var.subnet_id_list) == 0 ? "${cidrhost(yandex_vpc_subnet.nat_instances_subnets[0].v4_cidr_blocks[0], 100)}" : "${cidrhost(data.yandex_vpc_subnet.first_subnet[0].v4_cidr_blocks[0], 100)}"
+      subnet_id  = yandex_vpc_subnet.nat_vm_subnets[0].id
+      address = cidrhost(yandex_vpc_subnet.nat_vm_subnets[0].v4_cidr_blocks[0], 100)
     }
   }
 
   attached_target_group {
-    target_group_id = yandex_compute_instance_group.nat_instances_ig.load_balancer.0.target_group_id
+    target_group_id = yandex_lb_target_group.s3_nat_group.id
 
     healthcheck {
       name = "https"
@@ -28,3 +28,18 @@ resource "yandex_lb_network_load_balancer" "s3_nlb" {
     }
   }
 }
+
+// target group for s3_nlb
+resource "yandex_lb_target_group" "s3_nat_group" {
+  folder_id = var.folder_id
+  name      = "s3-nat-group"
+
+  dynamic "target" {
+    for_each = yandex_compute_instance.nat_vm
+    content {
+      subnet_id = target.value.network_interface.0.subnet_id
+      address   = target.value.network_interface.0.ip_address
+    }
+  }
+}
+
