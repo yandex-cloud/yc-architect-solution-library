@@ -24,7 +24,7 @@ data "yandex_compute_image" "toolbox_image" {
 }
 
 data "yandex_compute_image" "nat_instance_image" {
-  family = "nat-instance-ubuntu"
+  family = "nat-instance-ubuntu-2204"
 }
 // create NAT instances
 resource "yandex_compute_instance" "nat_vm" {
@@ -52,6 +52,7 @@ resource "yandex_compute_instance" "nat_vm" {
     subnet_id  = yandex_vpc_subnet.nat_vm_subnets[count.index % length(var.yc_availability_zones)].id
     nat        = true
     nat_ip_address = yandex_vpc_address.public_ip_list[count.index].external_ipv4_address.0.address
+    security_group_ids = [yandex_vpc_security_group.nat_sg.id]
   }
 
   metadata = {
