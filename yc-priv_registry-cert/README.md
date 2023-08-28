@@ -34,14 +34,19 @@ docker tag yc-image:1.0 cr.yandex/<container-registry-id>/yc-image:1.0
 docker push cr.yandex/<container-registry-id>/yc-image:1.0
 ```
 5. В кластере создаем ConfigMap из playbook.yaml
-`kubectl create cm playbook --from-file playbook.yaml`
+```
+kubectl create cm playbook --from-file playbook.yaml
+```
 6. ### Если группа(ы) узлов с фиксированным количеством нод: 
 Создаем в кластере Job из манифеста job.yaml (предварительно добавив необходимую информацию):
-`kubectl apply -f job.yaml`
+```
+kubectl apply -f job.yaml
+```
   ### Если группа(ы) узлов с автомасштабированием:
 Создаем в кластере CronJob.yaml из манифеста cronjob.yaml (предварительно добавив необходимую информацию):
-`kubectl apply -f cronjob.yaml`
-
+```
+kubectl apply -f cronjob.yaml
+```
 **Подробнее о переменных в манифестах**
 (В `CLUSTER_ID` указываем id кластера k8s, в `LOCKBOX_ID` указываем ID секрета, в котором сохранили ssh-private key, `CERT_ID` указываем ID сертификата, который загрузили в Yandex Certificate Manager, в `USR` указываем пользователя для подключения по SSH, в `VM` указываем или все хосты - `all` или id группы нод из кластера k8s и не забываем указать id container-registry в `image`.)
 
