@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: yc-image
+spec:
+  schedule: "*/2 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+            - name: playbook
+              configMap:
+                name: playbook
+          containers:
+          - name: yc-image
+            image: cr.yandex/<container-registry-id>/yc-image:1.0
+            volumeMounts:
+            - name: playbook
+              mountPath: /playbook.yaml
+              subPath: playbook.yaml
+            env:
+            - name: CLUSTER_ID
+              value: ""
+            - name: LOCKBOX_ID
+              value: ""
+            - name: CERT_ID
+              value: ""
+            - name: USR
+              value: ""
+            - name: VM
+              value: ""
+            command: ["/bin/bash", "-c"]
+            args:
+            - >
+              /worker.sh &&
+              ansible-playbook -i /inventory.json playbook.yaml -u $USR
+          restartPolicy: OnFailure
