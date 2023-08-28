@@ -5,10 +5,17 @@ metadata:
 spec:
   template:
     spec:
+      volumes:
+        - name: playbook
+          configMap:
+            name: playbook
       containers:
       - name: yc-image
         image: cr.yandex/<container-registry-id>/yc-image:1.0
-        imagePullPolicy: Always
+        volumeMounts:
+        - name: playbook
+          mountPath: /playbook.yaml
+          subPath: playbook.yaml
         env:
         - name: CLUSTER_ID
           value: ""
@@ -25,4 +32,4 @@ spec:
         - >
           /worker.sh &&
           ansible-playbook -i /inventory.json playbook.yaml -u $USR
-      restartPolicy: Never
+      restartPolicy: OnFailure
