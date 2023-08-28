@@ -1,5 +1,5 @@
 ---
-- name: Set up containerd crt and flags
+- name: Adding crt of priv registry
   become: yes
   vars:
     cert: "{{ lookup('env', 'CERT_ID') }}"
