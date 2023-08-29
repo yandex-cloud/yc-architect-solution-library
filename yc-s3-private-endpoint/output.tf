@@ -18,9 +18,3 @@ output "s3_nlb_ip_address" {
 output "s3_bucket_name" {
   value = yandex_storage_bucket.s3_bucket.bucket
 }
-
-output "s3_test_command" {
-  value = "aws --endpoint-url=https://${var.s3_fqdn} s3 cp s3://${yandex_storage_bucket.s3_bucket.bucket}/${yandex_storage_object.s3_test_file.key} ${yandex_storage_object.s3_test_file.key}"
-}
-
-

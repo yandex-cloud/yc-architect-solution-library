@@ -26,5 +26,8 @@ write_files:
     content: |
       [default]
       region = ru-central1
-
+  - path: "/etc/environment"
+    append: true
+    content: |
+      export BUCKET=${bucket}
 

@@ -100,6 +100,7 @@ resource "yandex_compute_instance" "test_vm" {
         vm_password = random_password.test_vm_password.bcrypt_hash,
         access_key = yandex_iam_service_account_static_access_key.s3_bucket_sa_keys.access_key,
         secret_key = yandex_iam_service_account_static_access_key.s3_bucket_sa_keys.secret_key
+        bucket = yandex_storage_bucket.s3_bucket.bucket
       })
     serial-port-enable = "1"
   }
