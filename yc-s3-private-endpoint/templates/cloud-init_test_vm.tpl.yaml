@@ -1,0 +1,33 @@
+#cloud-config
+
+users:
+  - name: ${username}
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: false
+    hashed_passwd: ${vm_password}
+    ssh-authorized-keys:
+      - ${ssh_key_pub}
+
+# Create AWS credentials and config files for Object Storage test
+write_files:
+  - path: '/home/${username}/.aws/credentials'
+    owner: '${username}:${username}'
+    permissions: '0644'
+    defer: true
+    content: |
+      [default]
+      aws_access_key_id = ${access_key}
+      aws_secret_access_key = ${secret_key}
+  - path: '/home/${username}/.aws/config'
+    owner: '${username}:${username}'
+    permissions: '0644'
+    defer: true
+    content: |
+      [default]
+      region = ru-central1
+  - path: "/etc/environment"
+    append: true
+    content: |
+      export BUCKET=${bucket}
+
