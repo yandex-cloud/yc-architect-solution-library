@@ -33,31 +33,29 @@ docker push cr.yandex/<container-registry-id>/gitlabtf:latest
     4. Также, потребуется задать [**переменную**](https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#access-an-image-from-a-private-container-registry) `DOCKER_AUTH_CONFIG`, для авторизации Runner'a в Container Registry и возможности созданный ранее образ.
     Самый простой способ задать данную переменную, это [**авторизоваться в Container Registry с помощью ранее созданного авторизованного ключа для сервисного аккаунта**](https://cloud.yandex.ru/docs/container-registry/operations/authentication#sa). После чего скопировать авторизованные данные из файла по пути`$HOME/.docker/config.json` и вставить в данные переменной.
     **!Осторожно!** В файле могу быть данные для авторизации в других регистри, значение переменной должно выглядеть похоже на это:
-
-```
-{
+    ```
+    {
         "auths": {
                 "cr.yandex": {
                         "auth": "aWFt......dw=="
                 },
 
-        }
-}
-```
+            }
+    }
+    ```
     5. Также, в файле `variables.tf`, потребуется задать значение переменных `default` в следующих сниппетах (указав id ваших каталога и облака соответственно):
-
-```
+    ```
     variable "folder" {
     default = ""
-}
+    }
 
    variable "cloud" {
     default = ""
-}
-```
+    }
+    ```
     6. В файле `main.tf`, в следующем сниппете, следует указать значения для ключей `bucket` (имя вашего бакета) и `key` (путь до файла `<name>.tfstate`, где будет храниться информация о состоянии вашей инфраструктуры):
 
-```
+    ```
     backend "s3" {
       endpoint   = "storage.yandexcloud.net"
       bucket     = "<bucket_name>"
@@ -68,8 +66,8 @@ docker push cr.yandex/<container-registry-id>/gitlabtf:latest
 
       skip_region_validation      = true
       skip_credentials_validation = true
-  }
-```
+    }
+    ```
 ## Дополнительно
 При каждом коммите, пайплайн запускает 3 jobs: первая - это валидация манифестов (validate), вторая - это построение плана действий (build), третья - это применение действий (deploy (destroy)).
 В силу причин безопасности, третий "этап" не выполняется автоматически, так как может нарушить целостность инфраструктуры, например, удалить необходимые ресурсы, если это не планировалось.
