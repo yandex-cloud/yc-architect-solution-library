@@ -1,0 +1,28 @@
+include:
+  - local: '/templates/Base.latest.gitlab-ci.yml'
+
+stages:
+  - validate
+  - test
+  - build
+  - deploy
+  - cleanup
+
+validate:
+  extends: .terraform:validate
+  needs: []
+
+build:
+  extends: .terraform:build
+  environment:
+    name: $TF_STATE_NAME
+    action: prepare
+
+deploy:
+  extends: .terraform:deploy
+  dependencies:
+    - build
+  environment:
+    name: $TF_STATE_NAME
+    action: start
+
