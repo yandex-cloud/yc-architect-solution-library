@@ -1,0 +1,45 @@
+concurrent = 1000
+
+[[runners]]
+  name = "gitlab-runner-docker-machine"
+  environment = [ "DOCKER_BUILDKIT=1", "DOCKER_DRIVER=overlay2" ]
+  limit = ${worker_runners_limit}
+  executor = "docker+machine"
+  [runners.docker]
+    image = "docker:dind"
+    privileged = true
+    disable_cache = false
+    cache_dir = "/home/gitlab-runner/cache"
+    cap_drop = [ "NET_ADMIN", "SYS_ADMIN", "DAC_OVERRIDE" ]
+    volumes = [ "/home/gitlab-runner/cache", "/certs" ]
+  [runners.machine]
+    IdleCount = 0
+    IdleTime = 600
+    MaxBuilds = 100
+    MachineName = "dm-worker-%s"
+    MachineDriver = "yandex"
+    MachineOptions = [
+      "yandex-folder-id=${folder_id}",
+      "yandex-cloud-id=${cloud_id}",
+      "yandex-subnet-id=${subnet_id}",
+      ${security_groups == "" ? "" : "\"yandex-security-groups=${security_groups}\","}
+      "yandex-use-internal-ip=${worker_use_internal_ip}",
+      ${worker_image_id == null ? "\"yandex-image-family=${worker_image_family}\"" : "\"yandex-image-id=${worker_image_id}\""},
+      "yandex-cores=${worker_cores}",
+      "yandex-disk-type=${worker_disk_type}",
+      "yandex-disk-size=${worker_disk_size}",
+      "yandex-memory=${worker_memory}",
+      "yandex-preemptible=${worker_preemptible}",
+      "yandex-platform-id=${worker_platform_id}",
+      "yandex-zone=${zone}"
+    ]
+    [[runners.machine.autoscaling]]
+      Periods = ['* * 7-19 * * mon-fri *']
+      IdleCount = 0
+      IdleTime  = 600
+      Timezone  = "UTC"
+    [[runners.machine.autoscaling]]
+      Periods = ['* * * * * sat,sun *']
+      IdleCount = 0
+      IdleTime  = 300
+      Timezone  = "UTC"
