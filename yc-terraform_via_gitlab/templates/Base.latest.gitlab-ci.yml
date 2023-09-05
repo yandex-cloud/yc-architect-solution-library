@@ -24,6 +24,7 @@ variables:
 .terraform:build:
   stage: build
   script:
+    - TF_VAR_sauth=$(echo -n $TF_VAR_sauth | base64 -d)
     - gitlab-terraform plan
     - gitlab-terraform plan-json
   resource_group: ${TF_STATE_NAME}
