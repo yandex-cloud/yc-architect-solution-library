@@ -113,7 +113,7 @@ variable "worker_use_internal_ip" {
 variable "worker_image_family" {
   type        = string
   description = "yandex-image-family"
-  default     = "ubuntu-2204-lts"
+  default     = "ubuntu-2004-lts"
 }
 
 variable "worker_image_id" {
