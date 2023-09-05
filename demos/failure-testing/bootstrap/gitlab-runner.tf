@@ -5,6 +5,8 @@ module "gitlab_runner" {
   folder_id                 = local.folder_id
   gitlab_registration_token = local.gitlab_project.runners_token
   gitlab_url                = var.gitlab_url
+  worker_cores              = 2
+  worker_memory             = 4
 
   network_create = true
   sa_name        = "gitlab-docker-machine${local.name_suffix}"

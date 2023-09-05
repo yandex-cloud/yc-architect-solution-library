@@ -50,6 +50,8 @@ module "k8s_cluster" {
       description = "System node group"
       node_cores  = 2
       node_memory = 4
+      disk_type   = "network-ssd"
+      disk_size   = 65
       fixed_scale = {
         size = 2
       }
