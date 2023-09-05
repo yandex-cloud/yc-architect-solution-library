@@ -17,7 +17,6 @@ resource "gitlab_project" "this" {
   name                = "failure-testing"
   description         = "Failure testing project"
   namespace_id        = data.gitlab_user.user.namespace_id
-  import_url          = "${var.gitlab_url}/gitops/chaos.git"
   import_url_username = var.gitlab_username
   import_url_password = var.gitlab_access_token
   lifecycle {
