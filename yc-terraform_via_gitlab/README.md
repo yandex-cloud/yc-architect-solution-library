@@ -29,20 +29,12 @@ docker push cr.yandex/<container-registry-id>/gitlabtf:latest
 3. Во вновь созданном (импортированном) проекте, потребуется изменить некоторые файлы, а также [**создать переменные окружения**](https://docs.gitlab.com/ee/ci/variables/#define-a-cicd-variable-in-the-ui) и значения для них:
     1. В файле `templates/Base.latest.gitlab-ci.yml` потребуется изменить 3-ю строку (значение `image`), указать id вашего Container Registry в ссылке на образ.
     2. Потребуется [**создать авторизованный ключ для сервисного аккаунта**](https://cloud.yandex.ru/docs/iam/operations/authorized-key/create) и содержимое ключа добавить при [**создании переменной**](https://docs.gitlab.com/ee/ci/variables/#define-a-cicd-variable-in-the-ui) `TF_VAR_sauth` для проекта. (поля и чекбоксы при создании: `type: ENV_VAR`, `Protect variable`,`Expand variable reference `)
-    3. Потребуется создать [**статический ключ доступа для сервисного аккаунта**](https://cloud.yandex.ru/docs/iam/operations/sa/create-access-key) и [**содержимое ключа**](https://cloud.yandex.ru/docs/iam/concepts/authorization/access-key) добавить в переменные, а именно: `key_id` в переменную `TF_VAR_s3key`, `secret` в переменную `TF_VAR_s3secret`. (поля и чекбоксы при создании: `type: ENV_VAR`, `Protect variable`,`Expand variable reference `)
+    3. Потребуется создать [**статический ключ доступа для сервисного аккаунта**](https://cloud.yandex.ru/docs/iam/operations/sa/create-access-key) и [**содержимое ключа**](https://cloud.yandex.ru/docs/iam/concepts/authorization/access-key) добавить в переменные, а именно: `key_id` в переменную `TF_VAR_s3key`, `secret` в переменную `TF_VAR_s3secret`. (поля и чекбоксы при создании: `type: ENV_VAR`, `Protect variable`,`Mask variable`, `Expand variable reference`)
     4. Если к GitLab-Runner'у (ВМ или нодам кластера managed-kubernetes) не привязан сервисный аккаунт с ролью `container-registry.images.puller`, потребуется задать [**переменную**](https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#access-an-image-from-a-private-container-registry) `DOCKER_AUTH_CONFIG`, для авторизации Runner'a в Container Registry и возможности скачать созданный ранее образ.
-    Самый простой способ задать данную переменную, это [**авторизоваться в Container Registry с помощью ранее созданного авторизованного ключа для сервисного аккаунта**](https://cloud.yandex.ru/docs/container-registry/operations/authentication#sa). После чего скопировать авторизованные данные из файла по пути`$HOME/.docker/config.json` и вставить в данные переменной.
-    **!Осторожно!** В файле могу быть данные для авторизации в других регистри, значение переменной должно выглядеть похоже на это:
-    ```
-    {
-        "auths": {
-                "cr.yandex": {
-                        "auth": "aWFt......dw=="
-                },
-
-            }
-    }
-    ```
+    Самый простой способ задать данную переменную, это [**авторизоваться в Container Registry с помощью ранее созданного авторизованного ключа для сервисного аккаунта**](https://cloud.yandex.ru/docs/container-registry/operations/authentication#sa). После чего скопировать авторизованные данные из файла по пути `$HOME/.docker/config.json` и вставить в данные переменной следующим образом:
+В `DOCKER_AUTH_CONFIG` передаем следующее значение: `{"auths": { "cr.yandex": { "auth": "$CI_DOCKER_AUTH" }}}` (поля и чекбоксы при создании: `type: ENV_VAR`, `Protect variable`,`Expand variable reference`).
+Также создаем еще одну переменную `CI_DOCKER_AUTH`, куда передаем значение ключа `"auth"` из файла `$HOME/.docker/config.json` (поля и чекбоксы при создании: `type: ENV_VAR`, `Protect variable`,`Mask variable`, `Expand variable reference`).
+    **!Осторожно!** В файле также могут быть данные для авторизации в других регистри.
     5. Также, в файле `variables.tf`, потребуется задать значение переменных `default` в следующих сниппетах (указав id ваших каталога и облака соответственно):
     ```
     variable "folder" {
