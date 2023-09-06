@@ -102,6 +102,7 @@ resource "helm_release" "todobackend" {
     kubernetes_secret.todobackend
   ]
   timeout = 600
+  wait    = false
 }
 
 resource "helm_release" "todofrontend" {
@@ -165,5 +166,6 @@ resource "helm_release" "todofrontend" {
   ]
 
   timeout = 600
+  wait    = false
 }
 
