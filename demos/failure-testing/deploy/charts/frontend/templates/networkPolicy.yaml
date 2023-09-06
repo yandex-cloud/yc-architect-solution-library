@@ -1,0 +1,32 @@
+{{- if .Values.networkPolicyEnabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "frontend.fullname" . }}-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "frontend.selectorLabels" . | nindent 6 }}
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app: loadbalancer
+        - ipBlock:
+            cidr: 10.130.0.0/24
+        - ipBlock:
+            cidr: 10.129.0.0/24
+        - ipBlock:
+            cidr: 10.128.0.0/24
+        - ipBlock:
+            cidr: 198.18.235.0/24
+        - ipBlock:
+            cidr: 198.18.248.0/24
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+  policyTypes:
+    - Ingress
+    - Egress
+{{- end }}

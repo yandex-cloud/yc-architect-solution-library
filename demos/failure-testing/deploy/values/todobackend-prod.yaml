@@ -1,0 +1,11 @@
+image:
+  repository: cr.yandex/crpk4dce45rde6na9vr0/gitops/chaos/app/todobackend
+#  tag: "29d41043"
+  tag: "90e2f07b"
+env:
+  - name: DATABASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: todoapp-backend
+        key: db_url
+

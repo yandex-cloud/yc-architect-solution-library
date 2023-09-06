@@ -1,0 +1,123 @@
+image: docker:20.10.16
+
+stages:
+  - build
+  - deploy
+  - test
+  - clean
+
+variables:
+  TF_VAR_zones: '[ "ru-central1-a" ]'
+#  TF_VAR_zones: '[ "ru-central1-a", "ru-central1-b" ]'
+  TF_VAR_todoapp_image_repository: "${CI_REGISTRY}/${CI_PROJECT_PATH}/app"
+  TF_VAR_todoapp_image_tag: "${CI_COMMIT_SHORT_SHA}"
+  TF_VAR_k8s_static_kubeconfig: "kubeconfig"
+
+  TF_IN_AUTOMATION: 1
+  TF_HTTP_ADDRESS: "$CI_SERVER_URL/api/v4/projects/$CI_PROJECT_ID/terraform/state/default"
+  TF_HTTP_LOCK_ADDRESS: "$TF_HTTP_ADDRESS/lock"
+  TF_HTTP_LOCK_METHOD: "POST"
+  TF_HTTP_UNLOCK_ADDRESS: "$TF_HTTP_ADDRESS/lock"
+  TF_HTTP_UNLOCK_METHOD: "DELETE"
+  TF_HTTP_RETRY_WAIT_MIN: 5
+  TF_HTTP_USERNAME: "gitlab-ci-token"
+  TF_HTTP_PASSWORD: "$CI_JOB_TOKEN"
+
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  DOCKER_DRIVER: overlay2
+
+build-app:
+  stage: build
+  variables:
+    SUBDIRS: "app/todo/backend app/todo/frontend"
+  before_script:
+    - for try in {1..10}; do sleep 0.5; echo "${CI_REGISTRY_KEY}" | docker login ${CI_REGISTRY} -u json_key --password-stdin > /dev/null && break ; done
+  services:
+    - docker:20.10.16-dind
+  script:
+    - >-
+      for subdir in $SUBDIRS; do
+          IMAGE="${CI_REGISTRY}/${CI_PROJECT_PATH}/${subdir}"
+          cd "${CI_PROJECT_DIR}/${subdir}"
+          docker build --tag "${IMAGE}:${CI_COMMIT_SHORT_SHA}" .
+          docker push "${IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      done
+    - >- 
+      if [ -n "${CI_COMMIT_TAG}" ]; then
+          for subdir in $SUBDIRS; do
+              IMAGE="${CI_REGISTRY}/${CI_PROJECT_PATH}/${subdir}"
+              docker tag "${IMAGE}:${CI_COMMIT_SHORT_SHA}" "${IMAGE}:${CI_COMMIT_TAG}"
+              docker push "${IMAGE}:${CI_COMMIT_TAG}"
+          done
+      fi  
+  rules:
+    - if: $TF_VAR_todoapp_image_tag == '${CI_COMMIT_SHORT_SHA}' || $CI_COMMIT_TAG != null
+
+deploy:
+  stage: deploy
+  image: 
+    name: hashicorp/terraform:light
+    entrypoint: [ '/usr/bin/env' ]
+  artifacts:
+    paths:
+      - infra/kubeconfig
+    expire_in: "5 sec"
+  script:
+    - cd infra
+    - terraform init
+    - terraform apply -replace="kubernetes_token_request_v1.admin[0]" -auto-approve
+
+test:
+  stage: test
+  variables: 
+    HARM_ENABLED: 1
+    HARM_MANIFEST: "outage1.yaml" 
+    HARM_START_AFTER: "300s" 
+    HARM_STOP_AFTER: "300s" 
+    K6_VUS: "30" 
+    K6_DURATION: "900s"
+  services:
+    - docker:20.10.16-dind
+  artifacts:
+    reports:
+      load_performance: load-test/load-performance.json
+    expire_in: "6 month"
+  dependencies:
+    - deploy
+  before_script:
+    - apk add --no-cache curl
+    - docker pull grafana/k6
+    - docker pull bitnami/kubectl
+  script:
+    - docker run --rm  -v $PWD:/repo -e "KUBECONFIG=/repo/infra/kubeconfig" bitnami/kubectl 
+        -n todoapp delete pods -l app.kubernetes.io/instance=todobackend,app.kubernetes.io/name=backend
+    - hack/wait-for-app.sh "https://$TF_VAR_fqdn"
+    - docker run -d --name harm -v $PWD:/repo -e "KUBECONFIG=/repo/infra/kubeconfig" -e "HARM_ENABLED=$HARM_ENABLED"
+        --entrypoint /bin/bash bitnami/kubectl /repo/hack/apply-harm.sh /repo/harm/$HARM_MANIFEST $HARM_START_AFTER $HARM_STOP_AFTER
+    - docker run --rm -v $PWD/load-test:/k6 grafana/k6 run -q -u $K6_VUS -d $K6_DURATION
+        --summary-export=/k6/load-performance.json --env BASE_URL="https://$TF_VAR_fqdn" /k6/test1.js
+  after_script:
+    - docker stop harm || true
+    - docker logs harm || true
+    - docker rm harm || true
+  allow_failure: true
+    
+clean:
+  stage: clean
+  image: 
+    name: hashicorp/terraform:light
+    entrypoint: [ '/usr/bin/env' ]
+  script:
+    - cd infra
+    - terraform init -reconfigure 
+    - terraform state list | grep '^kubernetes_namespace' | cut -f 1 -d '[' | xargs -r -n 1 terraform state rm || true
+    - terraform destroy -auto-approve
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "push"
+      when: always
+    - when: manual

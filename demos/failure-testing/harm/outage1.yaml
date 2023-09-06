@@ -1,0 +1,70 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: Workflow
+metadata:
+  namespace: chaos-mesh
+  name: outage1
+spec:
+  entry: entry
+  templates:
+    - name: entry
+      templateType: Serial
+      deadline: 300s
+      children:
+        - breakout
+        - aftershock
+    - name: breakout
+      templateType: Serial
+      children:
+        - loss100
+    - name: loss100
+      templateType: NetworkChaos
+      deadline: 60s
+      networkChaos:
+        selector:
+          namespaces:
+            - todoapp
+          nodeSelectors:
+            'topology.kubernetes.io/zone': 'ru-central1-a'
+        mode: all
+        action: loss
+        loss:
+          loss: '100'
+          correlation: '0'
+        direction: to
+    - name: aftershock
+      templateType: Parallel
+      children:
+        - delay
+        - loss20
+    - name: delay
+      templateType: NetworkChaos
+      deadline: 240s
+      networkChaos:
+        selector:
+          namespaces:
+            - todoapp
+          nodeSelectors:
+            'topology.kubernetes.io/zone': 'ru-central1-a'
+        mode: all
+        action: delay
+        delay:
+          latency: 1000ms
+          correlation: '0'
+          jitter: 200ms
+        direction: to
+    - name: loss20
+      templateType: NetworkChaos
+      deadline: 240s
+      networkChaos:
+        selector:
+          namespaces:
+            - todoapp
+          nodeSelectors:
+            'topology.kubernetes.io/zone': 'ru-central1-a'
+        mode: all
+        action: loss
+        loss:
+          loss: '20'
+          correlation: '0'
+        direction: to
+
