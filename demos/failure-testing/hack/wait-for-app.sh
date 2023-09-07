@@ -6,7 +6,7 @@ if [ -z "$URL" ]; then
     exit 1
 fi 
 WAIT_TIMEOUT=${WAIT_TIMEOUT:-1800}
-SUCCESS_THRESHOLD=${SUCCESS_THRESHOLD:-5}
+SUCCESS_THRESHOLD=${SUCCESS_THRESHOLD:-10}
 
 echo -n "Waiting for $URL to become available... "
 start_ts=$(date +%s)
@@ -26,6 +26,7 @@ while :; do
     else
         success_tries=0
     fi
+    sleep 1
 done
 
 test $success_tries -ge $SUCCESS_THRESHOLD
