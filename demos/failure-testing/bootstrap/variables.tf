@@ -163,7 +163,7 @@ variable "gitlab_runner_enabled" {
 variable "gitlab_enabled" {
   type        = bool
   description = "Do the setup of gitlab repo?"
-  default     = false
+  default     = true
 }
 
 variable "gitlab_url" {
