@@ -53,7 +53,7 @@ fi
 for NodeName in $(cat list.node); do
   echo
   mkdir $NodeName
-  kubectl debug node/$NodeName --image=ubuntu -- sleep 600
+  kubectl debug node/$NodeName --image=cr.yandex/yc/mk8s-openssl:stable -- sleep 600
   PodName=$(kubectl get po -o name | grep $NodeName | cut -c 5-)
   echo -n "Pod <$PodName> creating."
   while [[ $(kubectl get pods "${PodName}" -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo -n "." && sleep 1; done
