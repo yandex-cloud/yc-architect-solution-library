@@ -21,7 +21,7 @@ make apply
 ssh juicefs@<IP_addr_of_client>
 ```
 
-### GlusterFS installation
+### JuiceFS installation
 
 ```bash
 # client
