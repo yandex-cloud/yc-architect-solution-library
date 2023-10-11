@@ -33,6 +33,7 @@
 ##
 ## HISTORY
 ##      2023/05/26  : andrey-ulrikh : Script creation
+##      2023/10/11  : andrey-ulrikh : Use namespace from context
 
 # Set default value for Logs_Since argument
 LogsSince="$(date +%F) 00:00:00"
@@ -60,7 +61,7 @@ for NodeName in $(cat list.node); do
 
   echo -e "done\nGet syslog modified after $LogsSince"
   kubectl exec $PodName -- find /host/var/log -type f -newermt "${LogsSince}" -name "syslog*" -execdir echo {} ';' | cut -c 3- >list.logs
-  for file in $(cat list.logs); do kubectl cp default/"${PodName}":host/var/log/$file $NodeName/$file; done
+  for file in $(cat list.logs); do kubectl cp "${PodName}":host/var/log/$file $NodeName/$file; done
 
   echo -n "Detect folder with CSI logs - "
   CSI_Logs=host/var/log/pods/$(kubectl exec $PodName -- ls /host/var/log/pods | grep "kube-system_yc-disk-csi-node-v2")/yc-disk-csi-driver
@@ -69,7 +70,7 @@ for NodeName in $(cat list.node); do
   kubectl exec $PodName -- find /$CSI_Logs -newermt "${LogsSince}" -name "*.log" -execdir echo {} ';' | cut -c 3- >list.logs
   if [ -s list.logs ]; then
     for file in $(cat list.logs); do kubectl exec $PodName -- tar fr /$CSI_Logs/csi_logs.tar -C /$CSI_Logs $file; done
-    kubectl cp default/"${PodName}":$CSI_Logs/csi_logs.tar csi_logs.tar
+    kubectl cp "${PodName}":$CSI_Logs/csi_logs.tar csi_logs.tar
     echo Extract CSI log files
     tar xf csi_logs.tar -C ./$NodeName
   else
