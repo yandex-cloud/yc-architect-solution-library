@@ -35,7 +35,7 @@ spec:
       hostIPC: true
       containers:
       - name: certificate-updater
-        image: cr.yandex/crpjfmfou6gflobbfvfv/ubuntu-openssl:stable
+        image: cr.yandex/yc/mk8s-openssl:stable
         command: 
           - sh
           - -c
@@ -61,7 +61,7 @@ spec:
                 fi
               sleep 60                
             done
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Never
         securityContext:
           privileged: true
         resources:
