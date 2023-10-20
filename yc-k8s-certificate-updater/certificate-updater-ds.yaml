@@ -35,7 +35,7 @@ spec:
       hostIPC: true
       containers:
       - name: certificate-updater
-        image: cr.yandex/crpjfmfou6gflobbfvfv/ubuntu-openssl:stable
+        image: cr.yandex/yc/mk8s-openssl:stable
         command: 
           - sh
           - -c
@@ -52,18 +52,16 @@ spec:
       
                     echo "Updating cerfificates authorities"
                     update-ca-certificates 
-                    echo "Restarting Kubelet and Docker"
-                    KUBELET_PID=$(ps aux | grep '/home/kubernetes/bin/kubelet --bootstrap-kubeconfig' | grep -v grep | head -1 | awk '{print $2}')
-                    DOCKER_PID=$(ps aux | grep '/usr/bin/dockerd -H' | grep -v grep | head -1 | awk '{print $2}')
-                    PID_LIST=$(echo "$KUBELET_PID $DOCKER_PID")
-                    for pid in $PID_LIST ; do kill $pid; done
+
+                    echo "Restarting containerd and dockerd"
+                    ps -x -o pid= -o comm= | awk '$2 ~ "^(containerd|dockerd)$" { print $1 }' | xargs kill
                     #systemd will get them back less than a minute
                 else
-                  echo "Doing Nothing as no certs has not been changned"
+                  echo "Doing Nothing as no certs has not been changed"
                 fi
-              sleep 30                
+              sleep 60                
             done
-        imagePullPolicy: Always
+        imagePullPolicy: Never
         securityContext:
           privileged: true
         resources:
