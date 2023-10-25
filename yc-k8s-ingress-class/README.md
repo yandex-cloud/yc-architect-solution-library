@@ -53,35 +53,37 @@ spec:
           class: nginx
 EOF
 
-kubectl get svc -n nginx 
-NAME                                       TYPE           CLUSTER-IP      EXTERNAL-IP    PORT(S)                      AGE
-nginx-ingress-nginx-controller             LoadBalancer   10.96.139.123   51.250.6.111   80:30561/TCP,443:31017/TCP   45h # copy External IP of nginx-ingress-nginx-controller service
-nginx-ingress-nginx-controller-admission   ClusterIP      10.96.201.127   <none>         443/TCP                      45h
+kubectl get svc -n nginx
+NAME                                 TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)                      AGE
+ingress-nginx-controller             LoadBalancer   10.96.145.247   84.201.163.76   80:31668/TCP,443:30353/TCP   6d12h # copy External IP of nginx-ingress-nginx-controller service
+ingress-nginx-controller-admission   ClusterIP      10.96.200.103   <none>          443/TCP                      6d12h
 
-yc dns zone add-records your-zone --record  "*.nginx 60 A <EXT_IP>"
-+--------+-----------------------+------+-------------+-----+
-| ACTION |         NAME          | TYPE |    DATA     | TTL |
-+--------+-----------------------+------+-------------+-----+
-| +      | *.nginx.example.com.  | A    | 51.250.69.0 | 60  |
-+--------+-----------------------+------+-------------+-----+
 
+yc dns zone add-records your-zone  --record  "*.nginx.<DOMAIN>. 60 A <EXT_IP>"
 yc dns zone list-records your-zone
-+-----------------------------------------+------+-------+---------------------------------------------+
-|                  NAME                   | TTL  | TYPE  |                    DATA                     |
-+-----------------------------------------+------+-------+---------------------------------------------+
-| *.nginx.example.com.                    |   60 | A     | <EXT_IP>                                    |
-| example.com.                            | 3600 | NS    | ns1.yandexcloud.net.                        |
-|                                         |      |       | ns2.yandexcloud.net.                        |
-| example.com.                            | 3600 | SOA   | ns1.yandexcloud.net.                        |
-|                                         |      |       | mx.cloud.yandex.net. 1 10800                |
-|                                         |      |       | 900 604800 86400                            |
-+-----------------------------------------+------+-------+---------------------------------------------+
+
++-------------------------+------+------+--------------------------------+
+|          NAME           | TTL  | TYPE |              DATA              |
++-------------------------+------+------+--------------------------------+
+| *.nginx.example.com.    |   60 | A    | <EXT_IP>                       |
+| example.com.            | 3600 | NS   | ns1.yandexcloud.net.           |
+|                         |      |      | ns2.yandexcloud.net.           |
+| example.com.            | 3600 | SOA  | ns1.yandexcloud.net.           |
+|                         |      |      | mx.cloud.yandex.net. 1 10800   |
+|                         |      |      | 900 604800 900                 |
++-------------------------+------+------+--------------------------------+
+
 
 kubectl config set-context --current --namespace app
-kubectl apply -f app/app.yaml
+
+
+kubectl apply -f app/demo-app1.yaml && kubectl apply -f app/demo-app2.yaml
 kubectl apply -f app/nginx-ing.yaml
 
-curl https://app.nginx.example.com
+# Checking that everything is working properly
+curl https://app.nginx.<DOMAIN>
+curl https://app.nginx.<DOMAIN>/app1
+curl https://app.nginx.<DOMAIN>/app2
 App by Ingress Class
 ```
 
@@ -96,7 +98,7 @@ kubectl config set-context --current --namespace cert-manager
 
 # Install DNS Challenge Webhookubectl if not installed yet
 yc iam key create --service-account-name sa-admin --output sa-admin.json
-kubectl create secret generic --from-file sa-admin.json
+kubectl create secret generic cert-manager-secret --from-file=sa-admin.json
 
 git clone https://github.com/yandex-cloud/cert-manager-webhook-yandex.git && \
 helm install -n cert-manager yandex-webhookubectl \
@@ -139,7 +141,7 @@ kind: Certificate
 metadata:
   name: alb-example
 spec:
-  secretName: alb-example-secret
+  secretName: example-com-secret
   issuerRef:
     # The issuer created previously
     name: yc-clusterissuer
@@ -148,7 +150,7 @@ spec:
     - app.alb.<DOMAIN>
 EOF
 
-kubectl get certificate # checkubectl that READY=True
+kubectl get certificate # check that the status READY=True. It might take some time.
 ```
 
 ### ALB Ingress Class Installation
@@ -165,7 +167,23 @@ kubectl config set-context --current --namespace app
 kubectl apply -f app/alb-ing.yaml 
 
 kubectl get svc # copy External IP of alb-ingress service
-yc dns zone add-records your-zone --record  "*.app 60 A <EXT_IP>"
+yc dns zone add-records your-zone  --record  "*.alb.<DOMAIN>. 60 A <EXT_IP>"
+yc dns zone list-records your-zone
 
-curl https://app.alb.example.com
++-------------------------+------+------+--------------------------------+
+|          NAME           | TTL  | TYPE |              DATA              |
++-------------------------+------+------+--------------------------------+
+| *.alb.example.com.      |   60 | A    | <EXT_IP>                       |
+| *.nginx.example.com.    |   60 | A    | <EXT_IP>                       |
+| example.com.            | 3600 | NS   | ns1.yandexcloud.net.           |
+|                         |      |      | ns2.yandexcloud.net.           |
+| example.com.            | 3600 | SOA  | ns1.yandexcloud.net.           |
+|                         |      |      | mx.cloud.yandex.net. 1 10800   |
+|                         |      |      | 900 604800 900                 |
++-------------------------+------+------+--------------------------------+
+
+# Checking that everything is working properly
+curl https://app.alb.<DOMAIN>
+curl https://app.alb.<DOMAIN>/app1
+curl https://app.alb.<DOMAIN>/app2
 ```

@@ -7,17 +7,32 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts:
+  - hosts:
         - app.nginx.<DOMAIN>
       secretName: letsencrypt
   rules:
-    - host: app.nginx.<DOMAIN>
-      http:
-        paths:
-          - backend:
-              service:
-                name: app
-                port:
-                  number: 80
-            path: /
-            pathType: Prefix
+    rules:
+  - host: app.nginx.<DOMAIN>
+    http:
+      paths:
+      - backend:
+          service:
+            name: alb-demo-1
+            port:
+              number: 80
+        path: /app1
+        pathType: Prefix
+      - backend:
+          service:
+            name: alb-demo-2
+            port:
+              number: 80
+        path: /app2
+        pathType: Prefix
+      - backend:
+          service:
+            name: alb-demo-2
+            port:
+              name: http
+        path: /
+        pathType: Prefix
