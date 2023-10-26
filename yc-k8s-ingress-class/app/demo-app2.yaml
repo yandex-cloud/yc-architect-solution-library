@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: app
+  name: alb-demo-2
 data:
   nginx.conf: |
     worker_processes auto;
@@ -14,13 +14,13 @@ data:
           add_header Content-Type text/plain;
           return 200 'ok';
         }
-        location = /healthz {
-          add_header Content-Type text/plain;
-          return 200 'ok';
-        }
         location / {
           add_header Content-Type text/plain;
-          return 200 'App by Ingress Class';
+          return 200 'Index';
+        }
+        location = /app2 {
+          add_header Content-Type text/plain;
+          return 200 'This is APP#2';
         }
       }
     }
@@ -28,15 +28,15 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app
+  name: alb-demo-2
   labels:
-    app: app
+    app: alb-demo-2
     version: v1
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: app
+      app: alb-demo-2
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -45,16 +45,16 @@ spec:
   template:
     metadata:
       labels:
-        app: app
+        app: alb-demo-2
         version: v1
     spec:
       terminationGracePeriodSeconds: 5
       volumes:
-        - name: app
+        - name: alb-demo-2
           configMap:
-            name: app
+            name: alb-demo-2
       containers:
-        - name: app
+        - name: alb-demo-2
           image: nginx:latest
           ports:
             - name: http
@@ -67,7 +67,7 @@ spec:
             timeoutSeconds: 2
             failureThreshold: 2
           volumeMounts:
-            - name: app
+            - name: alb-demo-2
               mountPath: /etc/nginx
               readOnly: true
           resources:
@@ -81,13 +81,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: app
+  name: alb-demo-2
 spec:
   selector:
-    app: app
+    app: alb-demo-2
   type: NodePort
   ports:
     - name: http
       port: 80
       targetPort: 80
       protocol: TCP
+      nodePort: 30082
