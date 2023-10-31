@@ -7,23 +7,36 @@ metadata:
     ingress.alb.yc.io/subnets: <SUBNETID>
     ingress.alb.yc.io/security-groups: <SGID>,<SGID> # https://cloud.yandex.com/en-ru/docs/application-load-balancer/tools/k8s-ingress-controller/security-groups please do not forget to add sg with ingress rules for 443,80
     ingress.alb.yc.io/external-ipv4-address: <IP>
-    ingress.alb.yc.io/use-regex: "true"
-    ingress.alb.yc.io/group-name: default
+    ingress.alb.yc.io/group-name: alb
     ingress.alb.yc.io/group-order: "1"
 spec:
   ingressClassName: alb
   tls:
     - hosts:
         - app.alb.<DOMAIN>
-      secretName: alb-example-secret
+      secretName: example-com-secret
   rules:
-    - host: app.alb.<DOMAIN>
-      http:
-        paths:
-          - pathType: Prefix
-            path: "/"
-            backend:
-              service:
-                name: app
-                port:
-                  number: 80
+  - host: app.alb.<DOMAIN>
+    http:
+      paths:
+      - backend:
+          service:
+            name: alb-demo-1
+            port:
+              number: 80
+        path: /app1
+        pathType: Prefix
+      - backend:
+          service:
+            name: alb-demo-2
+            port:
+              number: 80
+        path: /app2
+        pathType: Prefix
+      - backend:
+          service:
+            name: alb-demo-2
+            port:
+              name: http
+        path: /
+        pathType: Prefix
