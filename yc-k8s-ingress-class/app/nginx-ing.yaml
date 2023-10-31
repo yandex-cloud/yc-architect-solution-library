@@ -1,38 +1,38 @@
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/cluster-issuer: yc-clusterissuer
   name: ingress
 spec:
   ingressClassName: nginx
   tls:
-  - hosts:
+    - hosts:
         - app.nginx.<DOMAIN>
-      secretName: letsencrypt
+      secretName: example-com-secret
   rules:
-    rules:
-  - host: app.nginx.<DOMAIN>
-    http:
-      paths:
-      - backend:
-          service:
-            name: alb-demo-1
-            port:
-              number: 80
-        path: /app1
-        pathType: Prefix
-      - backend:
-          service:
-            name: alb-demo-2
-            port:
-              number: 80
-        path: /app2
-        pathType: Prefix
-      - backend:
-          service:
-            name: alb-demo-2
-            port:
-              name: http
-        path: /
-        pathType: Prefix
+    - host: app.nginx.<DOMAIN>
+      http:
+        paths:
+          - backend:
+              service:
+                name: alb-demo-1
+                port:
+                  number: 80
+            path: /app1
+            pathType: Prefix
+          - backend:
+              service:
+                name: alb-demo-2
+                port:
+                  number: 80
+            path: /app2
+            pathType: Prefix
+          - backend:
+              service:
+                name: alb-demo-2
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
