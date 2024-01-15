@@ -1,0 +1,59 @@
+default:
+  image:
+    name: "cr.yandex/<container_registry_id>/gitlabtf:latest"
+
+  cache:
+    key: "${TF_ROOT}"
+    paths:
+      - ${TF_ROOT}/.terraform/
+
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR} 
+  TF_STATE_NAME: default      
+
+.terraform:validate:
+  stage: validate
+  script:
+    - gitlab-terraform validate
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_OPEN_MERGE_REQUESTS  
+      when: never
+    - if: $CI_COMMIT_BRANCH        
+
+.terraform:build:
+  stage: build
+  script:
+    - TF_VAR_sauth=$(echo -n $TF_VAR_sauth | base64 -d)
+    - gitlab-terraform plan
+    - gitlab-terraform plan-json
+  resource_group: ${TF_STATE_NAME}
+  artifacts:
+    public: false
+    paths:
+      - ${TF_ROOT}/plan.cache
+    reports:
+      terraform: ${TF_ROOT}/plan.json
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_OPEN_MERGE_REQUESTS  
+      when: never
+    - if: $CI_COMMIT_BRANCH  
+
+.terraform:deploy:
+  stage: deploy
+  script:
+    - gitlab-terraform apply
+  resource_group: ${TF_STATE_NAME}
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $TF_AUTO_DEPLOY == "true"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+
+.terraform:destroy:
+  stage: cleanup
+  script:
+    - gitlab-terraform destroy
+  resource_group: ${TF_STATE_NAME}
+  when: manual
+

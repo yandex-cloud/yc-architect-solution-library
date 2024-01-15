@@ -1,5 +1,5 @@
 ---
-- name: Set up containerd crt and flags
+- name: Adding crt of priv registry
   become: yes
   vars:
     cert: "{{ lookup('env', 'CERT_ID') }}"
@@ -7,12 +7,20 @@
   hosts: "{{ virtcars }}"
   tasks:
 
+    - name: Check crt file existing
+      ansible.builtin.stat:
+        path: "/etc/ssl/certs/{{ cert }}.crt"
+      register: crt_file
+
     - name: Copy crt
       copy:
         src: "/{{ cert }}.crt"
         dest: "/etc/ssl/certs/{{ cert }}.crt"
+      when: not crt_file.stat.exists
+      register: copy_crt
 
     - name: Reload containerd
       ansible.builtin.service:
         name: containerd
         state: restarted
+      when: copy_crt.changed
